@@ -103,7 +103,7 @@ export class App {
     tool: 'brush',
     color: '#f1c40f',
     size: 12,
-    pressureSensitivity: 0.7,
+    pressureSensitivity: 1,
     penOnly: false,
     busy: false,
   };

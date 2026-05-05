@@ -9,6 +9,14 @@ import { registerSW } from 'virtual:pwa-register';
 
 registerSW({ immediate: true });
 
+// Suppress the OS long-press / right-click context menu everywhere in the
+// app. On a tablet this is the "Save Image / Download / Inspect" sheet that
+// pops up if a kid holds their finger on the toolbar or panel background;
+// it interrupts whatever they were doing. The canvas already has its own
+// handler in App.ts but the topbar / palette / dock backgrounds do not, so
+// catch it at the document level.
+window.addEventListener('contextmenu', (e) => e.preventDefault());
+
 // ----- Boot -----
 
 const root = document.getElementById('app');
@@ -35,7 +43,7 @@ const app = new App(canvas, initialDoc);
 // (most 3-year-olds will tap shapes to color them, not draw).
 app.setState({
   size: 24,
-  pressureSensitivity: 0.5,
+  pressureSensitivity: 1,
   penOnly: false, // start permissive — touchscreen-only devices still need to work; expose toggle in settings
   tool: 'fill',
   color: '#e74c3c',

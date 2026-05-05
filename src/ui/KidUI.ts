@@ -149,20 +149,11 @@ export function buildKidUI(app: App, actions: KidUIActions): {
 
   topBar.appendChild(leftGroup);
 
-  // Center: pressure + size sliders on the same row as the icon buttons.
+  // Center: brush size slider on the same row as the icon buttons.
+  // Pressure lives in the settings dialog only — too many sliders crowded
+  // the bar and most kids never need to change pressure sensitivity.
   const sliderGroup = document.createElement('div');
   sliderGroup.className = 'kid-topbar-sliders';
-
-  const pressureSlider = buildTopSlider({
-    kind: 'pressure',
-    label: 'Press',
-    valueFormat: (v) => `${v}%`,
-    min: 0,
-    max: 100,
-    value: Math.round(app.state.pressureSensitivity * 100),
-    onInput: (v) => app.setState({ pressureSensitivity: v / 100 }),
-  });
-  sliderGroup.appendChild(pressureSlider.root);
 
   const sizeSlider = buildTopSlider({
     kind: 'size',
@@ -211,11 +202,10 @@ export function buildKidUI(app: App, actions: KidUIActions): {
     (Object.entries(toolBtns) as [Tools, HTMLButtonElement][]).forEach(([id, b]) => {
       b.classList.toggle('active', id === s.tool);
     });
-    // Reflect the current state in the top-bar sliders so they stay in sync
+    // Reflect the current state in the top-bar slider so it stays in sync
     // if anything else (settings dialog, keyboard, future code) updates the
     // app state.
     sizeSlider.setValue(s.size);
-    pressureSlider.setValue(Math.round(s.pressureSensitivity * 100));
   });
 
   return { palette: palette.root, dock: dock.root, topBar };
@@ -246,14 +236,45 @@ function scrollPanel(rootClass: string, itemHeight: number): {
 
   root.append(upBtn, body, downBtn);
 
-  // Scroll by roughly one item per click. We scroll by item-height + the
-  // body's gap (8 px) so each click moves a clean number of items.
+  // Scroll by roughly one item per tick. Step = item-height + the body's
+  // gap (8 px) so each tick moves a clean number of items.
   const step = itemHeight + 8;
-  const scrollBy = (delta: number) => {
-    body.scrollBy({ top: delta, behavior: 'smooth' });
+
+  // Press-and-hold auto-scroll. A single tap scrolls by 2 items (smooth);
+  // holding the button keeps emitting steps every ~120 ms after a 350 ms
+  // delay (giving room for a normal "click" gesture to be just one step).
+  const HOLD_DELAY = 350;
+  const REPEAT_INTERVAL = 120;
+  let holdTimer: number | null = null;
+  let repeatTimer: number | null = null;
+  const stopHold = () => {
+    if (holdTimer !== null) { clearTimeout(holdTimer); holdTimer = null; }
+    if (repeatTimer !== null) { clearInterval(repeatTimer); repeatTimer = null; }
   };
-  upBtn.addEventListener('click', () => scrollBy(-step * 2));
-  downBtn.addEventListener('click', () => scrollBy(step * 2));
+  const startHold = (direction: -1 | 1) => {
+    stopHold();
+    // Initial nudge — same as a single click.
+    body.scrollBy({ top: direction * step * 2, behavior: 'smooth' });
+    holdTimer = window.setTimeout(() => {
+      // Switch from "smooth" to "auto" once we're auto-repeating: smooth
+      // queues up animations and feels laggy when the user holds.
+      repeatTimer = window.setInterval(() => {
+        body.scrollBy({ top: direction * step, behavior: 'auto' });
+      }, REPEAT_INTERVAL);
+    }, HOLD_DELAY);
+  };
+
+  const wireHold = (btn: HTMLElement, direction: -1 | 1) => {
+    btn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      startHold(direction);
+    });
+    btn.addEventListener('pointerup', stopHold);
+    btn.addEventListener('pointercancel', stopHold);
+    btn.addEventListener('pointerleave', stopHold);
+  };
+  wireHold(upBtn, -1);
+  wireHold(downBtn, 1);
 
   // Disable chevrons when at the scroll extremes — visual hint that there
   // is or isn't more content. We update both on scroll AND on a

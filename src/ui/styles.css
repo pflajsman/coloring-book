@@ -71,14 +71,12 @@ html, body {
   align-items: center;
 }
 
-/* ---------- Sliders inside the top control row ----- */
+/* ---------- Slider inside the top control row ----- */
 .kid-topbar-sliders {
   flex: 1 1 auto;
   display: flex;
-  gap: 14px;
   align-items: center;
   justify-content: center;
-  /* Don't push the side icon groups off-screen on narrow viewports. */
   min-width: 0;
   padding: 0 16px;
 }
@@ -92,9 +90,7 @@ html, body {
   border: 3px solid #fff;
   border-radius: 999px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-  flex: 1 1 0;
-  min-width: 0;
-  max-width: 320px;
+  width: min(360px, 100%);
 }
 .kid-slider-icon {
   flex: 0 0 auto;
