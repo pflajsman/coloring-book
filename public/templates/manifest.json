@@ -42,8 +42,14 @@
     { "id": "apple",     "name": "Apple",       "file": "apple.svg",     "category": "Food" },
     { "id": "cherry",    "name": "Cherries",    "file": "cherry.svg",    "category": "Food" },
 
-    { "id": "unicorn",   "name": "Unicorn",     "file": "unicorn.svg",   "category": "Fantasy" },
-    { "id": "dragon",    "name": "Dragon",      "file": "dragon.svg",    "category": "Fantasy" },
+    { "id": "unicorn",          "name": "Unicorn",          "file": "unicorn.svg",          "category": "Fantasy" },
+    { "id": "unicorn-cute",     "name": "Cute unicorn",     "file": "unicorn-cute.svg",     "category": "Fantasy" },
+    { "id": "unicorn-rearing",  "name": "Rearing unicorn",  "file": "unicorn-rearing.svg",  "category": "Fantasy" },
+    { "id": "unicorn-prancing", "name": "Prancing unicorn", "file": "unicorn-prancing.svg", "category": "Fantasy" },
+    { "id": "unicorn-winged",   "name": "Winged unicorn",   "file": "unicorn-winged.svg",   "category": "Fantasy" },
+    { "id": "unicorn-heraldic", "name": "Royal unicorn",    "file": "unicorn-heraldic.svg", "category": "Fantasy" },
+    { "id": "unicorn-castle",   "name": "Unicorn castle",   "file": "unicorn-castle.svg",   "category": "Fantasy" },
+    { "id": "dragon",           "name": "Dragon",           "file": "dragon.svg",           "category": "Fantasy" },
     { "id": "robot",     "name": "Robot",       "file": "robot.svg",     "category": "Fantasy" },
     { "id": "witch",     "name": "Witch",       "file": "witch.svg",     "category": "Fantasy" },
     { "id": "santa",     "name": "Santa",       "file": "santa.svg",     "category": "Fantasy" }
