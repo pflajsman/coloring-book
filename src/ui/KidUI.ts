@@ -6,33 +6,50 @@ import { attachTooltip } from './Tooltip';
 // Only four tools visible (brush, fill, eraser, undo). Everything else lives
 // in a settings drawer behind a single gear button.
 
+// Basic colors first so kids tap them without scrolling, then shades and
+// extras grouped by hue family.
 const KID_COLORS = [
+  // basics (top of palette — most-used colors)
   '#e74c3c', // red
   '#e67e22', // orange
   '#f1c40f', // yellow
   '#2ecc71', // green
-  '#1abc9c', // teal
   '#3498db', // blue
   '#9b59b6', // purple
   '#e91e63', // pink
   '#795548', // brown
-  '#95a5a6', // grey
   '#000000', // black
+  '#ffffff', // white
+  // extra shades / accents below
+  '#c0392b', // dark red
+  '#ff8a80', // coral
+  '#ffb366', // peach
+  '#d4a373', // tan
+  '#fff176', // pale yellow
+  '#16a085', // dark teal
+  '#1abc9c', // teal
+  '#a8e6cf', // mint
+  '#2c3e8f', // dark blue
+  '#6dd5ed', // sky blue
+  '#b8a4ff', // lavender
+  '#ff6b9d', // hot pink
+  '#ffc1cc', // baby pink
+  '#95a5a6', // grey
 ];
 
-type Tools = Extract<Tool, 'brush' | 'pen' | 'line' | 'circle' | 'spray' | 'fill' | 'eraser'>;
+type Tools = Extract<Tool, 'brush' | 'pen' | 'line' | 'circle' | 'rect' | 'spray' | 'blur' | 'fill' | 'eraser'>;
 
 // Order matters — this is the visual order in the dock (top to bottom).
-// Pen first so it lands at the top of the dock for easy access. Shape tools
-// (line, rect) are grouped together below brush.
-const TOOL_LIST: Tools[] = ['pen', 'brush', 'line', 'circle', 'spray', 'fill', 'eraser'];
+const TOOL_LIST: Tools[] = ['pen', 'brush', 'line', 'circle', 'rect', 'spray', 'blur', 'fill', 'eraser'];
 
 const TOOL_ICONS: Record<Tools, string> = {
   brush: brushSvg(),
   pen: penSvg(),
   line: lineSvg(),
   circle: circleSvg(),
+  rect: rectSvg(),
   spray: spraySvg(),
+  blur: blurSvg(),
   fill: fillSvg(),
   eraser: eraserSvg(),
 };
@@ -42,7 +59,9 @@ const TOOL_NAMES: Record<Tools, string> = {
   brush: 'Brush',
   line: 'Ruler',
   circle: 'Circle',
+  rect: 'Rectangle',
   spray: 'Spray',
+  blur: 'Magic finger',
   fill: 'Fill',
   eraser: 'Eraser',
 };
@@ -62,8 +81,10 @@ export function buildKidUI(app: App, actions: KidUIActions): {
   topBar: HTMLElement;
 } {
   // ---- Color palette (left side) ----
-  const palette = document.createElement('aside');
-  palette.className = 'kid-palette';
+  // Single column of swatches inside a scrollable area, with up/down chevron
+  // buttons at the top + bottom so kids can scroll without needing to know
+  // the wheel/touch gesture works.
+  const palette = scrollPanel('kid-palette', 56);
   const swatches: HTMLButtonElement[] = [];
   for (const c of KID_COLORS) {
     const s = document.createElement('button');
@@ -79,12 +100,11 @@ export function buildKidUI(app: App, actions: KidUIActions): {
       if (app.state.tool === 'eraser') app.setState({ tool: 'brush' });
     });
     swatches.push(s);
-    palette.appendChild(s);
+    palette.body.appendChild(s);
   }
 
   // ---- Tool dock (right side, vertical) ----
-  const dock = document.createElement('div');
-  dock.className = 'kid-dock';
+  const dock = scrollPanel('kid-dock', 76);
   const toolBtns: Partial<Record<Tools, HTMLButtonElement>> = {};
   TOOL_LIST.forEach((t) => {
     const b = document.createElement('button');
@@ -94,17 +114,9 @@ export function buildKidUI(app: App, actions: KidUIActions): {
     b.addEventListener('click', () => app.setState({ tool: t }));
     attachTooltip(b, TOOL_NAMES[t]);
     toolBtns[t] = b;
-    dock.appendChild(b);
+    dock.body.appendChild(b);
   });
-  // Undo button — kids understand "oops" better than "undo".
-  const undo = document.createElement('button');
-  undo.className = 'kid-tool kid-undo';
-  undo.innerHTML = undoSvg();
-  undo.addEventListener('click', () => actions.onUndo());
-  attachTooltip(undo, 'Undo');
-  dock.appendChild(undo);
-
-  // ---- Top bar: pictures + clear (left) + sliders (center) + gear/fullscreen (right) ----
+  // ---- Top bar: pictures + clear + undo (left) + sliders (center) + gear/fullscreen (right) ----
   const topBar = document.createElement('div');
   topBar.className = 'kid-topbar';
 
@@ -125,6 +137,15 @@ export function buildKidUI(app: App, actions: KidUIActions): {
   clearBtn.addEventListener('click', () => actions.onClear());
   attachTooltip(clearBtn, 'Clear all');
   leftGroup.appendChild(clearBtn);
+
+  // Undo lives in the top bar next to clear so it's reachable when the
+  // tool dock is scrolled.
+  const undoBtn = document.createElement('button');
+  undoBtn.className = 'kid-iconbtn kid-undo-top';
+  undoBtn.innerHTML = undoSvg();
+  undoBtn.addEventListener('click', () => actions.onUndo());
+  attachTooltip(undoBtn, 'Undo');
+  leftGroup.appendChild(undoBtn);
 
   topBar.appendChild(leftGroup);
 
@@ -197,7 +218,73 @@ export function buildKidUI(app: App, actions: KidUIActions): {
     pressureSlider.setValue(Math.round(s.pressureSensitivity * 100));
   });
 
-  return { palette, dock, topBar };
+  return { palette: palette.root, dock: dock.root, topBar };
+}
+
+// Vertical panel with up/down scroll chevrons. Single column always —
+// when items overflow, the inner body scrolls and the chevrons paginate
+// it. Buttons auto-disable at the scroll extremes.
+function scrollPanel(rootClass: string, itemHeight: number): {
+  root: HTMLElement;
+  body: HTMLElement;
+} {
+  const root = document.createElement('aside');
+  root.className = rootClass;
+
+  const upBtn = document.createElement('button');
+  upBtn.className = 'kid-scroll-btn kid-scroll-up';
+  upBtn.setAttribute('aria-label', 'Scroll up');
+  upBtn.innerHTML = chevronUpSvg();
+
+  const body = document.createElement('div');
+  body.className = 'kid-scroll-body';
+
+  const downBtn = document.createElement('button');
+  downBtn.className = 'kid-scroll-btn kid-scroll-down';
+  downBtn.setAttribute('aria-label', 'Scroll down');
+  downBtn.innerHTML = chevronDownSvg();
+
+  root.append(upBtn, body, downBtn);
+
+  // Scroll by roughly one item per click. We scroll by item-height + the
+  // body's gap (8 px) so each click moves a clean number of items.
+  const step = itemHeight + 8;
+  const scrollBy = (delta: number) => {
+    body.scrollBy({ top: delta, behavior: 'smooth' });
+  };
+  upBtn.addEventListener('click', () => scrollBy(-step * 2));
+  downBtn.addEventListener('click', () => scrollBy(step * 2));
+
+  // Disable chevrons when at the scroll extremes — visual hint that there
+  // is or isn't more content. We update both on scroll AND on a
+  // ResizeObserver so adding/removing items refreshes the state.
+  const update = () => {
+    const atTop = body.scrollTop <= 1;
+    const atBottom = body.scrollTop + body.clientHeight >= body.scrollHeight - 1;
+    const overflows = body.scrollHeight > body.clientHeight + 1;
+    upBtn.classList.toggle('is-disabled', !overflows || atTop);
+    downBtn.classList.toggle('is-disabled', !overflows || atBottom);
+    root.classList.toggle('has-overflow', overflows);
+  };
+  body.addEventListener('scroll', update, { passive: true });
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(update).observe(body);
+  }
+  // Initial state once the panel is in the DOM.
+  requestAnimationFrame(update);
+
+  return { root, body };
+}
+
+function chevronUpSvg() {
+  return `<svg viewBox="0 0 32 32" fill="none" stroke="#2a2a3a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="8,20 16,12 24,20"/>
+  </svg>`;
+}
+function chevronDownSvg() {
+  return `<svg viewBox="0 0 32 32" fill="none" stroke="#2a2a3a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="8,12 16,20 24,12"/>
+  </svg>`;
 }
 
 // Settings drawer — flat, minimalistic. Just sliders, a toggle, and three
@@ -445,6 +532,18 @@ function circleSvg() {
   </svg>`;
 }
 
+function rectSvg() {
+  // Rounded rectangle outline. Coral accent so it's distinct from the
+  // teal circle next to it.
+  return `<svg viewBox="0 0 64 64">
+    <rect x="12" y="14" width="40" height="36" rx="4"
+          fill="none" stroke="#ff8a80" stroke-width="6" stroke-linejoin="round"/>
+    <!-- corner anchor dots -->
+    <circle cx="12" cy="14" r="3.5" fill="#ff8a80"/>
+    <circle cx="52" cy="50" r="3.5" fill="#ff8a80"/>
+  </svg>`;
+}
+
 function lineSvg() {
   // Classic translucent yellow ruler tilted 45°, with tick marks along the
   // top edge. Reads as "draw a straight line" instantly.
@@ -463,6 +562,33 @@ function lineSvg() {
       <!-- subtle highlight -->
       <line x1="8" y1="36" x2="56" y2="36" stroke="#fff1a8" stroke-width="1.5"/>
     </g>
+  </svg>`;
+}
+
+function blurSvg() {
+  // Pointing finger with a small magical swirl coming off the tip — reads
+  // as "magic touch that smudges". Distinct from the eraser silhouette.
+  return `<svg viewBox="0 0 64 64">
+    <!-- swirl above the fingertip -->
+    <path d="M40 10 Q 48 14 44 22 Q 36 24 40 32"
+          fill="none" stroke="#b8a4ff" stroke-width="3"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="46" cy="11" r="2" fill="#ffd166"/>
+    <circle cx="50" cy="20" r="1.6" fill="#ff6b9d"/>
+    <!-- finger body -->
+    <path d="M22 50 L 22 28 Q 22 22 28 22 Q 34 22 34 28 L 34 32
+             Q 36 28 40 30 Q 44 32 42 38 L 40 50 Z"
+          fill="#fff8dc" stroke="#7a3e16" stroke-width="2.5"
+          stroke-linejoin="round"/>
+    <!-- knuckle line -->
+    <path d="M26 42 L 38 42" stroke="#7a3e16" stroke-width="1.5"
+          stroke-linecap="round"/>
+    <!-- nail -->
+    <path d="M26 26 Q 28 24 30 26" stroke="#7a3e16" stroke-width="1.5"
+          fill="none" stroke-linecap="round"/>
+    <!-- wrist/cuff -->
+    <rect x="18" y="50" width="20" height="6" rx="1.5"
+          fill="#b8a4ff" stroke="#5a4a99" stroke-width="2"/>
   </svg>`;
 }
 

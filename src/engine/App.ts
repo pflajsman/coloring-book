@@ -14,7 +14,75 @@ import {
 import { runFill } from './fillClient';
 import type { Point, StrokeStyle } from '../types/document';
 
-export type Tool = 'brush' | 'pen' | 'spray' | 'line' | 'circle' | 'eraser' | 'fill' | 'pan';
+export type Tool = 'brush' | 'pen' | 'spray' | 'line' | 'circle' | 'rect' | 'blur' | 'eraser' | 'fill' | 'pan';
+
+// Blur a circular region around (cx, cy) on the given canvas context.
+// Reads the pixels, runs a 3x3 box blur (one pass), masks the write to a
+// soft-edged circle so it looks like a brush stamp instead of a square.
+function blurStamp(ctx: CanvasRenderingContext2D, cx: number, cy: number, size: number) {
+  const r = Math.max(4, size / 2);
+  const x0 = Math.max(0, Math.floor(cx - r));
+  const y0 = Math.max(0, Math.floor(cy - r));
+  const w = Math.min(ctx.canvas.width - x0, Math.ceil(r * 2 + 2));
+  const h = Math.min(ctx.canvas.height - y0, Math.ceil(r * 2 + 2));
+  if (w <= 2 || h <= 2) return;
+
+  const img = ctx.getImageData(x0, y0, w, h);
+  const src = img.data;
+  // Output buffer for blurred pixels — we don't blur in place because
+  // each output pixel needs the original neighbors.
+  const dst = new Uint8ClampedArray(src);
+
+  // Box blur, separable horizontal+vertical for speed. Skip the 1-pixel
+  // border so the kernel always has 9 valid neighbors.
+  const stride = w * 4;
+  for (let y = 1; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      const i = (y * w + x) * 4;
+      // 3x3 average over RGBA. Unrolled for clarity & speed.
+      const i00 = i - stride - 4;
+      const i01 = i - stride;
+      const i02 = i - stride + 4;
+      const i10 = i - 4;
+      const i11 = i;
+      const i12 = i + 4;
+      const i20 = i + stride - 4;
+      const i21 = i + stride;
+      const i22 = i + stride + 4;
+      dst[i] = (src[i00] + src[i01] + src[i02] + src[i10] + src[i11] + src[i12] + src[i20] + src[i21] + src[i22]) / 9;
+      dst[i + 1] = (src[i00 + 1] + src[i01 + 1] + src[i02 + 1] + src[i10 + 1] + src[i11 + 1] + src[i12 + 1] + src[i20 + 1] + src[i21 + 1] + src[i22 + 1]) / 9;
+      dst[i + 2] = (src[i00 + 2] + src[i01 + 2] + src[i02 + 2] + src[i10 + 2] + src[i11 + 2] + src[i12 + 2] + src[i20 + 2] + src[i21 + 2] + src[i22 + 2]) / 9;
+      dst[i + 3] = (src[i00 + 3] + src[i01 + 3] + src[i02 + 3] + src[i10 + 3] + src[i11 + 3] + src[i12 + 3] + src[i20 + 3] + src[i21 + 3] + src[i22 + 3]) / 9;
+    }
+  }
+
+  // Mask: blend dst (blurred) → src (original) by a soft-edged disc. Pixels
+  // at the brush center get fully replaced; pixels at the edge keep the
+  // original; in between they fade. This gives the brush a soft falloff
+  // instead of a hard rectangular stamp.
+  const r2 = r * r;
+  const fadeR2 = r2;
+  const innerR2 = (r * 0.7) * (r * 0.7);
+  const cxLocal = cx - x0;
+  const cyLocal = cy - y0;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const dx = x - cxLocal;
+      const dy = y - cyLocal;
+      const d2 = dx * dx + dy * dy;
+      if (d2 >= fadeR2) continue;
+      let weight: number;
+      if (d2 <= innerR2) weight = 1;
+      else weight = 1 - (d2 - innerR2) / (fadeR2 - innerR2);
+      const i = (y * w + x) * 4;
+      src[i] = src[i] * (1 - weight) + dst[i] * weight;
+      src[i + 1] = src[i + 1] * (1 - weight) + dst[i + 1] * weight;
+      src[i + 2] = src[i + 2] * (1 - weight) + dst[i + 2] * weight;
+      src[i + 3] = src[i + 3] * (1 - weight) + dst[i + 3] * weight;
+    }
+  }
+  ctx.putImageData(img, x0, y0);
+}
 
 export type AppState = {
   tool: Tool;
@@ -170,7 +238,7 @@ export class App {
   private currentStyle(): StrokeStyle {
     const tool = this.state.tool;
     const isPen = tool === 'pen';
-    const isShape = tool === 'line' || tool === 'circle';
+    const isShape = tool === 'line' || tool === 'circle' || tool === 'rect';
     return {
       color: this.state.color,
       // Thin pen has a fixed crisp line so kids can outline shapes precisely.
@@ -206,11 +274,14 @@ export class App {
       // Stamp at the same point twice so a tap produces a visible blob; the
       // brush head's center is opaque so a single stamp reads as a soft dot.
       drawBrushSegment(layer.ctx, p, p, this.strokeStyle);
-    } else if (this.state.tool === 'line' || this.state.tool === 'circle') {
+    } else if (this.state.tool === 'line' || this.state.tool === 'circle' || this.state.tool === 'rect') {
       // Don't draw anything yet — we preview during the drag and commit on
       // release. Pin the anchor here so subsequent moves use the original
       // tap point, not whatever ended up at strokePoints[0] last frame.
       this.shapeAnchor = p;
+    } else if (this.state.tool === 'blur') {
+      // Single dab to start so taps without movement still soften the area.
+      blurStamp(layer.ctx as CanvasRenderingContext2D, p.x, p.y, this.strokeStyle.size);
     } else {
       drawDot(layer.ctx, p, this.strokeStyle);
     }
@@ -245,6 +316,29 @@ export class App {
       this.strokePoints = [start, last];
       beginStroke(layer.ctx, this.strokeStyle);
       drawLineSegment(layer.ctx, start, last, this.strokeStyle);
+      endStroke(layer.ctx);
+      this.scheduleRender();
+      return;
+    }
+
+    if (this.state.tool === 'rect') {
+      // Live preview of an axis-aligned rectangle. Stored as 5 points
+      // (corners + return-to-start) so undo/redo replays through the
+      // existing line-segment path.
+      if (!this.strokeBefore || !this.shapeAnchor) return;
+      layer.ctx.putImageData(this.strokeBefore, 0, 0);
+      const start = this.shapeAnchor;
+      const last = points[points.length - 1];
+      const tl = { x: start.x, y: start.y, pressure: 0, t: start.t };
+      const tr = { x: last.x, y: start.y, pressure: 0, t: start.t };
+      const br = { x: last.x, y: last.y, pressure: 0, t: last.t };
+      const bl = { x: start.x, y: last.y, pressure: 0, t: last.t };
+      this.strokePoints = [tl, tr, br, bl, tl];
+      beginStroke(layer.ctx, this.strokeStyle);
+      drawLineSegment(layer.ctx, tl, tr, this.strokeStyle);
+      drawLineSegment(layer.ctx, tr, br, this.strokeStyle);
+      drawLineSegment(layer.ctx, br, bl, this.strokeStyle);
+      drawLineSegment(layer.ctx, bl, tl, this.strokeStyle);
       endStroke(layer.ctx);
       this.scheduleRender();
       return;
@@ -285,16 +379,30 @@ export class App {
       return;
     }
 
-    // Render path depends on the tool:
-    //  - pen: straight lines (crisp, no smoothing artifacts)
-    //  - brush: stamped radial-gradient head for soft, painterly edges
-    //  - eraser: smoothed line, destination-out composite
+    // Render path depends on the tool.
     const tool = this.state.tool;
     for (const p of points) {
       const buf = this.strokePoints;
       const prev = buf[buf.length - 1];
       buf.push(p);
-      if (tool === 'brush') {
+      if (tool === 'blur') {
+        // Walk the segment in steps so fast drags get continuous blur,
+        // not a string of disconnected blobs.
+        const dx = p.x - prev.x;
+        const dy = p.y - prev.y;
+        const dist = Math.hypot(dx, dy);
+        const step = Math.max(2, this.strokeStyle.size * 0.4);
+        const steps = Math.max(1, Math.ceil(dist / step));
+        for (let i = 1; i <= steps; i++) {
+          const t = i / steps;
+          blurStamp(
+            layer.ctx as CanvasRenderingContext2D,
+            prev.x + dx * t,
+            prev.y + dy * t,
+            this.strokeStyle.size,
+          );
+        }
+      } else if (tool === 'brush') {
         drawBrushSegment(layer.ctx, prev, p, this.strokeStyle);
       } else if (tool === 'pen' || buf.length < 3) {
         drawLineSegment(layer.ctx, prev, p, this.strokeStyle);
@@ -406,6 +514,8 @@ export class App {
     else if (e.key === 's') this.setState({ tool: 'spray' });
     else if (e.key === 'l') this.setState({ tool: 'line' });
     else if (e.key === 'c') this.setState({ tool: 'circle' });
+    else if (e.key === 'r') this.setState({ tool: 'rect' });
+    else if (e.key === 'u') this.setState({ tool: 'blur' });
     else if (e.key === 'e') this.setState({ tool: 'eraser' });
     else if (e.key === 'g') this.setState({ tool: 'fill' });
     else if (e.key === 'h') this.setState({ tool: 'pan' });

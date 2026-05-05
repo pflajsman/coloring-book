@@ -12,7 +12,12 @@ export default defineConfig({
         description: 'Stylus-friendly coloring book',
         theme_color: '#fff8dc',
         background_color: '#fff8dc',
-        display: 'standalone',
+        // Open in fullscreen on Android (no status bar, no nav bar). Browsers
+        // that don't support 'fullscreen' walk down the override chain to the
+        // first one they recognise — so iOS / desktop fall back to
+        // 'standalone' (which already gives a chromeless launch experience).
+        display: 'fullscreen',
+        display_override: ['fullscreen', 'standalone', 'minimal-ui'],
         orientation: 'any',
         start_url: '/',
         icons: [
