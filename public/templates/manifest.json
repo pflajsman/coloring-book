@@ -52,6 +52,11 @@
     { "id": "dragon",           "name": "Dragon",           "file": "dragon.svg",           "category": "Fantasy" },
     { "id": "robot",     "name": "Robot",       "file": "robot.svg",     "category": "Fantasy" },
     { "id": "witch",     "name": "Witch",       "file": "witch.svg",     "category": "Fantasy" },
-    { "id": "santa",     "name": "Santa",       "file": "santa.svg",     "category": "Fantasy" }
+    { "id": "santa",            "name": "Santa",            "file": "santa.svg",            "category": "Fantasy" },
+    { "id": "princess",         "name": "Princess",         "file": "princess.svg",         "category": "Fantasy" },
+    { "id": "princess-crown",   "name": "Princess crown",   "file": "princess-crown.svg",   "category": "Fantasy" },
+    { "id": "princess-couple",  "name": "Prince & princess","file": "princess-couple.svg",  "category": "Fantasy" },
+    { "id": "princess-fairy",   "name": "Butterfly fairy",  "file": "princess-fairy.svg",   "category": "Fantasy" },
+    { "id": "princess-wand",    "name": "Fairy princess",   "file": "princess-wand.svg",    "category": "Fantasy" }
   ]
 }
