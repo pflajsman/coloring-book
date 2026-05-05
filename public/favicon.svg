@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Rounded background tile so the icon reads on any browser theme. -->
+  <rect width="64" height="64" rx="14" fill="#fff8dc"/>
+
+  <!-- Rainbow swoosh — five thick arcs stacked, each offset, reading as the
+       trail a brush has just painted. -->
+  <g fill="none" stroke-linecap="round" stroke-width="5">
+    <path d="M10 50 Q 20 30 38 32" stroke="#ff6b9d"/>
+    <path d="M10 44 Q 20 26 38 28" stroke="#ffd166"/>
+    <path d="M10 38 Q 20 22 38 24" stroke="#06d6a0"/>
+    <path d="M10 32 Q 20 18 38 20" stroke="#6dd5ed"/>
+    <path d="M10 26 Q 20 14 38 16" stroke="#b8a4ff"/>
+  </g>
+
+  <!-- Paintbrush at the end of the trail. Bristles point toward the swoosh
+       (toward the lower-left) so the icon reads as "this brush just painted
+       this rainbow." Handle extends to the upper-right corner. -->
+  <g transform="rotate(45 38 24)">
+    <!-- pink bristles, pointing left along the swoosh -->
+    <path d="M14 18 L24 14 L24 30 L14 26 Z"
+          fill="#ff6b9d" stroke="#7a2548" stroke-width="2" stroke-linejoin="round"/>
+    <!-- gold ferrule -->
+    <rect x="24" y="16" width="6" height="12" fill="#ffd166"
+          stroke="#a87b00" stroke-width="2"/>
+    <!-- wooden handle -->
+    <path d="M30 18 L52 14 L52 30 L30 26 Z"
+          fill="#d97a3a" stroke="#7a3e16" stroke-width="2" stroke-linejoin="round"/>
+  </g>
+</svg>

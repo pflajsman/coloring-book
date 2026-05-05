@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:cc="http://creativecommons.org/ns#"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:ns1="http://sozi.baierouge.fr"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    id="svg1378"
+    sodipodi:modified="true"
+    sodipodi:docname="robot_rg1024.svg"
+    viewBox="0 0 593.28 1036.7"
+    sodipodi:version="0.32"
+    version="1.0"
+    inkscape:output_extension="org.inkscape.output.svg.inkscape"
+    inkscape:version="0.47 r22583"
+  >
+  <sodipodi:namedview
+      id="base"
+      bordercolor="#666666"
+      inkscape:pageshadow="2"
+      inkscape:window-y="-8"
+      pagecolor="#ffffff"
+      inkscape:window-height="838"
+      inkscape:window-maximized="1"
+      inkscape:zoom="0.25"
+      inkscape:window-x="-8"
+      showgrid="false"
+      borderopacity="1.0"
+      inkscape:current-layer="layer1"
+      inkscape:cx="97.660409"
+      inkscape:cy="141.14055"
+      showguides="true"
+      inkscape:guide-bbox="true"
+      inkscape:window-width="1600"
+      inkscape:pageopacity="0.0"
+      inkscape:document-units="px"
+  />
+  <g
+      id="layer1"
+      inkscape:label="Livello 1"
+      inkscape:groupmode="layer"
+      transform="translate(27.631 -38.088)"
+    >
+    <g
+        id="g3625"
+        transform="matrix(1.0928 0 0 1.0928 -52.467 -99.695)"
+      >
+      <path
+          id="rect1386"
+          style="fill-rule:evenodd;stroke:#000000;stroke-linecap:round;stroke-width:7.5196;fill:#ffffff"
+          d="m179.24 231.85c-13.564-23.494 251.39-1.8086 251.39-1.8086 37.98-5.4257 15.566 120.5-3.6171 153.73 0 23.511-220.04 22.203-245.96 7.2342 0 0 14.01-131.76-1.8086-159.15z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="ccccc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="rect2114"
+          style="stroke:#000000;stroke-linecap:round;stroke-width:6.3916;fill:none"
+          d="m157.59 400.87c52.824 23.271 367.52 0.56876 326.69 7.9136-29.35 41.342-16.723 279.85-16.723 279.85-21.703-19.894-164.11-25.239-330.92-6.2726 1.0474-29.42 20.95-281.49 20.95-281.49z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="ccccc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="rect2842"
+          style="fill-rule:evenodd;stroke:#000000;stroke-linecap:round;stroke-width:7.5196;fill:#ffffff"
+          d="m67.337 435.99c36.522-11.202 66.621-6.5104 66.621-6.5104l-11.003 214.94-82.808-9.6718s32.616-160.78 27.19-198.76z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="ccccc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="rect2844"
+          style="fill-rule:evenodd;stroke:#000000;stroke-linecap:round;stroke-width:7.1805;fill:#ffffff"
+          d="m485.46 437.23c54.239-11.258 66.639 0.99494 66.639 0.99494s-10.571 124.84 9.9607 215.22l-80.793 4.0226c12.66-108.51-10.159-168.66 4.1928-220.23z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="ccccc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="rect2846"
+          style="fill-rule:evenodd;fill-opacity:.97059;stroke:#000000;stroke-linecap:round;stroke-width:7.52;fill:#ffffff"
+          d="m193.71 700.27c39.932-23.055 94.045-5.4257 94.045-5.4257v307.46s-31.142-8.5144-106.71 0c3.6171-27.128 12.66-302.03 12.66-302.03z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="ccccc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="rect2848"
+          style="fill-rule:evenodd;fill-opacity:.97059;stroke:#000000;stroke-linecap:round;stroke-width:7.5196;fill:#ffffff"
+          d="m421.91 695.17c-30.069-16.585-99.433-6.085-99.433-6.085 10.879 50.466-2.0384 307.45-2.0384 307.45 47.023 1.8086 33.703-2.3813 99.541-10.192-1.6047-30.757-5.4715-265.9 1.9304-291.17z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="ccccc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="path2858"
+          style="fill-rule:evenodd;fill-opacity:.94118;stroke:#000000;stroke-linecap:round;stroke-width:8.4;fill:#ffffff"
+          d="m-210.11 347.28c0 25.65-18.554 46.467-41.416 46.467s-41.416-20.817-41.416-46.467 26.168-52.876 49.03-52.876 33.803 27.226 33.803 52.876z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="csssc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          transform="matrix(.79607 0 0 .78811 459.06 16.031)"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="rect2862"
+          style="fill-rule:evenodd;stroke:#000000;stroke-linecap:round;stroke-width:7.5196;fill:#ffffff"
+          d="m244.35 385.58 20.204-0.95914 5.1154 40.747h-25.32v-39.788z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="ccccc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="rect2864"
+          style="fill-rule:evenodd;stroke:#000000;stroke-linecap:round;stroke-width:7.5196;fill:#ffffff"
+          d="m376.39 386.84 19.885-2.1737v46.118l-22.762-2.8774 2.8774-41.067z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="ccccc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="path2868"
+          style="fill-rule:evenodd;stroke:#000000;stroke-linecap:round;stroke-width:7.5196;fill:#ffffff"
+          d="m358.83 654.78 19.885 4.1562-3.6171 35.267-19.145 8.8782 2.8774-48.301z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="ccccc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="path2870"
+          style="fill-rule:evenodd;stroke:#000000;stroke-linecap:round;stroke-width:7.5196;fill:#ffffff"
+          d="m230.42 658.4 19.885 4.1563 0.90428 43.405-23.666-6.4945 2.8774-41.067z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="ccccc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="path2872"
+          style="fill-rule:evenodd;stroke:#000000;stroke-linecap:round;stroke-width:7.8863;fill:#ffffff"
+          d="m497.02 449.12 8.3793 21.747-50.09 0.52851-3.4979-24.607 45.209 2.3316z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="ccccc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="path2874"
+          style="fill-rule:evenodd;stroke:#000000;stroke-linecap:round;stroke-width:7.5196;fill:#ffffff"
+          d="m160.81 444.76 0.34732 20.312-38.802 8.8052-2.2312-22.835 40.686-6.2822z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="ccccc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="path2551"
+          style="fill-rule:evenodd;fill-opacity:.94118;stroke:#000000;stroke-linecap:round;stroke-width:6.6535;fill:#ffffff"
+          d="m339.51 282.85c2.3649-20.076 18.954-34.642 37.028-32.512 18.075 2.1291 30.825 20.151 28.46 40.227-2.3649 20.076-25.564 38.949-43.638 36.819-18.075-2.1291-24.215-24.458-21.85-44.534z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="csssc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="path2555"
+          style="fill-rule:evenodd;fill:#ffffff;fill-opacity:.94118"
+          d="m378.54 471.73c0.59813-5.275 4.7938-9.1021 9.3652-8.5427 4.5715 0.55944 7.7962 5.2946 7.1981 10.57-0.59813 5.275-6.4656 10.234-11.037 9.6744-4.5715-0.55944-6.1244-6.4263-5.5262-11.701z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="csssc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="path3331"
+          style="fill-rule:evenodd;fill:#ffffff;fill-opacity:.75"
+          d="m375.8 646.44 69.701 19.193 9.0914-88.893s-6.0609 45.457-25.254 59.599-58.589 11.112-53.538 10.102z"
+          inkscape:export-ydpi="90"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="path3343"
+          style="fill-rule:evenodd;fill-opacity:.78431;stroke:#000000;stroke-linecap:round;stroke-width:7.5196;fill:#ffffff"
+          d="m338.5 348.97 1.2651 27.262-53.747 6.9023v-34.165h52.482z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="ccccc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="rect3345"
+          style="fill:#000000"
+          d="m250.67 141.9 49.154 4.5c0.0957 0 0.17283 0.0771 0.17283 0.17284v8.1543c0 0.0958-0.0771 0.17283-0.17283 0.17283h-47.654c-0.0958 0 0.32717 2.4229 0.32717 2.3272l-0.5-10.65c0-0.0958-1.4229-4.6728-1.3272-4.6728z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="ccccccccc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          transform="translate(36.388 217.16)"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="path3348"
+          sodipodi:rx="14.5"
+          sodipodi:ry="19"
+          style="fill:#000000"
+          sodipodi:cy="60.898743"
+          sodipodi:type="arc"
+          d="m240 60.899c0 10.493-6.4919 19-14.5 19s-14.5-8.5066-14.5-19 6.4919-19 14.5-19 14.5 8.5066 14.5 19z"
+          inkscape:export-ydpi="90"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          transform="translate(36.388 217.16)"
+          inkscape:export-xdpi="90"
+          sodipodi:cx="225.5"
+      />
+      <path
+          id="path3350"
+          sodipodi:rx="14.5"
+          sodipodi:ry="19"
+          style="fill:#000000"
+          sodipodi:type="arc"
+          d="m240 60.899c0 10.493-6.4919 19-14.5 19s-14.5-8.5066-14.5-19 6.4919-19 14.5-19 14.5 8.5066 14.5 19z"
+          inkscape:export-ydpi="90"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          sodipodi:cy="60.898743"
+          transform="translate(146.39 217.16)"
+          inkscape:export-xdpi="90"
+          sodipodi:cx="225.5"
+      />
+      <path
+          id="path3352"
+          style="fill-rule:evenodd;stroke:#000000;stroke-width:1px;fill:#000000"
+          d="m185.26-58.215c42.426 8.4853 87.681 67.882 87.681 67.882l-25.45-1.4141-62.23-66.468z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="cccc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          transform="translate(36.388 217.16)"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="path3354"
+          sodipodi:rx="14.849242"
+          sodipodi:ry="14.849242"
+          style="stroke:#000000;stroke-width:4;fill:#000000"
+          sodipodi:cy="-126.80454"
+          sodipodi:type="arc"
+          d="m176.78-126.8c0 8.201-6.6482 14.849-14.849 14.849-8.201 0-14.849-6.6482-14.849-14.849 0-8.201 6.6482-14.849 14.849-14.849 8.201 0 14.849 6.6482 14.849 14.849z"
+          inkscape:export-ydpi="90"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          transform="translate(56.388 283.16)"
+          inkscape:export-xdpi="90"
+          sodipodi:cx="161.92746"
+      />
+      <path
+          id="path3356"
+          style="fill-rule:evenodd;stroke:#000000;stroke-width:1px;fill:#000000"
+          d="m440.97 150.46c-42.426 8.4853-120.21 74.953-120.21 74.953l25.456-1.4142 94.752-73.539z"
+          inkscape:export-ydpi="90"
+          sodipodi:nodetypes="cccc"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          inkscape:export-xdpi="90"
+      />
+      <path
+          id="path3358"
+          sodipodi:rx="14.849242"
+          sodipodi:ry="14.849242"
+          style="stroke:#000000;stroke-width:4;fill:#000000"
+          sodipodi:type="arc"
+          d="m176.78-126.8c0 8.201-6.6482 14.849-14.849 14.849-8.201 0-14.849-6.6482-14.849-14.849 0-8.201 6.6482-14.849 14.849-14.849 8.201 0 14.849 6.6482 14.849 14.849z"
+          inkscape:export-ydpi="90"
+          inkscape:export-filename="/media/disk/clases_pef2009/programacion/robotijo.png"
+          sodipodi:cy="-126.80454"
+          transform="matrix(-1 0 0 1 607.7 269.74)"
+          inkscape:export-xdpi="90"
+          sodipodi:cx="161.92746"
+      />
+      <path
+          id="path2901"
+          d="m25.456 512.27-35.356 28.29 12.728 65.05 14.143-8.49-5.657-48.08 29.698-16.97-15.556-19.8z"
+          style="stroke:#000000;stroke-width:7.52;fill:#ffffff"
+          transform="translate(36.387 126.09)"
+      />
+      <path
+          id="path3675"
+          style="stroke:#000000;stroke-width:7.52;fill:#ffffff"
+          d="m74.571 639.53 35.355 28.284-12.728 65.054-14.142-8.4853 5.6569-48.083-29.698-16.971 15.556-19.799z"
+      />
+      <path
+          id="path3677"
+          style="stroke:#000000;stroke-width:7.52;fill:#ffffff"
+          d="m517.22 649.67-35.355 28.284 12.728 65.054 14.142-8.4853-5.6569-48.083 29.698-16.971-15.556-19.799z"
+      />
+      <path
+          id="path3679"
+          style="stroke:#000000;stroke-width:7.52;fill:#ffffff"
+          d="m525.95 650.84 35.355 28.284-12.728 65.054-14.142-8.4853 5.6569-48.083-29.698-16.971 15.556-19.799z"
+      />
+      <path
+          id="rect3681"
+          sodipodi:nodetypes="ccccc"
+          style="stroke-linejoin:round;fill-opacity:.97059;stroke:#000000;stroke-linecap:round;stroke-width:7.52;fill:#ffffff"
+          d="m201.39 1009.1 64 1 32 56-144-4 48-53z"
+      />
+      <path
+          id="path3686"
+          sodipodi:nodetypes="ccccc"
+          style="stroke-linejoin:round;fill-opacity:.97059;stroke:#000000;stroke-linecap:round;stroke-width:7.52;fill:#ffffff"
+          d="m341.39 1002.1 64 1.2105 32 67.79-124-4.8421 28-64.158z"
+      />
+      <path
+          id="path3694"
+          d="m165 633.97 26-12"
+          style="stroke:#000000;stroke-width:6;fill:none"
+          transform="translate(36.387 126.09)"
+      />
+      <path
+          id="path3696"
+          style="stroke:#000000;stroke-width:6;fill:none"
+          d="m209.39 737.05 11 36"
+      />
+    </g
+    >
+  </g
+  >
+  <metadata
+    >
+    <rdf:RDF
+      >
+      <cc:Work
+        >
+        <dc:format
+          >image/svg+xml</dc:format
+        >
+        <dc:type
+            rdf:resource="http://purl.org/dc/dcmitype/StillImage"
+        />
+        <cc:license
+            rdf:resource="http://creativecommons.org/licenses/publicdomain/"
+        />
+        <dc:publisher
+          >
+          <cc:Agent
+              rdf:about="http://openclipart.org/"
+            >
+            <dc:title
+              >Openclipart</dc:title
+            >
+          </cc:Agent
+          >
+        </dc:publisher
+        >
+        <dc:title
+          >Robot Line Art</dc:title
+        >
+        <dc:date
+          >2010-08-03T01:44:52</dc:date
+        >
+        <dc:description
+        />
+        <dc:source
+          >https://openclipart.org/detail/76615/robot-line-art-by-gammillian</dc:source
+        >
+        <dc:creator
+          >
+          <cc:Agent
+            >
+            <dc:title
+              >gammillian</dc:title
+            >
+          </cc:Agent
+          >
+        </dc:creator
+        >
+        <dc:subject
+          >
+          <rdf:Bag
+            >
+            <rdf:li
+              >black and white</rdf:li
+            >
+            <rdf:li
+              >cartoon</rdf:li
+            >
+            <rdf:li
+              >coloring book</rdf:li
+            >
+            <rdf:li
+              >line art</rdf:li
+            >
+            <rdf:li
+              >outline</rdf:li
+            >
+            <rdf:li
+              >robot</rdf:li
+            >
+          </rdf:Bag
+          >
+        </dc:subject
+        >
+      </cc:Work
+      >
+      <cc:License
+          rdf:about="http://creativecommons.org/licenses/publicdomain/"
+        >
+        <cc:permits
+            rdf:resource="http://creativecommons.org/ns#Reproduction"
+        />
+        <cc:permits
+            rdf:resource="http://creativecommons.org/ns#Distribution"
+        />
+        <cc:permits
+            rdf:resource="http://creativecommons.org/ns#DerivativeWorks"
+        />
+      </cc:License
+      >
+    </rdf:RDF
+    >
+  </metadata
+  >
+</svg
+>

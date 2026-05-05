@@ -1,0 +1,685 @@
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  height: 100%;
+  font-family: "Comic Sans MS", "Chalkboard SE", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  /* Vibrant rainbow-confetti background — bright and playful */
+  background:
+    radial-gradient(circle at 15% 20%, #ffd166 0%, transparent 25%),
+    radial-gradient(circle at 85% 15%, #ff6b9d 0%, transparent 28%),
+    radial-gradient(circle at 75% 85%, #06d6a0 0%, transparent 30%),
+    radial-gradient(circle at 10% 80%, #ab8fff 0%, transparent 28%),
+    radial-gradient(circle at 50% 50%, #ffe9a8 0%, transparent 40%),
+    linear-gradient(135deg, #ff9a76 0%, #ffb6e1 25%, #b8a4ff 50%, #6dd5ed 75%, #a8e6cf 100%);
+  color: #2a2a3a;
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+#app {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+/* Canvas fills the whole screen; UI floats on top. */
+.canvas-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+#canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: crosshair;
+  /* Belt-and-braces against the iOS / Edge stylus long-press callout
+     ("Save Image", "Look Up", "Inspect") that fires on <canvas> as if it
+     were an <img>. The contextmenu handler in App.ts catches the desktop
+     case; these CSS rules cover the OS-level popovers. */
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ---------- Top bar (templates, settings) ---------- */
+.kid-topbar {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 10;
+}
+.kid-topbar > * { pointer-events: auto; }
+
+.kid-iconbtn {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: #fff;
+  border: 4px solid #ffd166;
+  color: #2a2a3a;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s, background 0.15s;
+}
+.kid-iconbtn svg { width: 38px; height: 38px; }
+.kid-iconbtn:hover { background: #fff8dc; }
+.kid-iconbtn:active { transform: scale(0.94); }
+.kid-gear { border-color: #b8a4ff; }
+
+/* ---------- Color palette (left) ----------
+   The palette uses CSS grid with auto-fill columns so it expands sideways
+   when the available height is too short for a single column. Combined with
+   the height cap below, this guarantees all 11 swatches fit on any tablet.
+   The top of the palette is anchored below the top bar; bottom is allowed
+   to grow up to (viewport - top bar - margins). */
+.kid-palette {
+  position: absolute;
+  left: 16px;
+  /* Sit below the top bar (68px button + 16px top + 16px gap = 100px). */
+  top: 100px;
+  /* Stop short of the bottom edge. */
+  bottom: 16px;
+  display: grid;
+  grid-auto-flow: column dense;
+  grid-template-rows: repeat(auto-fit, 56px);
+  align-content: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 32px;
+  border: 4px solid #fff;
+  z-index: 10;
+  box-shadow: 0 8px 0 rgba(255,255,255,0.4), 0 12px 28px rgba(0,0,0,0.18);
+}
+.kid-swatch {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--c);
+  border: 4px solid #fff;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.12s, box-shadow 0.12s;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.15), 0 6px 14px rgba(0,0,0,0.18);
+}
+.kid-swatch:hover { transform: scale(1.08); }
+.kid-swatch:active { transform: translateY(3px) scale(1.02); box-shadow: 0 1px 0 rgba(0,0,0,0.15), 0 3px 8px rgba(0,0,0,0.18); }
+.kid-swatch.active {
+  transform: scale(1.18);
+  border-color: #fff;
+  box-shadow: 0 0 0 4px #ffd166, 0 0 0 8px #ff6b9d, 0 8px 18px rgba(0,0,0,0.25);
+}
+
+/* ---------- Tool dock (right side) ----------
+   Same approach as the palette: anchor to top + bottom so it can never push
+   the gear button off-screen. Auto-flow into multiple columns when the
+   viewport is too short for a single stack. */
+.kid-dock {
+  position: absolute;
+  right: 16px;
+  top: 100px;
+  bottom: 16px;
+  display: grid;
+  grid-auto-flow: column dense;
+  grid-template-rows: repeat(auto-fit, 76px);
+  align-content: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 32px;
+  border: 4px solid #fff;
+  z-index: 10;
+  box-shadow: 0 8px 0 rgba(255,255,255,0.4), 0 12px 28px rgba(0,0,0,0.18);
+}
+.kid-tool {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: #fff;
+  border: 4px solid #b8e1ff;
+  color: #2a2a3a;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.12s, background 0.15s, border-color 0.15s;
+}
+.kid-tool svg { width: 46px; height: 46px; }
+.kid-tool:hover { background: #f0f8ff; }
+.kid-tool:active { transform: scale(0.94); }
+/* Each tool gets a distinct accent so they're easy to remember by color */
+.kid-tool[data-tool="brush"] { border-color: #ff6b9d; }
+.kid-tool[data-tool="pen"] { border-color: #6dd5ed; }
+.kid-tool[data-tool="spray"] { border-color: #b8a4ff; }
+.kid-tool[data-tool="fill"] { border-color: #2ecc71; }
+.kid-tool[data-tool="eraser"] { border-color: #ffb3b3; }
+.kid-tool.active {
+  background: linear-gradient(135deg, #fff8dc 0%, #ffe066 100%);
+  transform: scale(1.06);
+}
+.kid-tool.active::after {
+  content: '★';
+  position: absolute;
+  top: -6px; right: -6px;
+  background: #ff6b9d;
+  color: #fff;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  font-size: 14px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #fff;
+}
+.kid-undo {
+  background: #fff;
+  border-color: #ffd166;
+  color: #2a2a3a;
+}
+.kid-undo:hover { background: #fff8dc; }
+
+.kid-clear {
+  background: #fff;
+  border-color: #ff6b9d;
+  color: #2a2a3a;
+}
+.kid-clear:hover { background: #fff0f5; }
+
+/* ---------- Settings drawer ---------- */
+.kid-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 24px;
+  min-width: 360px;
+  max-width: 420px;
+  color: #2a2a3a;
+}
+
+.kid-slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.kid-slider-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.kid-slider-label {
+  font-size: 15px;
+  color: #555;
+}
+.kid-slider-value {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  color: #999;
+}
+.kid-slider-row input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: #e5e5ea;
+  outline: none;
+  margin: 0;
+}
+.kid-slider-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  border: 2px solid #ff6b9d;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.kid-slider-row input[type="range"]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  border: 2px solid #ff6b9d;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.kid-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  cursor: pointer;
+}
+.kid-toggle-label {
+  font-size: 15px;
+  color: #555;
+}
+.kid-switch {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 48px;
+  height: 28px;
+  border-radius: 14px;
+  background: #e5e5ea;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+  margin: 0;
+}
+.kid-switch::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+}
+.kid-switch:checked { background: #06d6a0; }
+.kid-switch:checked::before { transform: translateX(20px); }
+
+.kid-sep {
+  height: 1px;
+  background: #eee;
+  margin: 4px 0;
+}
+
+.kid-settings-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.kid-bigbtn {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  font-size: 15px;
+  border-radius: 12px;
+  background: #f4f4f7;
+  color: #2a2a3a;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.kid-bigbtn:hover { background: #ebebef; }
+.kid-bigbtn:active { background: #e0e0e5; }
+.kid-details > summary { cursor: pointer; }
+
+/* ---------- Modal ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(40, 40, 80, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.modal {
+  background: #fff;
+  border-radius: 20px;
+  width: min(960px, 92vw);
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+/* Settings dialog should stay narrow — only widen the picker. */
+.modal.is-narrow { width: auto; min-width: 320px; max-width: 90vw; }
+.modal-body { overflow-y: auto; flex: 1; }
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+  font-size: 17px;
+  color: #2a2a3a;
+}
+.modal-head .tool {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: #f4f4f7;
+  color: #555;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+.modal-head .tool:hover { background: #ebebef; }
+.modal-body {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
+  align-content: start;
+}
+
+/* Category filter row above the grid */
+.template-categories {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 4px;
+}
+.template-category {
+  background: #f4f4f7;
+  color: #555;
+  border: none;
+  padding: 8px 14px;
+  font-size: 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.template-category:hover { background: #ebebef; }
+.template-category.active {
+  background: #2a2a3a;
+  color: #fff;
+}
+
+/* ---------- Templates / projects ---------- */
+.template-card, .project-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 14px;
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+  font-size: 14px;
+  color: #2a2a3a;
+  transition: transform 0.12s, border-color 0.15s, box-shadow 0.15s;
+  text-align: center;
+  font-family: inherit;
+}
+.template-card:hover, .project-card:hover {
+  transform: translateY(-2px);
+  border-color: #ff6b9d;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+.template-card:active, .project-card:active { transform: translateY(0); }
+.template-thumb {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #f0f0f3;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.template-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 6px;
+}
+.template-thumb.blank {
+  background: repeating-linear-gradient(45deg, #fafafa, #fafafa 8px, #f0f0f3 8px, #f0f0f3 16px);
+  font-size: 44px;
+  color: #c5c5cc;
+  font-weight: bold;
+}
+.template-label { font-size: 13px; color: #555; }
+.project-card img {
+  max-width: 100%;
+  height: 110px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #f0f0f3;
+}
+.loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px 20px;
+  color: #888;
+  font-size: 16px;
+}
+
+/* ---------- Custom prompt / confirm dialogs ---------- */
+.kid-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px 24px 20px;
+  min-width: 320px;
+  max-width: 420px;
+}
+.kid-dialog-message {
+  font-size: 15px;
+  color: #555;
+  line-height: 1.5;
+}
+.kid-dialog-input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 16px;
+  border: 2px solid #e5e5ea;
+  border-radius: 10px;
+  outline: none;
+  font-family: inherit;
+  color: #2a2a3a;
+  background: #fff;
+  transition: border-color 0.15s;
+}
+.kid-dialog-input:focus { border-color: #5b6cff; }
+.kid-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.kid-dialog-btn {
+  padding: 10px 20px;
+  font-size: 15px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  min-width: 88px;
+}
+.kid-dialog-btn:active { transform: scale(0.97); }
+.kid-dialog-cancel {
+  background: #f4f4f7;
+  color: #2a2a3a;
+}
+.kid-dialog-cancel:hover { background: #ebebef; }
+.kid-dialog-ok {
+  background: #5b6cff;
+  color: #fff;
+}
+.kid-dialog-ok:hover { background: #6a7aff; }
+.kid-dialog-destructive {
+  background: #ff6b9d;
+  color: #fff;
+}
+.kid-dialog-destructive:hover { background: #ff7faa; }
+
+.project-actions {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+.project-actions button {
+  flex: 1;
+  padding: 8px 10px;
+  font-size: 13px;
+  border-radius: 10px;
+  border: none;
+  background: #5b6cff;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+}
+.project-actions button:hover { filter: brightness(1.05); }
+.project-actions button:active { transform: scale(0.96); }
+.project-rename { background: #f4f4f7 !important; color: #2a2a3a !important; }
+.project-rename:hover { background: #ebebef !important; }
+.project-delete { background: #ff6b9d !important; }
+
+/* ---------- Layer panel inside settings ---------- */
+.layer-panel {
+  background: #1f2230;
+  border-radius: 12px;
+  padding: 8px;
+  margin-top: 8px;
+}
+.layer-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+}
+.layer-list { display: flex; flex-direction: column; gap: 4px; }
+.layer-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 80px 30px;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.layer-row.active { background: #3a3f55; }
+.layer-row:hover { background: #353a52; }
+.layer-eye, .layer-del {
+  background: none;
+  border: none;
+  color: #e8e8ee;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+}
+.layer-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.layer-opacity { width: 100%; }
+.layer-panel .tool {
+  background: #5b6cff;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* ---------- Compact phone layout ---------- */
+@media (max-width: 600px) {
+  .kid-swatch { width: 40px; height: 40px; }
+  .kid-palette {
+    gap: 8px;
+    padding: 8px;
+    grid-template-rows: repeat(auto-fit, 40px);
+  }
+  .kid-tool { width: 60px; height: 60px; }
+  .kid-tool svg { width: 36px; height: 36px; }
+  .kid-iconbtn { width: 52px; height: 52px; }
+  .kid-iconbtn svg { width: 30px; height: 30px; }
+  .kid-dock {
+    right: 8px;
+    gap: 8px;
+    padding: 10px 8px;
+    grid-template-rows: repeat(auto-fit, 60px);
+  }
+}
+
+/* ---------- Short viewport (most tablets in landscape): smaller items
+   so more fit per column before flowing sideways. ---------- */
+@media (max-height: 800px) {
+  .kid-tool { width: 60px; height: 60px; }
+  .kid-tool svg { width: 36px; height: 36px; }
+  .kid-dock {
+    grid-template-rows: repeat(auto-fit, 60px);
+    gap: 10px;
+    padding: 12px 10px;
+  }
+  .kid-swatch { width: 44px; height: 44px; }
+  .kid-palette {
+    grid-template-rows: repeat(auto-fit, 44px);
+    gap: 8px;
+    padding: 10px;
+  }
+}
+
+/* ---------- Tooltips ---------- */
+.kid-tooltip {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+  background: #2a2a3a;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(2px) scale(0.96);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  font-family: inherit;
+}
+.kid-tooltip.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+/* Caret pointing down at the target (tooltip above target). */
+.kid-tooltip::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  width: 8px;
+  height: 8px;
+  background: #2a2a3a;
+  transform: translateX(-50%) rotate(45deg);
+}
+/* When flipped below, the caret points up. */
+.kid-tooltip.is-below::after {
+  bottom: auto;
+  top: -4px;
+}
+
+/* ---------- Flash notifications ---------- */
+.kid-flash {
+  position: fixed;
+  bottom: 130px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #5b6cff;
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 14px;
+  font-size: 16px;
+  z-index: 200;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+}

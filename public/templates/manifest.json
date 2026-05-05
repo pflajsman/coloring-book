@@ -1,0 +1,51 @@
+{
+  "templates": [
+    { "id": "blank",     "name": "Blank page",  "file": null,            "category": "Other" },
+
+    { "id": "cat",       "name": "Kitty cat",   "file": "cat.svg",       "category": "Animals" },
+    { "id": "dog",       "name": "Puppy dog",   "file": "dog.svg",       "category": "Animals" },
+    { "id": "horse",     "name": "Horse",       "file": "horse.svg",     "category": "Animals" },
+    { "id": "tiger",     "name": "Tiger",       "file": "tiger.svg",     "category": "Animals" },
+    { "id": "bear",      "name": "Polar bear",  "file": "bear.svg",      "category": "Animals" },
+    { "id": "teddy",     "name": "Teddy bear",  "file": "teddy.svg",     "category": "Animals" },
+    { "id": "monkey",    "name": "Monkey",      "file": "monkey.svg",    "category": "Animals" },
+    { "id": "owl",       "name": "Owl",         "file": "owl.svg",       "category": "Animals" },
+    { "id": "frog",      "name": "Frog",        "file": "frog.svg",      "category": "Animals" },
+    { "id": "snake",     "name": "Snake",       "file": "snake.svg",     "category": "Animals" },
+    { "id": "turtle",    "name": "Turtle",      "file": "turtle.svg",    "category": "Animals" },
+    { "id": "rabbit",    "name": "Rabbit",      "file": "rabbit.svg",    "category": "Animals" },
+    { "id": "mouse",     "name": "Mouse",       "file": "mouse.svg",     "category": "Animals" },
+    { "id": "sheep",     "name": "Sheep",       "file": "sheep.svg",     "category": "Animals" },
+    { "id": "cow",       "name": "Cow",         "file": "cow.svg",       "category": "Animals" },
+    { "id": "pig",       "name": "Pig",         "file": "pig.svg",       "category": "Animals" },
+    { "id": "duck",      "name": "Duck",        "file": "duck.svg",      "category": "Animals" },
+    { "id": "snail",     "name": "Snail",       "file": "snail.svg",     "category": "Animals" },
+    { "id": "elephant",  "name": "Elephant",    "file": "elephant.svg",  "category": "Animals" },
+    { "id": "fish",      "name": "Fish",        "file": "fish.svg",      "category": "Animals" },
+    { "id": "butterfly", "name": "Butterfly",   "file": "butterfly.svg", "category": "Animals" },
+    { "id": "dinosaur",  "name": "Dinosaur",    "file": "dinosaur.svg",  "category": "Animals" },
+
+    { "id": "car",       "name": "Race car",    "file": "car.svg",       "category": "Vehicles" },
+    { "id": "rocket",    "name": "Rocket",      "file": "rocket.svg",    "category": "Vehicles" },
+    { "id": "train",     "name": "Train",       "file": "train.svg",     "category": "Vehicles" },
+    { "id": "bicycle",   "name": "Bicycle",     "file": "bicycle.svg",   "category": "Vehicles" },
+
+    { "id": "house",     "name": "House",       "file": "house.svg",     "category": "Places" },
+    { "id": "tree",      "name": "Tree",        "file": "tree.svg",      "category": "Nature" },
+    { "id": "flower",    "name": "Flower",      "file": "flower.svg",    "category": "Nature" },
+    { "id": "sun",       "name": "Sun",         "file": "sun.svg",       "category": "Nature" },
+    { "id": "moon",      "name": "Moon",        "file": "moon.svg",      "category": "Nature" },
+    { "id": "cloud",     "name": "Cloud",       "file": "cloud.svg",     "category": "Nature" },
+    { "id": "rainbow",   "name": "Rainbow",     "file": "rainbow.svg",   "category": "Nature" },
+    { "id": "mushroom",  "name": "Mushroom",    "file": "mushroom.svg",  "category": "Nature" },
+
+    { "id": "apple",     "name": "Apple",       "file": "apple.svg",     "category": "Food" },
+    { "id": "cherry",    "name": "Cherries",    "file": "cherry.svg",    "category": "Food" },
+
+    { "id": "unicorn",   "name": "Unicorn",     "file": "unicorn.svg",   "category": "Fantasy" },
+    { "id": "dragon",    "name": "Dragon",      "file": "dragon.svg",    "category": "Fantasy" },
+    { "id": "robot",     "name": "Robot",       "file": "robot.svg",     "category": "Fantasy" },
+    { "id": "witch",     "name": "Witch",       "file": "witch.svg",     "category": "Fantasy" },
+    { "id": "santa",     "name": "Santa",       "file": "santa.svg",     "category": "Fantasy" }
+  ]
+}
