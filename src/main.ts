@@ -43,22 +43,36 @@ app.setState({
 
 const ui = buildKidUI(app, {
   onUndo: () => { if (app.history.undo(app.doc)) app.scheduleRender(); },
-  onClear: async () => {
-    const ok = await confirmDialog({
-      title: 'Clear the picture?',
-      message: 'All your colors will be erased. The picture will stay.',
-      confirmLabel: 'Clear',
-      cancelLabel: 'Keep',
-      destructive: true,
-    });
-    if (!ok) return;
-    // Wipe every non-locked layer (i.e. paint layers; the bg and template
-    // layers are locked so we leave them alone). Then drop history because
-    // the canonical pre-clear state is no longer reproducible by undo.
+  onClear: () => {
+    // Wipe every non-locked layer (the bg and template layers are locked,
+    // so the line art stays). No confirmation: a stray tap is recoverable
+    // by Undo, which is right next to it in the dock.
+    //
+    // We push a single ClearCommand so undo restores all paint layers in
+    // one step.
+    const beforeMap = new Map<string, ImageData>();
     for (const layer of app.doc.layers) {
-      if (!layer.locked) layer.clear();
+      if (layer.locked) continue;
+      beforeMap.set(
+        layer.id,
+        layer.ctx.getImageData(0, 0, layer.canvas.width, layer.canvas.height),
+      );
+      layer.clear();
     }
-    app.history.clear();
+    if (beforeMap.size === 0) return;
+    app.history.push({
+      apply(doc) {
+        for (const layer of doc.layers) {
+          if (beforeMap.has(layer.id)) layer.clear();
+        }
+      },
+      invert(doc) {
+        for (const [id, before] of beforeMap) {
+          const layer = doc.getLayer(id);
+          if (layer) layer.ctx.putImageData(before, 0, 0);
+        }
+      },
+    });
     app.scheduleRender();
   },
   onSave: async () => {

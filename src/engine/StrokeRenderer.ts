@@ -185,10 +185,11 @@ function getSprayHead(color: string): HTMLCanvasElement {
   if (!ctx) throw new Error('spray head ctx');
   const r = size / 2;
   // Very soft falloff: low-alpha core, fully transparent at edge. Each
-  // stamp adds only a faint amount; density builds up the mist.
+  // stamp adds only a faint amount; density builds up the mist. Tuned so
+  // a continuous spray reads as a translucent wash, not solid paint.
   const grad = ctx.createRadialGradient(r, r, 0, r, r, r);
-  grad.addColorStop(0, color + '38');   // ~22% alpha core
-  grad.addColorStop(0.5, color + '18'); // ~10% alpha
+  grad.addColorStop(0, color + '1c');   // ~11% alpha core
+  grad.addColorStop(0.5, color + '0c'); // ~5% alpha
   grad.addColorStop(1, color + '00');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, size, size);
@@ -217,8 +218,11 @@ export function spraySplatter(ctx: Ctx, p: Point, style: StrokeStyle, intensity 
   }
 
   // Speckle pass: pinprick droplets at the perimeter for the grainy
-  // spray-can look. sqrt(uniform) for even disk distribution.
-  const speckle = Math.min(140, Math.round(radius * radius * 0.12 * intensity));
+  // spray-can look. sqrt(uniform) for even disk distribution. We also drop
+  // the global alpha so even the speckle reads as a soft wash.
+  const speckle = Math.min(80, Math.round(radius * radius * 0.06 * intensity));
+  const prevAlpha = ctx.globalAlpha;
+  ctx.globalAlpha = prevAlpha * 0.45;
   for (let i = 0; i < speckle; i++) {
     const a = Math.random() * Math.PI * 2;
     const r = Math.sqrt(Math.random()) * radius;
@@ -228,6 +232,7 @@ export function spraySplatter(ctx: Ctx, p: Point, style: StrokeStyle, intensity 
     ctx.arc(x, y, 0.4 + Math.random() * 0.6, 0, Math.PI * 2);
     ctx.fill();
   }
+  ctx.globalAlpha = prevAlpha;
 }
 
 // Replay a full stroke (used during undo/redo and document load). Uses

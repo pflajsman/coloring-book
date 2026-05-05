@@ -16,19 +16,22 @@ const KID_COLORS = [
   '#9b59b6', // purple
   '#e91e63', // pink
   '#795548', // brown
+  '#95a5a6', // grey
   '#000000', // black
-  '#ffffff', // white (last so kids don't pick it by accident)
 ];
 
-type Tools = Extract<Tool, 'brush' | 'pen' | 'spray' | 'fill' | 'eraser'>;
+type Tools = Extract<Tool, 'brush' | 'pen' | 'line' | 'circle' | 'spray' | 'fill' | 'eraser'>;
 
 // Order matters — this is the visual order in the dock (top to bottom).
-// Pen first so it lands at the top of the dock for easy access.
-const TOOL_LIST: Tools[] = ['pen', 'brush', 'spray', 'fill', 'eraser'];
+// Pen first so it lands at the top of the dock for easy access. Shape tools
+// (line, rect) are grouped together below brush.
+const TOOL_LIST: Tools[] = ['pen', 'brush', 'line', 'circle', 'spray', 'fill', 'eraser'];
 
 const TOOL_ICONS: Record<Tools, string> = {
   brush: brushSvg(),
   pen: penSvg(),
+  line: lineSvg(),
+  circle: circleSvg(),
   spray: spraySvg(),
   fill: fillSvg(),
   eraser: eraserSvg(),
@@ -37,6 +40,8 @@ const TOOL_ICONS: Record<Tools, string> = {
 const TOOL_NAMES: Record<Tools, string> = {
   pen: 'Pen',
   brush: 'Brush',
+  line: 'Ruler',
+  circle: 'Circle',
   spray: 'Spray',
   fill: 'Fill',
   eraser: 'Eraser',
@@ -99,31 +104,85 @@ export function buildKidUI(app: App, actions: KidUIActions): {
   attachTooltip(undo, 'Undo');
   dock.appendChild(undo);
 
-  // Clear-all (trash) button — wipes all paint, keeps the line art.
-  const clearBtn = document.createElement('button');
-  clearBtn.className = 'kid-tool kid-clear';
-  clearBtn.innerHTML = trashSvg();
-  clearBtn.addEventListener('click', () => actions.onClear());
-  attachTooltip(clearBtn, 'Clear all');
-  dock.appendChild(clearBtn);
-
-  // ---- Top bar: pictures (templates) + gear (settings) ----
+  // ---- Top bar: pictures + clear (left) + sliders (center) + gear/fullscreen (right) ----
   const topBar = document.createElement('div');
   topBar.className = 'kid-topbar';
+
+  // Left-side group: pictures + clear sit together at the top-left corner.
+  const leftGroup = document.createElement('div');
+  leftGroup.className = 'kid-topbar-left';
 
   const picturesBtn = document.createElement('button');
   picturesBtn.className = 'kid-iconbtn';
   picturesBtn.innerHTML = picturesSvg();
   picturesBtn.addEventListener('click', () => actions.onLoadTemplate());
   attachTooltip(picturesBtn, 'Pictures');
-  topBar.appendChild(picturesBtn);
+  leftGroup.appendChild(picturesBtn);
+
+  const clearBtn = document.createElement('button');
+  clearBtn.className = 'kid-iconbtn kid-clear-top';
+  clearBtn.innerHTML = trashSvg();
+  clearBtn.addEventListener('click', () => actions.onClear());
+  attachTooltip(clearBtn, 'Clear all');
+  leftGroup.appendChild(clearBtn);
+
+  topBar.appendChild(leftGroup);
+
+  // Center: pressure + size sliders on the same row as the icon buttons.
+  const sliderGroup = document.createElement('div');
+  sliderGroup.className = 'kid-topbar-sliders';
+
+  const pressureSlider = buildTopSlider({
+    kind: 'pressure',
+    label: 'Press',
+    valueFormat: (v) => `${v}%`,
+    min: 0,
+    max: 100,
+    value: Math.round(app.state.pressureSensitivity * 100),
+    onInput: (v) => app.setState({ pressureSensitivity: v / 100 }),
+  });
+  sliderGroup.appendChild(pressureSlider.root);
+
+  const sizeSlider = buildTopSlider({
+    kind: 'size',
+    label: 'Size',
+    valueFormat: (v) => String(v),
+    min: 4,
+    max: 80,
+    value: app.state.size,
+    onInput: (v) => app.setState({ size: v }),
+  });
+  sliderGroup.appendChild(sizeSlider.root);
+
+  topBar.appendChild(sliderGroup);
+
+  // Right-side group: settings on the left, fullscreen flush to the edge.
+  const rightGroup = document.createElement('div');
+  rightGroup.className = 'kid-topbar-right';
 
   const gear = document.createElement('button');
   gear.className = 'kid-iconbtn kid-gear';
   gear.innerHTML = gearSvg();
   gear.addEventListener('click', () => openSettings(app, actions));
   attachTooltip(gear, 'Settings');
-  topBar.appendChild(gear);
+  rightGroup.appendChild(gear);
+
+  const fullscreenBtn = document.createElement('button');
+  fullscreenBtn.className = 'kid-iconbtn kid-fullscreen';
+  fullscreenBtn.innerHTML = fullscreenEnterSvg();
+  attachTooltip(fullscreenBtn, 'Fullscreen');
+  fullscreenBtn.addEventListener('click', () => toggleFullscreen());
+  // Reflect the current state on every fullscreenchange — covers the case
+  // where the user exits via Esc rather than the button.
+  const updateFullscreenIcon = () => {
+    const isFs = !!document.fullscreenElement;
+    fullscreenBtn.innerHTML = isFs ? fullscreenExitSvg() : fullscreenEnterSvg();
+    fullscreenBtn.setAttribute('aria-label', isFs ? 'Exit fullscreen' : 'Fullscreen');
+  };
+  document.addEventListener('fullscreenchange', updateFullscreenIcon);
+  rightGroup.appendChild(fullscreenBtn);
+
+  topBar.appendChild(rightGroup);
 
   // ---- React to state changes ----
   app.subscribe((s) => {
@@ -131,6 +190,11 @@ export function buildKidUI(app: App, actions: KidUIActions): {
     (Object.entries(toolBtns) as [Tools, HTMLButtonElement][]).forEach(([id, b]) => {
       b.classList.toggle('active', id === s.tool);
     });
+    // Reflect the current state in the top-bar sliders so they stay in sync
+    // if anything else (settings dialog, keyboard, future code) updates the
+    // app state.
+    sizeSlider.setValue(s.size);
+    pressureSlider.setValue(Math.round(s.pressureSensitivity * 100));
   });
 
   return { palette, dock, topBar };
@@ -142,6 +206,9 @@ function openSettings(app: App, actions: KidUIActions) {
   const body = document.createElement('div');
   body.className = 'kid-settings';
 
+  // Brush size and pressure are primarily in the top bar, but we keep them
+  // here too as a fallback for narrow viewports where the top sliders are
+  // hidden. This mirrors the values both ways.
   body.appendChild(
     sliderRow('Brush size', 4, 80, app.state.size, (v) => app.setState({ size: v })),
   );
@@ -180,6 +247,23 @@ function openSettings(app: App, actions: KidUIActions) {
   const destroy = showModal('Settings', body, { narrow: true });
 }
 
+function toggleRow(label: string, value: boolean, onChange: (v: boolean) => void): HTMLElement {
+  const row = document.createElement('label');
+  row.className = 'kid-toggle-row';
+  const lab = document.createElement('span');
+  lab.className = 'kid-toggle-label';
+  lab.textContent = label;
+  const input = document.createElement('input');
+  input.type = 'checkbox';
+  input.className = 'kid-switch';
+  input.checked = value;
+  input.addEventListener('change', () => onChange(input.checked));
+  row.append(lab, input);
+  return row;
+}
+
+// Compact slider row used inside the settings dialog (fallback for narrow
+// viewports where the always-on top-bar sliders are hidden).
 function sliderRow(
   label: string,
   min: number,
@@ -212,19 +296,79 @@ function sliderRow(
   return row;
 }
 
-function toggleRow(label: string, value: boolean, onChange: (v: boolean) => void): HTMLElement {
-  const row = document.createElement('label');
-  row.className = 'kid-toggle-row';
-  const lab = document.createElement('span');
-  lab.className = 'kid-toggle-label';
-  lab.textContent = label;
+// Slider that floats above the canvas in the top band. Layout:
+//   [ICON] [LABEL] [============●===========] [VALUE]
+// The label and value are explicit text so it's obvious what each slider
+// does even without colour cues. The icon adds a visual hint (small/big dot
+// for size, light/heavy press for pressure).
+function buildTopSlider(opts: {
+  kind: 'pressure' | 'size';
+  label: string;
+  valueFormat: (v: number) => string;
+  min: number;
+  max: number;
+  value: number;
+  onInput: (v: number) => void;
+}): { root: HTMLElement; setValue: (v: number) => void } {
+  const root = document.createElement('div');
+  root.className = `kid-slider kid-slider-${opts.kind}`;
+
+  const icon = document.createElement('span');
+  icon.className = 'kid-slider-icon';
+  icon.innerHTML = opts.kind === 'pressure' ? pressureIconSvg() : sizeIconSvg();
+
+  const label = document.createElement('span');
+  label.className = 'kid-slider-name';
+  label.textContent = opts.label;
+
   const input = document.createElement('input');
-  input.type = 'checkbox';
-  input.className = 'kid-switch';
-  input.checked = value;
-  input.addEventListener('change', () => onChange(input.checked));
-  row.append(lab, input);
-  return row;
+  input.type = 'range';
+  input.className = 'kid-slider-track';
+  input.min = String(opts.min);
+  input.max = String(opts.max);
+  input.value = String(opts.value);
+  input.setAttribute('aria-label', opts.label);
+
+  const valueEl = document.createElement('span');
+  valueEl.className = 'kid-slider-readout';
+  valueEl.textContent = opts.valueFormat(opts.value);
+
+  input.addEventListener('input', () => {
+    const v = +input.value;
+    valueEl.textContent = opts.valueFormat(v);
+    opts.onInput(v);
+  });
+
+  root.append(icon, label, input, valueEl);
+
+  return {
+    root,
+    setValue(v: number) {
+      // Avoid stomping the slider while the user is dragging it.
+      if (document.activeElement === input) return;
+      const s = String(v);
+      if (input.value !== s) input.value = s;
+      valueEl.textContent = opts.valueFormat(v);
+    },
+  };
+}
+
+// Pressure icon: a finger-press silhouette (a hand fingertip pushing down).
+function pressureIconSvg() {
+  return `<svg viewBox="0 0 32 32" fill="none" stroke="#2a2a3a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- fingertip -->
+    <path d="M11 6 Q 16 4 21 6 L 21 18 L 26 22 L 26 28 L 6 28 L 6 22 L 11 18 Z" fill="#fff8dc"/>
+    <!-- pressure waves below the finger -->
+    <line x1="4" y1="30" x2="28" y2="30" stroke-width="2"/>
+  </svg>`;
+}
+
+// Size icon: a thick paint stroke. Visualizes "thickness" directly.
+function sizeIconSvg() {
+  return `<svg viewBox="0 0 32 32">
+    <path d="M4 22 L 28 10" stroke="#2a2a3a" stroke-width="8"
+          stroke-linecap="round" fill="none"/>
+  </svg>`;
 }
 
 function bigBtn(label: string, onClick: () => void) {
@@ -289,6 +433,38 @@ function penSvg() {
   </svg>`;
 }
 
+
+function circleSvg() {
+  // Circle outline — instantly reads as "circle tool". Teal accent.
+  return `<svg viewBox="0 0 64 64">
+    <circle cx="32" cy="32" r="20"
+            fill="none" stroke="#1abc9c" stroke-width="6"/>
+    <!-- corner anchor dots showing the bounding-box drag style -->
+    <circle cx="14" cy="14" r="3.5" fill="#1abc9c"/>
+    <circle cx="50" cy="50" r="3.5" fill="#1abc9c"/>
+  </svg>`;
+}
+
+function lineSvg() {
+  // Classic translucent yellow ruler tilted 45°, with tick marks along the
+  // top edge. Reads as "draw a straight line" instantly.
+  return `<svg viewBox="0 0 64 64">
+    <g transform="rotate(-30 32 32)">
+      <!-- ruler body -->
+      <rect x="6" y="26" width="52" height="12" rx="1.5"
+            fill="#ffd54a" stroke="#a07900" stroke-width="2"/>
+      <!-- tick marks on the top edge -->
+      <line x1="12" y1="26" x2="12" y2="32" stroke="#a07900" stroke-width="1.6"/>
+      <line x1="20" y1="26" x2="20" y2="30" stroke="#a07900" stroke-width="1.4"/>
+      <line x1="28" y1="26" x2="28" y2="32" stroke="#a07900" stroke-width="1.6"/>
+      <line x1="36" y1="26" x2="36" y2="30" stroke="#a07900" stroke-width="1.4"/>
+      <line x1="44" y1="26" x2="44" y2="32" stroke="#a07900" stroke-width="1.6"/>
+      <line x1="52" y1="26" x2="52" y2="30" stroke="#a07900" stroke-width="1.4"/>
+      <!-- subtle highlight -->
+      <line x1="8" y1="36" x2="56" y2="36" stroke="#fff1a8" stroke-width="1.5"/>
+    </g>
+  </svg>`;
+}
 
 function spraySvg() {
   // Spray can centered upright. Cap on top, can body in middle, mist
@@ -405,6 +581,49 @@ function gearSvg() {
     <circle cx="40" cy="20" r="5" fill="#ffd166" stroke="#2a2a3a" stroke-width="3"/>
     <circle cx="22" cy="32" r="5" fill="#ff6b9d" stroke="#2a2a3a" stroke-width="3"/>
     <circle cx="44" cy="44" r="5" fill="#6dd5ed" stroke="#2a2a3a" stroke-width="3"/>
+  </svg>`;
+}
+
+// Toggle fullscreen on document.documentElement. Some browsers (Safari) used
+// to expose only the webkit-prefixed names; modern Safari supports the
+// standard API but we still cast loosely to handle very old engines.
+function toggleFullscreen(): void {
+  type FsDocument = Document & {
+    webkitFullscreenElement?: Element | null;
+    webkitExitFullscreen?: () => Promise<void> | void;
+  };
+  type FsElement = Element & {
+    webkitRequestFullscreen?: () => Promise<void> | void;
+  };
+  const doc = document as FsDocument;
+  const el = document.documentElement as FsElement;
+  const isFs = !!(document.fullscreenElement || doc.webkitFullscreenElement);
+  if (isFs) {
+    if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+    else if (doc.webkitExitFullscreen) doc.webkitExitFullscreen();
+  } else {
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  }
+}
+
+function fullscreenEnterSvg() {
+  // Four corner brackets pointing outward — universal "enter fullscreen".
+  return `<svg viewBox="0 0 64 64" fill="none" stroke="#2a2a3a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="10,22 10,10 22,10"/>
+    <polyline points="42,10 54,10 54,22"/>
+    <polyline points="54,42 54,54 42,54"/>
+    <polyline points="22,54 10,54 10,42"/>
+  </svg>`;
+}
+
+function fullscreenExitSvg() {
+  // Four corner brackets pointing inward — universal "exit fullscreen".
+  return `<svg viewBox="0 0 64 64" fill="none" stroke="#2a2a3a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="22,10 22,22 10,22"/>
+    <polyline points="42,22 54,22 42,10"/>
+    <polyline points="54,42 42,42 42,54"/>
+    <polyline points="22,42 10,42 22,54"/>
   </svg>`;
 }
 

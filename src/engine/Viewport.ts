@@ -5,12 +5,24 @@ export class Viewport {
 
   constructor(public docWidth: number, public docHeight: number) {}
 
-  fit(viewW: number, viewH: number, padding = 24) {
-    const sx = (viewW - padding * 2) / this.docWidth;
-    const sy = (viewH - padding * 2) / this.docHeight;
-    this.scale = Math.min(sx, sy);
-    this.tx = (viewW - this.docWidth * this.scale) / 2;
-    this.ty = (viewH - this.docHeight * this.scale) / 2;
+  // Per-edge insets let the canvas be full-bleed (so it captures pointer
+  // input across the whole screen) while the picture itself is sized and
+  // centered within the area NOT covered by floating UI panels.
+  fit(
+    viewW: number,
+    viewH: number,
+    insets: { top?: number; right?: number; bottom?: number; left?: number; padding?: number } = {},
+  ) {
+    const padding = insets.padding ?? 16;
+    const top = (insets.top ?? 0) + padding;
+    const right = (insets.right ?? 0) + padding;
+    const bottom = (insets.bottom ?? 0) + padding;
+    const left = (insets.left ?? 0) + padding;
+    const innerW = Math.max(1, viewW - left - right);
+    const innerH = Math.max(1, viewH - top - bottom);
+    this.scale = Math.min(innerW / this.docWidth, innerH / this.docHeight);
+    this.tx = left + (innerW - this.docWidth * this.scale) / 2;
+    this.ty = top + (innerH - this.docHeight * this.scale) / 2;
   }
 
   screenToDoc(sx: number, sy: number): { x: number; y: number } {

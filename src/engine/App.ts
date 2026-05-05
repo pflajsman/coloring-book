@@ -14,7 +14,7 @@ import {
 import { runFill } from './fillClient';
 import type { Point, StrokeStyle } from '../types/document';
 
-export type Tool = 'brush' | 'pen' | 'spray' | 'eraser' | 'fill' | 'pan';
+export type Tool = 'brush' | 'pen' | 'spray' | 'line' | 'circle' | 'eraser' | 'fill' | 'pan';
 
 export type AppState = {
   tool: Tool;
@@ -52,6 +52,10 @@ export class App {
   private strokeStyle: StrokeStyle | null = null;
   private strokeBefore: ImageData | null = null;
   private strokeLayerId: string | null = null;
+  // Anchor for shape tools (line/circle). Survives across moves because the
+  // tool replaces strokePoints with the rendered shape geometry on each
+  // frame — strokePoints[0] no longer stays at the user's start point.
+  private shapeAnchor: Point | null = null;
 
   // Spray emits paint over time, not just on pointermove. We keep the last
   // pointer position and tick a RAF loop while the spray stroke is active.
@@ -112,7 +116,19 @@ export class App {
     this.displayCanvas.width = Math.floor(rect.width * dpr);
     this.displayCanvas.height = Math.floor(rect.height * dpr);
     this.displayCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    this.viewport.fit(rect.width, rect.height);
+    // Reserve just enough margin for the floating UI; everything else is
+    // drawing area. `padding: 0` on the fit means we don't add an extra
+    // gap on top of the per-edge insets.
+    //   top: top control row (button height + tiny gap)
+    //   left/right: side panel widths (palette/dock + tiny gap)
+    //   bottom: minimal — nothing floats there
+    this.viewport.fit(rect.width, rect.height, {
+      top: 92,
+      left: 88,
+      right: 96,
+      bottom: 8,
+      padding: 0,
+    });
     this.scheduleRender();
   }
 
@@ -152,14 +168,16 @@ export class App {
   }
 
   private currentStyle(): StrokeStyle {
-    const isPen = this.state.tool === 'pen';
+    const tool = this.state.tool;
+    const isPen = tool === 'pen';
+    const isShape = tool === 'line' || tool === 'circle';
     return {
       color: this.state.color,
       // Thin pen has a fixed crisp line so kids can outline shapes precisely.
       size: isPen ? 3 : this.state.size,
-      // Pen ignores pressure too — kids press hard and we don't want fat blobs.
-      pressureSensitivity: isPen ? 0 : this.state.pressureSensitivity,
-      eraser: this.state.tool === 'eraser',
+      // Pen and shape tools ignore pressure — geometric shapes need uniform width.
+      pressureSensitivity: isPen || isShape ? 0 : this.state.pressureSensitivity,
+      eraser: tool === 'eraser',
     };
   }
 
@@ -188,6 +206,11 @@ export class App {
       // Stamp at the same point twice so a tap produces a visible blob; the
       // brush head's center is opaque so a single stamp reads as a soft dot.
       drawBrushSegment(layer.ctx, p, p, this.strokeStyle);
+    } else if (this.state.tool === 'line' || this.state.tool === 'circle') {
+      // Don't draw anything yet — we preview during the drag and commit on
+      // release. Pin the anchor here so subsequent moves use the original
+      // tap point, not whatever ended up at strokePoints[0] last frame.
+      this.shapeAnchor = p;
     } else {
       drawDot(layer.ctx, p, this.strokeStyle);
     }
@@ -208,6 +231,56 @@ export class App {
       // Also splatter at every coalesced point so fast drags still leave
       // continuous coverage instead of dotted gaps.
       for (const p of points) spraySplatter(layer.ctx, p, this.strokeStyle, 6);
+      this.scheduleRender();
+      return;
+    }
+
+    if (this.state.tool === 'line') {
+      // Live preview: restore the pre-stroke snapshot, then draw a straight
+      // line from the anchor point to the latest pointer position.
+      if (!this.strokeBefore || !this.shapeAnchor) return;
+      layer.ctx.putImageData(this.strokeBefore, 0, 0);
+      const start = this.shapeAnchor;
+      const last = points[points.length - 1];
+      this.strokePoints = [start, last];
+      beginStroke(layer.ctx, this.strokeStyle);
+      drawLineSegment(layer.ctx, start, last, this.strokeStyle);
+      endStroke(layer.ctx);
+      this.scheduleRender();
+      return;
+    }
+
+    if (this.state.tool === 'circle') {
+      // Live preview of an ellipse fitted into the bounding box from the
+      // anchor point to the current point. Drag from corner to corner like
+      // a rectangle — the circle inscribes the box. Approximated with
+      // ~64 line segments so it stores in StrokeCommand and replays
+      // through the existing path.
+      if (!this.strokeBefore || !this.shapeAnchor) return;
+      layer.ctx.putImageData(this.strokeBefore, 0, 0);
+      const start = this.shapeAnchor;
+      const last = points[points.length - 1];
+      const cx = (start.x + last.x) / 2;
+      const cy = (start.y + last.y) / 2;
+      const rx = Math.abs(last.x - start.x) / 2;
+      const ry = Math.abs(last.y - start.y) / 2;
+      const SEGMENTS = 64;
+      const pts: Point[] = [];
+      for (let i = 0; i <= SEGMENTS; i++) {
+        const a = (i / SEGMENTS) * Math.PI * 2;
+        pts.push({
+          x: cx + Math.cos(a) * rx,
+          y: cy + Math.sin(a) * ry,
+          pressure: 0,
+          t: start.t,
+        });
+      }
+      this.strokePoints = pts;
+      beginStroke(layer.ctx, this.strokeStyle);
+      for (let i = 1; i < pts.length; i++) {
+        drawLineSegment(layer.ctx, pts[i - 1], pts[i], this.strokeStyle);
+      }
+      endStroke(layer.ctx);
       this.scheduleRender();
       return;
     }
@@ -293,6 +366,7 @@ export class App {
     this.strokePoints = [];
     this.strokeBefore = null;
     this.strokeLayerId = null;
+    this.shapeAnchor = null;
   }
 
   private async runFillAt(p: Point) {
@@ -330,6 +404,8 @@ export class App {
     } else if (e.key === 'b') this.setState({ tool: 'brush' });
     else if (e.key === 'p') this.setState({ tool: 'pen' });
     else if (e.key === 's') this.setState({ tool: 'spray' });
+    else if (e.key === 'l') this.setState({ tool: 'line' });
+    else if (e.key === 'c') this.setState({ tool: 'circle' });
     else if (e.key === 'e') this.setState({ tool: 'eraser' });
     else if (e.key === 'g') this.setState({ tool: 'fill' });
     else if (e.key === 'h') this.setState({ tool: 'pan' });

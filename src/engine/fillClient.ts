@@ -28,10 +28,15 @@ function hexToRgba(hex: string, a = 255) {
   return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255, a };
 }
 
-// Composite all visible layers other than the target. The worker uses this as
-// its boundary-detection source — it sees what the user sees behind the layer
-// being painted, including the line art.
-function buildSourceImage(doc: Document, targetLayerId: string): ImageData {
+// Composite ALL visible layers — including the target layer — into the
+// boundary-detection source. This lets the worker treat user-drawn strokes
+// as fill boundaries, not just SVG line art. The fill still writes onto the
+// target layer; the source is only used to decide where the fill spreads.
+//
+// Note: the target's existing pixels in the filled region get overwritten,
+// which is what the user expects (tap inside a brushed circle and the inside
+// gets the new color, even if a previous fill already partially colored it).
+function buildSourceImage(doc: Document): ImageData {
   const w = doc.meta.width;
   const h = doc.meta.height;
   const tmp = document.createElement('canvas');
@@ -42,7 +47,6 @@ function buildSourceImage(doc: Document, targetLayerId: string): ImageData {
 
   for (const layer of doc.layers) {
     if (!layer.visible) continue;
-    if (layer.id === targetLayerId) continue;
     ctx.globalAlpha = layer.opacity;
     ctx.drawImage(layer.canvas as CanvasImageSource, 0, 0);
   }
@@ -61,7 +65,7 @@ export async function runFill(
   if (!layer) throw new Error(`Layer ${layerId} not found`);
 
   const before = layer.ctx.getImageData(0, 0, layer.canvas.width, layer.canvas.height);
-  const source = buildSourceImage(doc, layerId);
+  const source = buildSourceImage(doc);
   const targetCopy = new ImageData(
     new Uint8ClampedArray(before.data),
     before.width,
