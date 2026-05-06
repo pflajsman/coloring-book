@@ -179,13 +179,13 @@ Install flow per platform:
 
 After install, the home-screen launch should be edge-to-edge fullscreen on Android. The in-app fullscreen button (top-right) toggles fullscreen at runtime regardless of install state.
 
-## Templates (54 total)
+## Templates (64 total)
 
-Indexed by `public/templates/manifest.json`. Each entry: `{ id, name, file, category }` where `file` is null for the special "blank" entry.
+Indexed by `public/templates/manifest.json`. Each entry: `{ id, name, file, category }` where `file` is null for the special "blank" entry. Categories are derived dynamically at runtime — adding a new category in the manifest is enough; the picker auto-generates the filter chip.
 
-All artwork is **CC0 / public domain** from openclipart.org. To add a new template:
+Most artwork is **CC0 / public domain** from openclipart.org. The ice-cream and lego sets are hand-authored simple line-art (black 3px strokes, no fills) in the same style. To add a new template:
 1. Drop the SVG in `public/templates/`.
-2. Add a manifest entry.
+2. Add a manifest entry (an existing or brand-new category is fine).
 3. Done — no code changes, no rebuild needed for runtime, but a deploy is needed to push it to production.
 
 The rasterizer handles arbitrary SVG sizes via uniform-scale letterbox into a 1200×800 canvas with 6% margin.
@@ -194,9 +194,10 @@ Categories:
 - **Animals** (22): cat, dog, horse, tiger, bear, teddy, monkey, owl, frog, snake, turtle, rabbit, mouse, sheep, cow, pig, duck, snail, elephant, fish, butterfly, dinosaur
 - **Vehicles** (4): car, rocket, train, bicycle
 - **Nature** (7): tree, flower, sun, moon, cloud, rainbow, mushroom
-- **Food** (2): apple, cherry
+- **Food** (7): apple, cherry, ice-cream cone, popsicle, sundae, ice-cream cup, soft serve
 - **Fantasy** (12): 7 unicorns, 5 princesses, dragon, robot, witch, santa
 - **Places** (1): house
+- **Toys** (5): lego brick, lego stack, lego baseplate, lego minifigure, lego car
 - **Other** (1): blank
 
 ## Deployment

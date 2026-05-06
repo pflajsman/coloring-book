@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <g fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Paper cup, tapered -->
+    <path d="M 60 80 L 70 175 L 130 175 L 140 80 Z"/>
+    <!-- Cup rim line -->
+    <line x1="60" y1="90" x2="140" y2="90"/>
+    <!-- Two scoops above the cup -->
+    <path d="M 65 80 Q 65 50 90 50 Q 95 44 100 50 Q 110 45 115 50 Q 135 50 135 80"/>
+    <!-- Scoop division -->
+    <path d="M 75 70 Q 95 60 110 70"/>
+    <!-- Spoon sticking out -->
+    <ellipse cx="135" cy="60" rx="9" ry="6" transform="rotate(30 135 60)"/>
+    <line x1="142" y1="65" x2="160" y2="80"/>
+    <!-- Sprinkles on top -->
+    <line x1="80" y1="55" x2="83" y2="60"/>
+    <line x1="100" y1="48" x2="103" y2="53"/>
+    <line x1="118" y1="55" x2="122" y2="60"/>
+  </g>
+</svg>
