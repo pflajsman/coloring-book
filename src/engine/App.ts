@@ -9,12 +9,16 @@ import {
   drawLineSegment,
   drawSmoothSegment,
   endStroke,
+  glitterSplatter,
+  nextStampShape,
+  resetStampCycle,
   spraySplatter,
+  stampAt,
 } from './StrokeRenderer';
 import { runFill } from './fillClient';
 import type { Point, StrokeStyle } from '../types/document';
 
-export type Tool = 'brush' | 'pen' | 'spray' | 'line' | 'circle' | 'rect' | 'blur' | 'eraser' | 'fill' | 'pan';
+export type Tool = 'brush' | 'pen' | 'spray' | 'glitter' | 'stamp' | 'line' | 'circle' | 'rect' | 'blur' | 'eraser' | 'fill' | 'pan';
 
 // Blur a circular region around (cx, cy) on the given canvas context.
 // Reads the pixels, runs a 3x3 box blur (one pass), masks the write to a
@@ -127,8 +131,13 @@ export class App {
 
   // Spray emits paint over time, not just on pointermove. We keep the last
   // pointer position and tick a RAF loop while the spray stroke is active.
+  // Glitter shares the same pattern (different splatter renderer).
   private sprayPoint: Point | null = null;
   private sprayRaf: number | null = null;
+
+  // Stamp tool tracks the last stamp position so consecutive stamps along a
+  // drag are spaced by ~one stamp size (no piling up).
+  private lastStampPos: Point | null = null;
 
   constructor(canvas: HTMLCanvasElement, doc: Document) {
     this.displayCanvas = canvas;
@@ -270,6 +279,14 @@ export class App {
       this.sprayPoint = p;
       spraySplatter(layer.ctx, p, this.strokeStyle);
       this.startSprayLoop();
+    } else if (this.state.tool === 'glitter') {
+      this.sprayPoint = p;
+      glitterSplatter(layer.ctx, p, this.strokeStyle);
+      this.startSprayLoop();
+    } else if (this.state.tool === 'stamp') {
+      resetStampCycle();
+      stampAt(layer.ctx, p, this.strokeStyle, nextStampShape());
+      this.lastStampPos = p;
     } else if (this.state.tool === 'brush') {
       // Stamp at the same point twice so a tap produces a visible blob; the
       // brush head's center is opaque so a single stamp reads as a soft dot.
@@ -302,6 +319,34 @@ export class App {
       // Also splatter at every coalesced point so fast drags still leave
       // continuous coverage instead of dotted gaps.
       for (const p of points) spraySplatter(layer.ctx, p, this.strokeStyle, 6);
+      this.scheduleRender();
+      return;
+    }
+
+    if (this.state.tool === 'glitter') {
+      const last = points[points.length - 1];
+      this.sprayPoint = last;
+      this.strokePoints.push(last);
+      // Lower per-frame intensity than spray so the trail builds gradually
+      // and reads as discrete sparkles rather than a solid wash.
+      for (const p of points) glitterSplatter(layer.ctx, p, this.strokeStyle, 0.7);
+      this.scheduleRender();
+      return;
+    }
+
+    if (this.state.tool === 'stamp') {
+      // Spacing keeps stamps from piling on top of each other when the user
+      // drags slowly. Tuned to ~one stamp diameter; cycle the shape so the
+      // trail reads as decorative variety.
+      const minSpacing = Math.max(16, this.strokeStyle.size * 1.4);
+      for (const p of points) {
+        const last = this.lastStampPos;
+        if (!last || Math.hypot(p.x - last.x, p.y - last.y) >= minSpacing) {
+          stampAt(layer.ctx, p, this.strokeStyle, nextStampShape());
+          this.lastStampPos = p;
+          this.strokePoints.push(p);
+        }
+      }
       this.scheduleRender();
       return;
     }
@@ -420,7 +465,11 @@ export class App {
       if (!this.sprayPoint || !this.strokeStyle || !this.strokeLayerId) return;
       const layer = this.doc.getLayer(this.strokeLayerId);
       if (!layer) return;
-      spraySplatter(layer.ctx, this.sprayPoint, this.strokeStyle, 8);
+      if (this.state.tool === 'glitter') {
+        glitterSplatter(layer.ctx, this.sprayPoint, this.strokeStyle, 0.6);
+      } else {
+        spraySplatter(layer.ctx, this.sprayPoint, this.strokeStyle, 8);
+      }
       this.scheduleRender();
       this.sprayRaf = requestAnimationFrame(tick);
     };
@@ -475,6 +524,7 @@ export class App {
     this.strokeBefore = null;
     this.strokeLayerId = null;
     this.shapeAnchor = null;
+    this.lastStampPos = null;
   }
 
   private async runFillAt(p: Point) {
@@ -512,6 +562,8 @@ export class App {
     } else if (e.key === 'b') this.setState({ tool: 'brush' });
     else if (e.key === 'p') this.setState({ tool: 'pen' });
     else if (e.key === 's') this.setState({ tool: 'spray' });
+    else if (e.key === 'i') this.setState({ tool: 'glitter' });
+    else if (e.key === 't') this.setState({ tool: 'stamp' });
     else if (e.key === 'l') this.setState({ tool: 'line' });
     else if (e.key === 'c') this.setState({ tool: 'circle' });
     else if (e.key === 'r') this.setState({ tool: 'rect' });

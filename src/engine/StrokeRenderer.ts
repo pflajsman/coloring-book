@@ -235,6 +235,211 @@ export function spraySplatter(ctx: Ctx, p: Point, style: StrokeStyle, intensity 
   ctx.globalAlpha = prevAlpha;
 }
 
+// Glitter spray — a sparkly, multi-color confetti emit. Unlike the regular
+// spray, every speck is a tiny star/circle in a *different* color: a rainbow
+// hue tinted toward the current palette pick, plus a bright white "flash" on
+// some specks to read as glitter shimmer. Density is time-based via a RAF
+// loop in App.ts (same pattern as spray).
+//
+// Color picking: each speck samples a hue near the seed color's hue with
+// big jitter, full saturation, high lightness — that produces neighbour
+// hues that read as "this color's family of sparkles" rather than rainbow
+// noise. ~20% of specks are pure white for the glint highlight.
+function hexToHsl(hex: string): { h: number; s: number; l: number } {
+  const n = parseInt(normalizeHex(hex).slice(1), 16);
+  const r = ((n >> 16) & 255) / 255;
+  const g = ((n >> 8) & 255) / 255;
+  const b = (n & 255) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  let h = 0;
+  let s = 0;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h *= 60;
+  }
+  return { h, s, l };
+}
+
+function drawStar(
+  ctx: Ctx,
+  cx: number,
+  cy: number,
+  r: number,
+  points: number,
+  rotation: number,
+) {
+  // Five-point star traced as alternating outer/inner radii.
+  ctx.beginPath();
+  for (let i = 0; i < points * 2; i++) {
+    const a = rotation + (i / (points * 2)) * Math.PI * 2;
+    const rr = i % 2 === 0 ? r : r * 0.45;
+    const x = cx + Math.cos(a) * rr;
+    const y = cy + Math.sin(a) * rr;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fill();
+}
+
+export function glitterSplatter(ctx: Ctx, p: Point, style: StrokeStyle, intensity = 1) {
+  if (style.eraser) return;
+  const radius = Math.max(12, style.size * 1.4);
+  const seed = hexToHsl(style.color);
+
+  // Soft tint pass — a faint wash of the seed colour so the trail reads as a
+  // coloured glow under the sparkles instead of pure-white scatter.
+  const head = getSprayHead(normalizeHex(style.color));
+  ctx.drawImage(head, p.x - radius, p.y - radius, radius * 2, radius * 2);
+
+  // Sparkle count scales with size; capped to keep things performant on big
+  // brush sizes.
+  const specks = Math.min(40, Math.round(radius * 0.9 * intensity));
+
+  for (let i = 0; i < specks; i++) {
+    // Even disk distribution so density is uniform across the spray cone.
+    const a = Math.random() * Math.PI * 2;
+    const rr = Math.sqrt(Math.random()) * radius;
+    const x = p.x + Math.cos(a) * rr;
+    const y = p.y + Math.sin(a) * rr;
+    const speckSize = 1 + Math.random() * Math.max(2, style.size * 0.18);
+
+    // 20% pure-white "glint" specks; 80% color jittered around the seed hue.
+    if (Math.random() < 0.2) {
+      ctx.fillStyle = '#ffffff';
+    } else {
+      const h = (seed.h + (Math.random() - 0.5) * 80 + 360) % 360;
+      const s = Math.min(100, seed.s * 100 * 0.6 + 60); // bright/saturated
+      const l = 55 + Math.random() * 25;
+      ctx.fillStyle = `hsl(${h.toFixed(0)},${s.toFixed(0)}%,${l.toFixed(0)}%)`;
+    }
+
+    // Mix shapes so it reads as glitter, not dots: ~35% are tiny stars,
+    // the rest are circles of varying sizes.
+    if (Math.random() < 0.35 && speckSize > 1.4) {
+      drawStar(ctx, x, y, speckSize, 5, Math.random() * Math.PI);
+    } else {
+      ctx.beginPath();
+      ctx.arc(x, y, speckSize * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+// Stamp tool — drops a single decorative shape (star, heart, flower, etc.)
+// at the given point. Color is the current palette pick. Size scales with
+// the brush-size slider. Each tap or drag-step lays one stamp.
+//
+// Stamps cycle through a small set of shapes so a kid stamping repeatedly
+// gets a varied trail without having to switch tools.
+const STAMP_SHAPES = ['star', 'heart', 'flower', 'sparkle'] as const;
+type StampShape = typeof STAMP_SHAPES[number];
+
+let stampIndex = 0;
+export function nextStampShape(): StampShape {
+  const s = STAMP_SHAPES[stampIndex % STAMP_SHAPES.length];
+  stampIndex++;
+  return s;
+}
+export function resetStampCycle() {
+  stampIndex = 0;
+}
+
+function drawHeart(ctx: Ctx, cx: number, cy: number, size: number, rotation: number) {
+  // Two top lobes + V-point bottom. Drawn at unit scale, scaled+rotated via
+  // setTransform so geometry stays simple.
+  const s = size / 16;
+  const cos = Math.cos(rotation);
+  const sin = Math.sin(rotation);
+  const tx = (x: number, y: number) => ({ x: cx + (x * cos - y * sin) * s, y: cy + (x * sin + y * cos) * s });
+  const p0 = tx(0, 4);
+  const p1 = tx(-8, -4);
+  const p2 = tx(-4, -10);
+  const p3 = tx(0, -6);
+  const p4 = tx(4, -10);
+  const p5 = tx(8, -4);
+  ctx.beginPath();
+  ctx.moveTo(p0.x, p0.y);
+  ctx.bezierCurveTo(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+  ctx.bezierCurveTo(p4.x, p4.y, p5.x, p5.y, p0.x, p0.y);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawFlower(ctx: Ctx, cx: number, cy: number, size: number, rotation: number, petalColor: string, centerColor: string) {
+  // 5 petals around a center disc. Each petal is a circle offset along its
+  // angle so they overlap into a flower silhouette.
+  const r = size / 2;
+  const petalR = r * 0.45;
+  const offset = r * 0.55;
+  ctx.fillStyle = petalColor;
+  for (let i = 0; i < 5; i++) {
+    const a = rotation + (i / 5) * Math.PI * 2;
+    const px = cx + Math.cos(a) * offset;
+    const py = cy + Math.sin(a) * offset;
+    ctx.beginPath();
+    ctx.arc(px, py, petalR, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = centerColor;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.3, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawSparkle(ctx: Ctx, cx: number, cy: number, size: number, rotation: number) {
+  // 4-point sparkle (long N-S/E-W spikes) for a "twinkle" look.
+  ctx.beginPath();
+  const r = size / 2;
+  const inner = r * 0.18;
+  const cos = Math.cos(rotation);
+  const sin = Math.sin(rotation);
+  const pts: [number, number][] = [
+    [0, -r], [inner, -inner], [r, 0], [inner, inner],
+    [0, r], [-inner, inner], [-r, 0], [-inner, -inner],
+  ];
+  pts.forEach(([x, y], i) => {
+    const tx = cx + x * cos - y * sin;
+    const ty = cy + x * sin + y * cos;
+    if (i === 0) ctx.moveTo(tx, ty);
+    else ctx.lineTo(tx, ty);
+  });
+  ctx.closePath();
+  ctx.fill();
+}
+
+export function stampAt(ctx: Ctx, p: Point, style: StrokeStyle, shape: StampShape) {
+  if (style.eraser) {
+    // Eraser-stamp not implemented; just clear a soft circle.
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, style.size, 0, Math.PI * 2);
+    ctx.fill();
+    return;
+  }
+  const size = Math.max(8, style.size * 1.6);
+  const rot = Math.random() * Math.PI * 2;
+  ctx.fillStyle = style.color;
+
+  if (shape === 'star') drawStar(ctx, p.x, p.y, size / 2, 5, rot);
+  else if (shape === 'heart') drawHeart(ctx, p.x, p.y, size, rot);
+  else if (shape === 'flower') {
+    // Flower's center pops if it's a different color; pick white center
+    // unless the petal is white, then black.
+    const center = style.color.toLowerCase() === '#ffffff' ? '#000000' : '#ffffff';
+    drawFlower(ctx, p.x, p.y, size, rot, style.color, center);
+    ctx.fillStyle = style.color; // restore for caller
+  }
+  else drawSparkle(ctx, p.x, p.y, size, rot);
+}
+
+export type { StampShape };
+
 // Replay a full stroke (used during undo/redo and document load). Uses
 // 3-point smoothing where possible, falling back to straight lines at the
 // stroke endpoints where there isn't enough context.

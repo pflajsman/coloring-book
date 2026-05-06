@@ -37,10 +37,12 @@ const KID_COLORS = [
   '#95a5a6', // grey
 ];
 
-type Tools = Extract<Tool, 'brush' | 'pen' | 'line' | 'circle' | 'rect' | 'spray' | 'blur' | 'fill' | 'eraser'>;
+type Tools = Extract<Tool, 'brush' | 'pen' | 'line' | 'circle' | 'rect' | 'spray' | 'glitter' | 'stamp' | 'blur' | 'fill' | 'eraser'>;
 
 // Order matters — this is the visual order in the dock (top to bottom).
-const TOOL_LIST: Tools[] = ['pen', 'brush', 'line', 'circle', 'rect', 'spray', 'blur', 'fill', 'eraser'];
+// Basic tools first (pen, brush, fill, eraser), then shape tools, then
+// special/effect tools at the bottom.
+const TOOL_LIST: Tools[] = ['pen', 'brush', 'fill', 'eraser', 'line', 'circle', 'rect', 'spray', 'glitter', 'stamp', 'blur'];
 
 const TOOL_ICONS: Record<Tools, string> = {
   brush: brushSvg(),
@@ -49,6 +51,8 @@ const TOOL_ICONS: Record<Tools, string> = {
   circle: circleSvg(),
   rect: rectSvg(),
   spray: spraySvg(),
+  glitter: glitterSvg(),
+  stamp: stampSvg(),
   blur: blurSvg(),
   fill: fillSvg(),
   eraser: eraserSvg(),
@@ -61,6 +65,8 @@ const TOOL_NAMES: Record<Tools, string> = {
   circle: 'Circle',
   rect: 'Rectangle',
   spray: 'Spray',
+  glitter: 'Glitter',
+  stamp: 'Stamps',
   blur: 'Magic finger',
   fill: 'Fill',
   eraser: 'Eraser',
@@ -643,6 +649,61 @@ function spraySvg() {
     <line x1="22" y1="40" x2="42" y2="40" stroke="#fff" stroke-width="1.5" opacity="0.8"/>
     <!-- can highlight (left edge) -->
     <line x1="23" y1="28" x2="23" y2="54" stroke="#fff" stroke-width="2" opacity="0.7"/>
+  </svg>`;
+}
+
+function glitterSvg() {
+  // Magic wand with a star tip emitting rainbow sparkles. Reads as
+  // "magic glitter" instantly. Distinct silhouette from the spray can.
+  return `<svg viewBox="0 0 64 64">
+    <!-- rainbow sparkles around the tip -->
+    <g>
+      <circle cx="14" cy="10" r="1.6" fill="#ff6b9d"/>
+      <circle cx="22" cy="6" r="1.2" fill="#ffd166"/>
+      <circle cx="32" cy="10" r="1.4" fill="#6dd5ed"/>
+      <circle cx="42" cy="6" r="1.2" fill="#b8a4ff"/>
+      <circle cx="50" cy="12" r="1.6" fill="#06d6a0"/>
+      <circle cx="8" cy="20" r="1.3" fill="#ffd166"/>
+      <circle cx="50" cy="22" r="1.3" fill="#ff6b9d"/>
+    </g>
+    <!-- 4-point sparkle near tip -->
+    <path d="M22 18 L 24 22 L 28 24 L 24 26 L 22 30 L 20 26 L 16 24 L 20 22 Z"
+          fill="#fff8dc" stroke="#a87b00" stroke-width="1.5" stroke-linejoin="round"/>
+    <!-- big star tip -->
+    <path d="M40 14 L 44 24 L 54 26 L 46 32 L 48 42 L 40 36 L 32 42 L 34 32 L 26 26 L 36 24 Z"
+          fill="#ffd166" stroke="#a87b00" stroke-width="2" stroke-linejoin="round"/>
+    <!-- wand handle -->
+    <path d="M30 40 L 18 56 L 14 52 L 26 36 Z"
+          fill="#b8a4ff" stroke="#5a4a99" stroke-width="2" stroke-linejoin="round"/>
+    <!-- handle highlight -->
+    <line x1="22" y1="42" x2="16" y2="50" stroke="#fff" stroke-width="1.5" opacity="0.7"/>
+  </svg>`;
+}
+
+function stampSvg() {
+  // Rubber stamp with a star imprint and a glow under it. Reads as
+  // "press to stamp a shape".
+  return `<svg viewBox="0 0 64 64">
+    <!-- decorative star floating above (the stamp shape) -->
+    <path d="M48 6 L 50 12 L 56 12 L 51 16 L 53 22 L 48 18 L 43 22 L 45 16 L 40 12 L 46 12 Z"
+          fill="#ffd166" stroke="#a87b00" stroke-width="1.5" stroke-linejoin="round"/>
+    <!-- handle (top knob) -->
+    <rect x="22" y="10" width="20" height="8" rx="2" fill="#d97a3a"
+          stroke="#7a3e16" stroke-width="2"/>
+    <!-- shaft narrowing -->
+    <path d="M22 18 L 42 18 L 38 26 L 26 26 Z"
+          fill="#f0c990" stroke="#7a3e16" stroke-width="2" stroke-linejoin="round"/>
+    <!-- pad block -->
+    <rect x="14" y="26" width="36" height="16" rx="2" fill="#bfc7d4"
+          stroke="#5a6276" stroke-width="2"/>
+    <!-- rubber face (the printing surface) -->
+    <rect x="16" y="40" width="32" height="6" rx="1" fill="#ff6b9d"
+          stroke="#7a2548" stroke-width="2"/>
+    <!-- impression on the page -->
+    <path d="M22 52 L 24 56 L 28 56 L 25 58 L 26 62 L 22 60 L 18 62 L 19 58 L 16 56 L 20 56 Z"
+          fill="#1abc9c" stroke="#0a7a5b" stroke-width="1.2" stroke-linejoin="round" opacity="0.85"/>
+    <path d="M40 50 L 42 54 L 46 54 L 43 57 L 44 60 L 40 58 L 36 60 L 37 57 L 34 54 L 38 54 Z"
+          fill="#ff6b9d" stroke="#7a2548" stroke-width="1.2" stroke-linejoin="round" opacity="0.85"/>
   </svg>`;
 }
 

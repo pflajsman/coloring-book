@@ -342,6 +342,8 @@ html, body {
 .kid-tool[data-tool="circle"] { border-color: #1abc9c; }
 .kid-tool[data-tool="rect"] { border-color: #ff8a80; }
 .kid-tool[data-tool="spray"] { border-color: #b8a4ff; }
+.kid-tool[data-tool="glitter"] { border-color: #ffd166; }
+.kid-tool[data-tool="stamp"] { border-color: #d97a3a; }
 .kid-tool[data-tool="blur"] { border-color: #ff9a76; }
 .kid-tool[data-tool="fill"] { border-color: #2ecc71; }
 .kid-tool[data-tool="eraser"] { border-color: #ffb3b3; }
