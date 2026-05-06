@@ -65,8 +65,8 @@ public/
 
 1. User puts finger/stylus on the canvas.
 2. `PointerInput` fires `pointerdown`, captures the pointer, calls `App.handleStrokeStart(p)`.
-3. `App` snapshots the active layer's pixels into `strokeBefore` (used later for undo) and stores a per-tool live state (e.g. `shapeAnchor` for line/circle/rect, `sprayPoint` for spray).
-4. On each `pointermove`, `getCoalescedEvents()` returns all the high-frequency samples the OS batched into this frame. We render them to the layer using the per-tool path (`drawLineSegment` for pen, `drawBrushSegment` (radial-gradient stamp) for brush, `spraySplatter` for spray, `blurStamp` for the magic-finger tool, `drawSmoothSegment` for default 3-point spline smoothing).
+3. `App` snapshots the active layer's pixels into `strokeBefore` (used later for undo) and stores a per-tool live state (e.g. `shapeAnchor` for line/circle/rect, `sprayPoint` for spray/glitter, `lastStampPos` for stamps).
+4. On each `pointermove`, `getCoalescedEvents()` returns all the high-frequency samples the OS batched into this frame. We render them to the layer using the per-tool path (`drawLineSegment` for pen, `drawBrushSegment` (radial-gradient stamp) for brush, `spraySplatter` for spray, `glitterSplatter` for the glitter wand, `stampAt` for the stamp tool, `blurStamp` for the magic-finger tool, `drawSmoothSegment` for default 3-point spline smoothing).
 5. On `pointerup`, the rendered layer is snapshotted again into `after`, and a `StrokeCommand` is built carrying `strokePoints`, `style`, `before`, `after`, `bbox`. It's pushed into `History`.
 6. Undo restores `before`. Redo blits `after`. No re-rendering needed.
 
@@ -113,19 +113,23 @@ Templates also get **letterboxed** with a 6% margin so the picture doesn't touch
 
 ### Tool roster (current)
 
+Dock order is **basics → shapes → effects**: Pen, Brush, Fill, Eraser, Ruler, Circle, Rectangle, Spray, Glitter, Stamps, Magic finger.
+
 | Tool | Key | What it does |
 |---|---|---|
 | Pen | P | Crisp thin 3px line, no pressure, `lineTo` segments |
 | Brush | B | Soft radial-gradient stamp head, dense step-stamping along path |
+| Fill | G | Off-thread flood fill, light/color seed paths, edge bleed dilation |
+| Eraser | E | `destination-out` composite operation |
 | Ruler | L | Click-drag straight line, live preview, snapshot/restore |
 | Circle | C | Click-drag ellipse from corner to corner, 64-segment polyline |
 | Rectangle | R | Click-drag rectangle, 5-point stroke |
 | Spray | S | Two-pass: soft mist gradient stamps + speckle dots, time-based emit (RAF loop) |
+| Glitter | I | Multi-color sparkle scatter (stars + dots, hue-jittered around seed color, ~20% white glints), shares the spray RAF emit loop |
+| Stamps | T | Drops decorative shapes (star → heart → flower → sparkle, cycling) along a drag, spaced by ~one stamp diameter |
 | Magic finger | U | Reads layer pixels, applies 3×3 box blur through a soft-circular mask |
-| Fill | G | Off-thread flood fill, light/color seed paths, edge bleed dilation |
-| Eraser | E | `destination-out` composite operation |
 
-Each tool has its own border color in the dock to be recognizable at a glance. Pen=cyan, Brush=pink, Ruler=yellow, Circle=teal, Rectangle=coral, Spray=lavender, Blur=orange, Fill=green, Eraser=peach.
+Each tool has its own border color in the dock to be recognizable at a glance. Pen=cyan, Brush=pink, Fill=green, Eraser=peach, Ruler=yellow, Circle=teal, Rectangle=coral, Spray=lavender, Glitter=gold, Stamps=brown, Blur=orange.
 
 ## UI layout
 
@@ -252,7 +256,7 @@ When testing on a real tablet, deploy to Azure (just push to main) and add the r
 
 Files most likely to need edits:
 
-- **Adding a tool**: extend `Tool` union in `App.ts`, branch in `handleStrokeStart`/`handleStrokeMove`, add icon + entry in `KidUI.ts`'s `TOOL_LIST`/`TOOL_ICONS`/`TOOL_NAMES`, add a CSS border accent.
+- **Adding a tool**: extend `Tool` union in `App.ts`, branch in `handleStrokeStart`/`handleStrokeMove`, add icon + entry in `KidUI.ts`'s `Tools`/`TOOL_LIST`/`TOOL_ICONS`/`TOOL_NAMES`, add a CSS border accent in `styles.css`, and a single-letter hotkey in `App.ts`'s `handleKey`. For time-based emit tools reuse the spray RAF loop pattern (`startSprayLoop` already branches on `state.tool` — see how `glitter` plugs in). For per-segment stamping tools use the `lastStampPos` spacing pattern from the stamp tool.
 - **Adding a template**: drop SVG in `public/templates/`, append to `manifest.json`. Done.
 - **Tweaking fill behavior**: `workers/floodFill.worker.ts`. Always hard-refresh after editing — the worker bundle is cached.
 - **Tweaking brush feel**: `engine/StrokeRenderer.ts`. The brush head gradient (`getBrushHead`) is the main lever for "soft" vs. "hard" edges.

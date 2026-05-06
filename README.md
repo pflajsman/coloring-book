@@ -6,7 +6,7 @@ Live: deployed via GitHub Actions to Azure Static Web Apps on every push to `mai
 
 ## Features
 
-- **9 drawing tools** — pen (crisp thin line), brush (soft radial-gradient stamps), ruler (straight lines), circle, rectangle, spray (paint-can mist), magic finger (smudge / blur), fill (off-thread flood fill), eraser
+- **11 drawing tools** — pen (crisp thin line), brush (soft radial-gradient stamps), fill (off-thread flood fill), eraser, ruler (straight lines), circle, rectangle, spray (paint-can mist), glitter (rainbow sparkle wand), stamps (star/heart/flower/sparkle imprints), magic finger (smudge / blur)
 - **Pressure-sensitive strokes** with 3-point spline smoothing and `getCoalescedEvents` for high-Hz pen input
 - **Smart flood fill** in a Web Worker — handles SVG line art, user-drawn shapes, and re-coloring with a saturation-aware matcher and edge-bleed dilation (no white halos)
 - **3 layers** (background / paint / line art) with per-layer visibility & opacity
@@ -36,7 +36,7 @@ npm run preview    # serve dist/ locally
 
 ## Keyboard
 
-- `P` pen, `B` brush, `L` ruler, `C` circle, `R` rectangle, `S` spray, `U` magic finger, `G` fill, `E` eraser, `H` pan
+- `P` pen, `B` brush, `G` fill, `E` eraser, `L` ruler, `C` circle, `R` rectangle, `S` spray, `I` glitter, `T` stamps, `U` magic finger, `H` pan
 - `Ctrl+Z` undo, `Ctrl+Y` / `Ctrl+Shift+Z` redo
 
 ## Adding new templates
