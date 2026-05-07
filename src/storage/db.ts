@@ -10,7 +10,23 @@ import { Layer } from '../engine/Layer';
 
 interface Schema {
   documents: { key: string; value: StoredDocument };
+  aiTemplates: { key: string; value: AiTemplateRecord };
 }
+
+// AI-generated coloring page saved by the user. The PNG blob is the
+// already-processed line-art (white-stripped, letterboxed) so reload
+// is instant and we never re-call the API for the same picture.
+export type AiTemplateRecord = {
+  id: string;
+  name: string;
+  prompt: string;
+  createdAt: number;
+  blob: Blob;
+  // Document dimensions the blob was rendered at. Lets us defensively skip
+  // entries baked at a different size if we ever change the canvas size.
+  width: number;
+  height: number;
+};
 
 type StoredLayer = {
   id: string;
@@ -31,10 +47,16 @@ type StoredDocument = {
 let dbPromise: Promise<IDBPDatabase> | null = null;
 function getDb() {
   if (!dbPromise) {
-    dbPromise = openDB('coloring-book', 1, {
+    // v2 added the `aiTemplates` store. The `upgrade` callback runs for
+    // each version transition the user is missing, so first-time installs
+    // and existing users both end up with both stores.
+    dbPromise = openDB('coloring-book', 2, {
       upgrade(db) {
         if (!db.objectStoreNames.contains('documents')) {
           db.createObjectStore('documents', { keyPath: 'meta.id' });
+        }
+        if (!db.objectStoreNames.contains('aiTemplates')) {
+          db.createObjectStore('aiTemplates', { keyPath: 'id' });
         }
       },
     });
@@ -110,3 +132,22 @@ export async function applyStoredDocument(target: Document, stored: StoredDocume
 }
 
 export type { StoredDocument };
+
+// ---------- AI-generated templates ----------
+
+export async function saveAiTemplate(record: AiTemplateRecord): Promise<void> {
+  const db = await getDb();
+  await db.put('aiTemplates', record as unknown as Schema['aiTemplates']['value']);
+}
+
+export async function listAiTemplates(): Promise<AiTemplateRecord[]> {
+  const db = await getDb();
+  const all = (await db.getAll('aiTemplates')) as unknown as AiTemplateRecord[];
+  // Newest first — kids most often want the picture they just saved.
+  return all.sort((a, b) => b.createdAt - a.createdAt);
+}
+
+export async function deleteAiTemplate(id: string): Promise<void> {
+  const db = await getDb();
+  await db.delete('aiTemplates', id);
+}

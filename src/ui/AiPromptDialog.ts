@@ -30,10 +30,11 @@ function getSpeechRecognition(): SpeechRecognitionCtor | null {
 }
 
 export type AiPromptOptions = {
-  // Receives the decoded ImageBitmap and is responsible for installing it on
-  // the line-art layer. The dialog stays mounted until this resolves so the
-  // loading state covers letterboxing/post-processing too.
-  onGenerated: (bitmap: ImageBitmap) => Promise<void>;
+  // Receives the decoded ImageBitmap plus the raw prompt the user typed (used
+  // as the default name when the kid saves the picture to "My pictures").
+  // The dialog stays mounted until this resolves so the loading state covers
+  // letterboxing/post-processing too.
+  onGenerated: (bitmap: ImageBitmap, prompt: string) => Promise<void>;
 };
 
 export function openAiPromptDialog(opts: AiPromptOptions): void {
@@ -155,7 +156,7 @@ export function openAiPromptDialog(opts: AiPromptOptions): void {
     setLoading(true);
     try {
       const bitmap = await generateColoringImage(prompt);
-      await opts.onGenerated(bitmap);
+      await opts.onGenerated(bitmap, prompt);
       destroy();
     } catch (e) {
       const msg = e instanceof GenerateError ? e.message : "Something went wrong. Try again.";

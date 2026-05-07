@@ -1010,3 +1010,96 @@ html, body {
   0%   { background-position: 100% 0; }
   100% { background-position: -100% 0; }
 }
+
+/* "Save to my pictures" toast — appears bottom-center after a successful
+   generation. Slides up on enter, fades on leave. */
+.ai-save-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  background: #2a2a3a;
+  color: #fff;
+  border-radius: 14px;
+  padding: 10px 14px 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  z-index: 200;
+  font-size: 15px;
+  animation: ai-toast-in 0.25s ease-out;
+  max-width: calc(100vw - 32px);
+}
+.ai-save-toast.is-leaving {
+  animation: ai-toast-out 0.25s ease-in forwards;
+}
+@keyframes ai-toast-in {
+  from { transform: translate(-50%, 16px); opacity: 0; }
+  to   { transform: translate(-50%, 0);    opacity: 1; }
+}
+@keyframes ai-toast-out {
+  from { transform: translate(-50%, 0);    opacity: 1; }
+  to   { transform: translate(-50%, 12px); opacity: 0; }
+}
+.ai-save-toast-btn {
+  background: #ff6b9d;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+}
+.ai-save-toast-btn:hover { background: #ff7faa; }
+.ai-save-toast-close {
+  background: transparent;
+  color: #fff;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 4px;
+  opacity: 0.7;
+}
+.ai-save-toast-close:hover { opacity: 1; }
+
+/* Saved-AI cards in the picker. Visually identical to manifest cards but
+   with a small ✕ in the top-right for delete. The thumb is its own button
+   so the delete button can stop click propagation cleanly. */
+.template-card-ai {
+  position: relative;
+  padding: 0;
+  cursor: default;
+}
+.template-card-ai .template-thumb-btn {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+.template-card-ai .template-label { padding: 0 8px 8px; }
+.template-card-del {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(42, 42, 58, 0.7);
+  color: #fff;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 1;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transition: opacity 0.12s, background 0.12s;
+}
+.template-card-ai:hover .template-card-del { opacity: 1; }
+.template-card-del:hover { background: #ff6b9d; }
