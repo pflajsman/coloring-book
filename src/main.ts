@@ -259,8 +259,10 @@ async function openTemplateChooser() {
 }
 
 async function openProjects() {
+  // Plain wrapper — no modal-body grid here. We render a real <table> so
+  // each project is one row with Name / Date / Actions columns.
   const body = document.createElement('div');
-  body.className = 'modal-body';
+  body.className = 'projects-list-wrap';
   body.innerHTML = '<div class="loading">Loading…</div>';
   const destroy = showModal('Saved projects', body);
   let docs = await listDocuments();
@@ -274,12 +276,35 @@ async function openProjects() {
       body.appendChild(empty);
       return;
     }
+
+    const table = document.createElement('table');
+    table.className = 'projects-table';
+
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+      <tr>
+        <th class="col-name">Name</th>
+        <th class="col-date">Saved</th>
+        <th class="col-actions"></th>
+      </tr>`;
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
     for (const meta of docs) {
-      const card = document.createElement('div');
-      card.className = 'project-card';
-      const title = document.createElement('div');
-      title.className = 'project-title';
-      title.innerHTML = `<strong>${escape(meta.name)}</strong><br><small>${new Date(meta.updatedAt).toLocaleString()}</small>`;
+      const row = document.createElement('tr');
+      row.className = 'project-row';
+
+      const nameCell = document.createElement('td');
+      nameCell.className = 'col-name';
+      nameCell.textContent = meta.name;
+      nameCell.title = meta.name;
+
+      const dateCell = document.createElement('td');
+      dateCell.className = 'col-date';
+      dateCell.textContent = new Date(meta.updatedAt).toLocaleString();
+
+      const actionsCell = document.createElement('td');
+      actionsCell.className = 'col-actions';
       const actions = document.createElement('div');
       actions.className = 'project-actions';
 
@@ -337,9 +362,12 @@ async function openProjects() {
       });
 
       actions.append(open, rename, del);
-      card.append(title, actions);
-      body.appendChild(card);
+      actionsCell.appendChild(actions);
+      row.append(nameCell, dateCell, actionsCell);
+      tbody.appendChild(row);
     }
+    table.appendChild(tbody);
+    body.appendChild(table);
   };
 
   render();
@@ -353,6 +381,3 @@ function flash(msg: string) {
   setTimeout(() => n.remove(), 1400);
 }
 
-function escape(s: string): string {
-  return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
-}
