@@ -43,19 +43,30 @@ src/
   storage/
     db.ts                      IndexedDB project store (idb)
   templates/
-    index.ts                   Manifest loader + SVG rasterizer (strips white fills)
+    index.ts                   Manifest loader + SVG/raster line-art pipeline (strips white fills)
+  ai/
+    generate.ts                Client for /api/generate (same-origin Function proxy)
   ui/
     KidUI.ts                   Tool dock, palette, top bar — all of the chrome
     Modal.ts                   Modal + promptDialog + confirmDialog helpers
     Tooltip.ts                 Hover tooltips (singleton)
+    AiPromptDialog.ts          Chat + speech prompt for AI-generated templates
     LayerPanel.ts              Layer list (currently unused — kept for future)
     styles.css
   types/
     document.ts                Op + meta types (designed for future delta sync)
   main.ts                      Boot, wires UI ↔ engine, handles save/load actions
 
+api/                            Azure Functions (managed by SWA)
+  src/functions/
+    generate.ts                Pollinations proxy — secret key stays here
+  host.json                    Functions runtime config
+  package.json                 Function deps (separate from root)
+  tsconfig.json                TS config for the function
+  local.settings.json.example  Template — copy to local.settings.json for dev
+
 public/
-  templates/                   *.svg files + manifest.json (54 templates)
+  templates/                   *.svg files + manifest.json (64 templates)
   icons/                       PWA icons (192, 512, 512-maskable)
   apple-touch-icon.png         iOS home-screen icon (180×180)
   favicon.svg                  Tab icon
@@ -134,7 +145,7 @@ Each tool has its own border color in the dock to be recognizable at a glance. P
 ## UI layout
 
 Top bar (always visible, single row that wraps below 1100 px):
-- Left: **Pictures**, **Clear**, **Undo**
+- Left: **Pictures**, **Make a picture** (AI), **Clear**, **Undo**
 - Center: **Brush size** slider (centered, fluid width)
 - Right: **Settings**, **Fullscreen**
 
@@ -199,6 +210,49 @@ Categories:
 - **Places** (1): house
 - **Toys** (5): lego brick, lego stack, lego baseplate, lego minifigure, lego car
 - **Other** (1): blank
+
+## AI templates
+
+Kids run out of pre-made subjects fast. The **✨ Make a picture** button (top bar, next to Pictures) opens a chat-style dialog where they type or speak what they want to draw. The result becomes the current line-art layer, indistinguishable from a manifest template once it's loaded.
+
+### Architecture: client → Function proxy → Pollinations
+
+```
+Browser  ──GET /api/generate?prompt=…──▶  Azure Function  ──Bearer key──▶  Pollinations
+   ◀─────────── PNG bytes ─────────────         (api/)        ◀── PNG ────
+```
+
+The Pollinations API now requires either a registered referrer or a Bearer token. We use a **secret token (`POLLINATIONS_KEY`) held server-side in an Azure Function**. The browser only sees `/api/generate` on its own origin — same-origin, no CORS, no key in the bundle.
+
+Pipeline:
+
+1. **Prompt input** — `src/ui/AiPromptDialog.ts`. Text field + optional mic button (only rendered if `SpeechRecognition` / `webkitSpeechRecognition` exists; iOS Safari hides it).
+2. **Client request** — `src/ai/generate.ts` GETs `/api/generate?prompt=<encoded>`. No auth header from the client. The function lifts the `error` field out of any non-2xx JSON body and surfaces it as a `GenerateError` message.
+3. **Server proxy** — `api/src/functions/generate.ts` (Azure Functions v4, Node 20, TypeScript). Reads `POLLINATIONS_KEY` from env, appends the style suffix, calls Pollinations with the random seed, and streams the PNG body back. Validates prompt length (≤200 chars) so a malicious caller can't burn quota. Maps 429 → 429 to the client.
+4. **Decode** — `createImageBitmap(blob)` returns an `ImageBitmap`.
+5. **Letterbox + line-art process** — `rasterizeImageBitmap()` in `templates/index.ts` runs the same 6%-margin letterbox and white→transparent post-process used by the SVG path. White background pixels become transparent so the user's paint shows through; remaining pixels are forced black.
+6. **Install** — `loadGeneratedImage()` in `main.ts` blits the processed bitmap onto the locked line-art layer, sets `meta.templateId = 'ai:<timestamp>'`, clears the paint layer + history.
+
+The style suffix `simple coloring book page, thick black outlines, no shading, white background, line art for kids` lives in **`api/src/functions/generate.ts`** (server-side) so it can be tuned without redeploying the SPA.
+
+### Deploy / configure
+
+- The function is deployed automatically by the same GitHub Actions workflow as the SPA (`api_location: api` in `azure-static-web-apps.yml`). SWA's Oryx builder runs `npm install && npm run build` inside `api/`.
+- After the first deploy, set the runtime env var in **Azure Portal → your Static Web App → Configuration → Application settings**:
+  - Name: `POLLINATIONS_KEY`
+  - Value: the secret key from auth.pollinations.ai (never commit it)
+- For local development against the live function: just `npm run dev` in the root and the deployed Azure Function answers `/api/generate` against the deployed origin (you'd need to deploy first). For fully local end-to-end testing, install the SWA CLI and the Functions Core Tools (`npm i -g @azure/static-web-apps-cli azure-functions-core-tools`), copy `api/local.settings.json.example` to `api/local.settings.json`, paste a key, and run `swa start http://localhost:5173 --api-location api/dist`.
+
+Swapping providers means editing only `api/src/functions/generate.ts`. The SPA, the dialog, and the rest of the pipeline don't know or care which API produced the image.
+
+### Constraints / gotchas
+
+- **Key safety.** `sk_*` tokens are SECRETS. They live in Azure App Settings only. They must never appear in `src/`, in env vars on the build runner, in `local.settings.json` (which is gitignored), or in chat. Rotate immediately if exposed.
+- **CORS.** Same-origin (`/api/generate`) — no CORS preflight. The function returns the PNG bytes directly so `createImageBitmap` works without taint.
+- **Service worker.** `vite-plugin-pwa` only precaches same-origin static assets — the dynamic `/api/generate` response is not cached, which is what we want (every request should produce a fresh image).
+- **Rate limit.** Pollinations Seed-tier (with the key) is ~1 req / 5s. The client surfaces a friendly "slow down" message on 429.
+- **Quality variance.** Flux occasionally produces shaded output despite the suffix. Re-running with a fresh seed usually fixes it. Tweak `STYLE_SUFFIX` in the function if it needs to change.
+- **Prompt length cap.** 200 chars, enforced server-side.
 
 ## Deployment
 

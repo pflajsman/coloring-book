@@ -12,6 +12,14 @@ dist
 dist-ssr
 *.local
 
+# Azure Functions API
+api/dist
+api/node_modules
+# Local dev secrets — NEVER commit. Contains POLLINATIONS_KEY for `swa start`
+# / `func start` against a local emulator.
+api/local.settings.json
+.swa
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

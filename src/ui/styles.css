@@ -899,3 +899,114 @@ html, body {
   z-index: 200;
   box-shadow: 0 6px 20px rgba(0,0,0,0.5);
 }
+
+/* ---------- AI prompt dialog ---------- */
+/* Top-bar Make-a-picture button. Slight pink-purple tint so it pops out
+   from the neutral icon buttons next to it without being garish. */
+.kid-aibtn {
+  background: linear-gradient(135deg, #ffe7f1 0%, #efe6ff 100%);
+}
+.kid-aibtn:hover {
+  background: linear-gradient(135deg, #ffd6e6 0%, #e1d4ff 100%);
+}
+
+.ai-prompt-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 24px 22px;
+  min-width: 320px;
+  max-width: 460px;
+}
+.ai-prompt-hint {
+  font-size: 14px;
+  color: #555;
+}
+.ai-prompt-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+.ai-prompt-input {
+  flex: 1;
+  padding: 12px 14px;
+  font-size: 16px;
+  border: 2px solid #e5e5ea;
+  border-radius: 10px;
+  outline: none;
+  font-family: inherit;
+  color: #2a2a3a;
+  background: #fff;
+  transition: border-color 0.15s;
+}
+.ai-prompt-input:focus { border-color: #ff6b9d; }
+.ai-prompt-input:disabled { background: #f4f4f7; color: #888; }
+
+.ai-mic-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border: 2px solid #ffd6e6;
+  background: #fff8fa;
+  cursor: pointer;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+.ai-mic-btn svg { width: 26px; height: 26px; }
+.ai-mic-btn:hover { background: #fff1f6; }
+.ai-mic-btn:disabled { opacity: 0.5; cursor: default; }
+/* Pulse ring while listening so kids see the mic is on. */
+.ai-mic-btn.is-listening {
+  background: #ff6b9d;
+  border-color: #e74c8e;
+  animation: ai-mic-pulse 1.2s ease-out infinite;
+}
+.ai-mic-btn.is-listening svg { stroke: #fff; }
+@keyframes ai-mic-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 107, 157, 0.6); }
+  70%  { box-shadow: 0 0 0 14px rgba(255, 107, 157, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 107, 157, 0); }
+}
+
+.ai-generate-btn {
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 12px;
+  border: none;
+  background: #ff6b9d;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  transition: background 0.15s, transform 0.08s;
+}
+.ai-generate-btn:hover { background: #ff7faa; }
+.ai-generate-btn:active { transform: scale(0.98); }
+.ai-generate-btn:disabled {
+  background: #d6d6dc;
+  color: #fff;
+  cursor: default;
+}
+
+.ai-prompt-error {
+  font-size: 14px;
+  color: #c0392b;
+  background: #fff0ee;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+/* Loading state — caret-aware: dimmed input, animated button text. */
+.ai-prompt-dialog.is-loading .ai-generate-btn {
+  background: #ffb3c8;
+  /* Tiny shimmer while waiting on the API. ~10s of staring at this. */
+  background-image: linear-gradient(90deg, #ffb3c8 0%, #ff6b9d 50%, #ffb3c8 100%);
+  background-size: 200% 100%;
+  animation: ai-loading-shimmer 1.4s linear infinite;
+}
+@keyframes ai-loading-shimmer {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}

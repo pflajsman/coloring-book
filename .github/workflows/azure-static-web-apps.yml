@@ -46,6 +46,12 @@ jobs:
           skip_app_build: true
           app_location: dist
           output_location: ''
+          # Azure Functions API for the AI coloring-page proxy. SWA's Oryx
+          # builder runs `npm install && npm run build` inside this folder
+          # and packages the compiled JS as managed Functions. The
+          # POLLINATIONS_KEY env var must be set in the Azure portal:
+          # SWA → Configuration → Application settings.
+          api_location: api
 
   close_pull_request:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

@@ -3,7 +3,8 @@ import { App } from './engine/App';
 import { Document, newId } from './engine/Document';
 import { buildKidUI } from './ui/KidUI';
 import { showModal, promptDialog, confirmDialog } from './ui/Modal';
-import { loadManifest, rasterizeTemplate, thumbnailUrl, type Template } from './templates';
+import { loadManifest, rasterizeImageBitmap, rasterizeTemplate, thumbnailUrl, type Template } from './templates';
+import { openAiPromptDialog } from './ui/AiPromptDialog';
 import { saveDocument, listDocuments, loadDocument, deleteDocument, renameProject, applyStoredDocument } from './storage/db';
 import { registerSW } from 'virtual:pwa-register';
 
@@ -106,6 +107,9 @@ const ui = buildKidUI(app, {
   onSavePng: async () => savePng(),
   onLoadTemplate: () => openTemplateChooser(),
   onOpenProjects: () => openProjects(),
+  onAiGenerate: () => openAiPromptDialog({
+    onGenerated: (bitmap) => loadGeneratedImage(bitmap),
+  }),
 });
 
 root.append(canvasWrap, ui.topBar, ui.palette, ui.dock);
@@ -158,6 +162,35 @@ async function loadTemplate(tpl: Template) {
   }
   app.doc.meta.templateId = tpl.id;
   // Also clear the paint layer so kids start fresh on the new picture.
+  const paint = app.doc.layers.find((l) => !l.locked && l.id !== app.doc.templateLayerId);
+  paint?.clear();
+  app.history.clear();
+  app.scheduleRender();
+}
+
+// Same effect as loadTemplate but the source is an already-decoded raster
+// (the AI-generated PNG). Letterboxes + line-art-processes through the same
+// pipeline so the result is visually consistent with manual templates.
+async function loadGeneratedImage(srcBitmap: ImageBitmap) {
+  const w = app.doc.meta.width;
+  const h = app.doc.meta.height;
+  const layer = app.doc.getLayer(app.doc.templateLayerId);
+  if (!layer) {
+    srcBitmap.close();
+    return;
+  }
+  let processed: ImageBitmap | null = null;
+  try {
+    processed = await rasterizeImageBitmap(srcBitmap, w, h);
+  } finally {
+    srcBitmap.close();
+  }
+  layer.clear();
+  layer.ctx.drawImage(processed, 0, 0);
+  processed.close();
+  // Sentinel template id so saved projects can be told apart from
+  // manifest-backed ones if we ever add per-template metadata to the picker.
+  app.doc.meta.templateId = `ai:${Date.now()}`;
   const paint = app.doc.layers.find((l) => !l.locked && l.id !== app.doc.templateLayerId);
   paint?.clear();
   app.history.clear();
