@@ -7,14 +7,19 @@ type SpeechRecognitionResultLike = { transcript: string };
 type SpeechRecognitionEventLike = {
   results: { 0: { 0: SpeechRecognitionResultLike } } & ArrayLike<unknown>;
 };
+type SpeechRecognitionErrorEventLike = {
+  error?: string;
+  message?: string;
+};
 type SpeechRecognitionLike = {
   lang: string;
   interimResults: boolean;
   maxAlternatives: number;
   continuous: boolean;
   onresult: ((e: SpeechRecognitionEventLike) => void) | null;
-  onerror: ((e: unknown) => void) | null;
+  onerror: ((e: SpeechRecognitionErrorEventLike) => void) | null;
   onend: (() => void) | null;
+  onstart: (() => void) | null;
   start: () => void;
   stop: () => void;
   abort: () => void;
@@ -100,35 +105,63 @@ export function openAiPromptDialog(opts: AiPromptOptions): void {
 
   // Speech recognition wiring. Single-utterance mode: tap mic, speak once,
   // result fills the input. Tapping again while listening stops it.
+  //
+  // Default to the browser's UI language (e.g. cs-CZ for Czech speakers).
+  // Forcing en-US silently dropped non-English utterances — Chrome returns
+  // no result rather than mis-transcribing.
   let recognition: SpeechRecognitionLike | null = null;
   let listening = false;
+  const recogLang = navigator.language || 'en-US';
   if (micBtn && SpeechCtor) {
     micBtn.addEventListener('click', () => {
       if (listening) {
         recognition?.stop();
         return;
       }
+      // Clear any prior error each time the user re-tries the mic.
+      error.style.display = 'none';
       try {
         recognition = new SpeechCtor();
-      } catch {
-        // Construction can throw on some platforms (e.g. user denied mic
-        // permission earlier). Hide the button rather than spamming errors.
+      } catch (constructErr) {
+        console.warn('SpeechRecognition construction failed', constructErr);
+        showError("Microphone isn't working in this browser.");
         micBtn?.remove();
         return;
       }
-      recognition.lang = 'en-US';
+      recognition.lang = recogLang;
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
       recognition.continuous = false;
+      recognition.onstart = () => {
+        listening = true;
+        micBtn?.classList.add('is-listening');
+      };
       recognition.onresult = (e) => {
         const transcript = e.results[0][0].transcript;
         input.value = transcript;
         generateBtn.disabled = transcript.trim().length === 0;
         input.focus();
       };
-      recognition.onerror = () => {
-        // Errors are usually no-speech / permission denied. Quietly drop —
-        // typing still works and surfacing errors here would scare the kid.
+      recognition.onerror = (e) => {
+        // The Web Speech error vocabulary: 'no-speech', 'not-allowed',
+        // 'service-not-allowed', 'aborted', 'audio-capture', 'network',
+        // 'language-not-supported'. Show a friendly message + log the raw
+        // event so the console tells us what happened.
+        console.warn('SpeechRecognition error', e);
+        const code = e?.error;
+        if (code === 'not-allowed' || code === 'service-not-allowed') {
+          showError('Microphone permission was blocked. Allow it in the address bar and try again.');
+        } else if (code === 'no-speech') {
+          showError("I didn't hear anything. Try again.");
+        } else if (code === 'audio-capture') {
+          showError('No microphone found.');
+        } else if (code === 'language-not-supported') {
+          showError(`This browser doesn't speak ${recogLang}. Type instead.`);
+        } else if (code === 'network') {
+          showError('Speech needs the internet. Check your connection.');
+        } else if (code) {
+          showError(`Mic error: ${code}. Try typing instead.`);
+        }
       };
       recognition.onend = () => {
         listening = false;
@@ -136,11 +169,13 @@ export function openAiPromptDialog(opts: AiPromptOptions): void {
       };
       try {
         recognition.start();
-        listening = true;
-        micBtn?.classList.add('is-listening');
-      } catch {
-        // start() throws if called twice in quick succession.
+      } catch (startErr) {
+        // start() throws if called twice in quick succession or if mic is
+        // unavailable. Log so we know which.
+        console.warn('SpeechRecognition.start() threw', startErr);
         listening = false;
+        micBtn?.classList.remove('is-listening');
+        showError("Couldn't start the microphone. Try again.");
       }
     });
   }
