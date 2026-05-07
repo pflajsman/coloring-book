@@ -5,7 +5,7 @@ import { buildKidUI } from './ui/KidUI';
 import { showModal, promptDialog, confirmDialog } from './ui/Modal';
 import { loadManifest, rasterizeImageBitmap, rasterizeTemplate, thumbnailUrl, type Template } from './templates';
 import { openAiPromptDialog } from './ui/AiPromptDialog';
-import { saveDocument, listDocuments, loadDocument, deleteDocument, renameProject, applyStoredDocument } from './storage/db';
+import { saveDocument, listDocuments, loadDocument, deleteDocument, renameProject, applyStoredDocument, saveAiTemplate, listAiTemplates, deleteAiTemplate, type AiTemplateRecord } from './storage/db';
 import { registerSW } from 'virtual:pwa-register';
 
 registerSW({ immediate: true });
@@ -108,7 +108,7 @@ const ui = buildKidUI(app, {
   onLoadTemplate: () => openTemplateChooser(),
   onOpenProjects: () => openProjects(),
   onAiGenerate: () => openAiPromptDialog({
-    onGenerated: (bitmap) => loadGeneratedImage(bitmap),
+    onGenerated: (bitmap, prompt) => loadGeneratedImage(bitmap, prompt),
   }),
 });
 
@@ -168,10 +168,28 @@ async function loadTemplate(tpl: Template) {
   app.scheduleRender();
 }
 
+// Load a previously-saved AI template from IndexedDB. The blob is already
+// post-processed (letterboxed + line-art-stripped at save time), so this
+// just decodes and draws it onto the line-art layer — no API call, no
+// rasterizer pass.
+async function loadAiTemplate(ai: AiTemplateRecord) {
+  const layer = app.doc.getLayer(app.doc.templateLayerId);
+  if (!layer) return;
+  await layer.loadFromBlob(ai.blob);
+  app.doc.meta.templateId = `ai:${ai.id}`;
+  const paint = app.doc.layers.find((l) => !l.locked && l.id !== app.doc.templateLayerId);
+  paint?.clear();
+  app.history.clear();
+  app.scheduleRender();
+}
+
 // Same effect as loadTemplate but the source is an already-decoded raster
 // (the AI-generated PNG). Letterboxes + line-art-processes through the same
 // pipeline so the result is visually consistent with manual templates.
-async function loadGeneratedImage(srcBitmap: ImageBitmap) {
+//
+// The `prompt` is what the user typed; we plumb it through so the "Save to
+// my pictures" toast can default the saved name to a recognizable phrase.
+async function loadGeneratedImage(srcBitmap: ImageBitmap, prompt: string) {
   const w = app.doc.meta.width;
   const h = app.doc.meta.height;
   const layer = app.doc.getLayer(app.doc.templateLayerId);
@@ -188,13 +206,83 @@ async function loadGeneratedImage(srcBitmap: ImageBitmap) {
   layer.clear();
   layer.ctx.drawImage(processed, 0, 0);
   processed.close();
-  // Sentinel template id so saved projects can be told apart from
-  // manifest-backed ones if we ever add per-template metadata to the picker.
+  // Snapshot the just-drawn line-art layer as a PNG blob. This is what we
+  // persist if the user taps "Save to my pictures" — saving the *processed*
+  // bytes means a re-load doesn't re-process or re-call the API.
+  const processedBlob = await layer.toBlob();
   app.doc.meta.templateId = `ai:${Date.now()}`;
   const paint = app.doc.layers.find((l) => !l.locked && l.id !== app.doc.templateLayerId);
   paint?.clear();
   app.history.clear();
   app.scheduleRender();
+  // Prompt the user to save. This is non-blocking — the picture is already
+  // on the canvas; the toast just offers the option.
+  offerSaveToGallery(processedBlob, prompt);
+}
+
+// Transient toast offering to save the just-generated picture into "My
+// pictures." Auto-dismisses after a few seconds; tapping save opens a
+// rename prompt, then writes to the aiTemplates IDB store.
+function offerSaveToGallery(blob: Blob, prompt: string) {
+  const toast = document.createElement('div');
+  toast.className = 'ai-save-toast';
+
+  const label = document.createElement('span');
+  label.textContent = 'Like this picture?';
+  toast.appendChild(label);
+
+  const saveBtn = document.createElement('button');
+  saveBtn.textContent = '💾 Save it';
+  saveBtn.className = 'ai-save-toast-btn';
+  toast.appendChild(saveBtn);
+
+  const close = document.createElement('button');
+  close.textContent = '×';
+  close.className = 'ai-save-toast-close';
+  close.setAttribute('aria-label', 'Dismiss');
+  toast.appendChild(close);
+
+  document.body.appendChild(toast);
+
+  let dismissed = false;
+  const dismiss = () => {
+    if (dismissed) return;
+    dismissed = true;
+    clearTimeout(autoTimer);
+    toast.classList.add('is-leaving');
+    setTimeout(() => toast.remove(), 250);
+  };
+  // Auto-dismiss after 8s — long enough to read and decide, short enough
+  // not to clutter once the kid is back to coloring.
+  const autoTimer = window.setTimeout(dismiss, 8000);
+  close.addEventListener('click', dismiss);
+
+  saveBtn.addEventListener('click', async () => {
+    clearTimeout(autoTimer);
+    const name = await promptDialog({
+      title: 'Save to my pictures',
+      message: 'What should we call this picture?',
+      initialValue: prompt.slice(0, 40),
+      placeholder: 'My picture',
+      confirmLabel: 'Save',
+      maxLength: 40,
+    });
+    if (name === null) {
+      // Cancelled — leave the toast visible briefly so the user can retry.
+      return;
+    }
+    await saveAiTemplate({
+      id: `ai-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      name: (name || prompt).trim() || 'My picture',
+      prompt,
+      createdAt: Date.now(),
+      blob,
+      width: app.doc.meta.width,
+      height: app.doc.meta.height,
+    });
+    dismiss();
+    flash('Saved to My pictures');
+  });
 }
 
 async function savePng() {
@@ -217,27 +305,58 @@ async function savePng() {
   a.click();
 }
 
+// "My pictures" is a synthetic category sourced from the aiTemplates IDB
+// store. Sentinel value used to filter on it without colliding with any
+// real manifest category.
+const MY_PICTURES_CATEGORY = 'My pictures';
+
 async function openTemplateChooser() {
   const body = document.createElement('div');
   body.className = 'modal-body';
   body.innerHTML = '<div class="loading">Loading pictures…</div>';
   const destroy = showModal('Pick a picture', body);
-  let tpls: Template[];
+
+  // Load both sources in parallel: the static manifest + the user's saved
+  // AI generations. Either failing alone shouldn't take the picker down.
+  let tpls: Template[] = [];
+  let aiTpls: AiTemplateRecord[] = [];
+  // Object URLs for AI thumbnails — must be revoked when the modal closes
+  // so the browser can release the underlying Blob memory.
+  const blobUrls: string[] = [];
   try {
-    tpls = await loadManifest();
+    [tpls, aiTpls] = await Promise.all([
+      loadManifest(),
+      listAiTemplates().catch((e) => {
+        console.error('Could not load saved AI templates', e);
+        return [];
+      }),
+    ]);
   } catch (e) {
     body.innerHTML = '<div>Could not load pictures.</div>';
     console.error(e);
     return;
   }
 
-  // Collect categories (preserving manifest order — Set keeps insertion order).
+  // Collect categories. "My pictures" goes first when there are saved
+  // AI templates so the kid can find what they made.
   const cats = new Set<string>();
   for (const t of tpls) if (t.category) cats.add(t.category);
-  const allCats = ['All', ...cats];
+  const manifestCats = [...cats];
+  const allCats = ['All', ...(aiTpls.length > 0 ? [MY_PICTURES_CATEGORY] : []), ...manifestCats];
   let activeCat = 'All';
 
+  // Wrap the user's destroy hook so we always release the blob URLs.
+  const close = () => {
+    for (const u of blobUrls) URL.revokeObjectURL(u);
+    blobUrls.length = 0;
+    destroy();
+  };
+
   const render = () => {
+    // Revoke prior blob URLs before re-rendering — a re-render builds new
+    // <img> tags and fresh URLs.
+    for (const u of blobUrls) URL.revokeObjectURL(u);
+    blobUrls.length = 0;
     body.innerHTML = '';
 
     // Category filter row
@@ -257,36 +376,104 @@ async function openTemplateChooser() {
       body.appendChild(catRow);
     }
 
-    const filtered = tpls.filter((t) =>
-      activeCat === 'All' ? true : t.category === activeCat || (!t.category && activeCat === 'All'),
-    );
+    // What's visible under each category:
+    //   "All"          → manifest templates + saved AI (saved at the front)
+    //   "My pictures"  → saved AI only
+    //   <other>        → matching manifest templates only
+    const showAi =
+      activeCat === 'All' || activeCat === MY_PICTURES_CATEGORY;
+    const showManifest = activeCat !== MY_PICTURES_CATEGORY;
 
-    for (const tpl of filtered) {
-      const card = document.createElement('button');
-      card.className = 'template-card';
-      const thumb = document.createElement('div');
-      thumb.className = 'template-thumb';
-      const url = thumbnailUrl(tpl);
-      if (url) {
-        const img = document.createElement('img');
-        img.src = url;
-        img.alt = tpl.name;
-        img.loading = 'lazy';
-        thumb.appendChild(img);
-      } else {
-        thumb.classList.add('blank');
-        thumb.textContent = '＋';
-      }
-      const label = document.createElement('div');
-      label.className = 'template-label';
-      label.textContent = tpl.name;
-      card.append(thumb, label);
-      card.addEventListener('click', () => {
-        loadTemplate(tpl).then(() => destroy());
-      });
-      body.appendChild(card);
+    if (showAi) {
+      for (const ai of aiTpls) renderAiCard(ai);
+    }
+    if (showManifest) {
+      const filtered = tpls.filter((t) =>
+        activeCat === 'All' ? true : t.category === activeCat || (!t.category && activeCat === 'All'),
+      );
+      for (const tpl of filtered) renderManifestCard(tpl);
     }
   };
+
+  function renderManifestCard(tpl: Template) {
+    const card = document.createElement('button');
+    card.className = 'template-card';
+    const thumb = document.createElement('div');
+    thumb.className = 'template-thumb';
+    const url = thumbnailUrl(tpl);
+    if (url) {
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = tpl.name;
+      img.loading = 'lazy';
+      thumb.appendChild(img);
+    } else {
+      thumb.classList.add('blank');
+      thumb.textContent = '＋';
+    }
+    const label = document.createElement('div');
+    label.className = 'template-label';
+    label.textContent = tpl.name;
+    card.append(thumb, label);
+    card.addEventListener('click', () => {
+      loadTemplate(tpl).then(close);
+    });
+    body.appendChild(card);
+  }
+
+  function renderAiCard(ai: AiTemplateRecord) {
+    const card = document.createElement('div');
+    // Wrapper instead of <button> so the delete ✕ can be its own button
+    // without nesting interactive elements.
+    card.className = 'template-card template-card-ai';
+    const thumb = document.createElement('button');
+    thumb.className = 'template-thumb template-thumb-btn';
+    const url = URL.createObjectURL(ai.blob);
+    blobUrls.push(url);
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = ai.name;
+    img.loading = 'lazy';
+    thumb.appendChild(img);
+
+    const label = document.createElement('div');
+    label.className = 'template-label';
+    label.textContent = ai.name;
+
+    const del = document.createElement('button');
+    del.className = 'template-card-del';
+    del.setAttribute('aria-label', 'Delete picture');
+    del.textContent = '×';
+    del.addEventListener('click', async (e) => {
+      // Prevent click from also opening the picture.
+      e.stopPropagation();
+      const ok = await confirmDialog({
+        title: 'Delete this picture?',
+        message: `"${ai.name}" will be gone forever.`,
+        confirmLabel: 'Delete',
+        cancelLabel: 'Keep',
+        destructive: true,
+      });
+      if (!ok) return;
+      await deleteAiTemplate(ai.id);
+      aiTpls = aiTpls.filter((x) => x.id !== ai.id);
+      // If we just deleted the last AI template, hide the My pictures
+      // chip and fall back to All.
+      if (aiTpls.length === 0) {
+        const idx = allCats.indexOf(MY_PICTURES_CATEGORY);
+        if (idx >= 0) allCats.splice(idx, 1);
+        if (activeCat === MY_PICTURES_CATEGORY) activeCat = 'All';
+      }
+      render();
+    });
+
+    thumb.addEventListener('click', () => {
+      loadAiTemplate(ai).then(close);
+    });
+
+    card.append(del, thumb, label);
+    body.appendChild(card);
+  }
 
   render();
 }
