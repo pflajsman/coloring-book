@@ -3,7 +3,8 @@ import { App } from './engine/App';
 import { Document, newId } from './engine/Document';
 import { buildKidUI } from './ui/KidUI';
 import { showModal, promptDialog, confirmDialog } from './ui/Modal';
-import { loadManifest, rasterizeTemplate, thumbnailUrl, type Template } from './templates';
+import { loadManifest, rasterizeImageBitmap, rasterizeTemplate, thumbnailUrl, type Template } from './templates';
+import { openAiPromptDialog } from './ui/AiPromptDialog';
 import { saveDocument, listDocuments, loadDocument, deleteDocument, renameProject, applyStoredDocument } from './storage/db';
 import { registerSW } from 'virtual:pwa-register';
 
@@ -106,6 +107,9 @@ const ui = buildKidUI(app, {
   onSavePng: async () => savePng(),
   onLoadTemplate: () => openTemplateChooser(),
   onOpenProjects: () => openProjects(),
+  onAiGenerate: () => openAiPromptDialog({
+    onGenerated: (bitmap) => loadGeneratedImage(bitmap),
+  }),
 });
 
 root.append(canvasWrap, ui.topBar, ui.palette, ui.dock);
@@ -158,6 +162,35 @@ async function loadTemplate(tpl: Template) {
   }
   app.doc.meta.templateId = tpl.id;
   // Also clear the paint layer so kids start fresh on the new picture.
+  const paint = app.doc.layers.find((l) => !l.locked && l.id !== app.doc.templateLayerId);
+  paint?.clear();
+  app.history.clear();
+  app.scheduleRender();
+}
+
+// Same effect as loadTemplate but the source is an already-decoded raster
+// (the AI-generated PNG). Letterboxes + line-art-processes through the same
+// pipeline so the result is visually consistent with manual templates.
+async function loadGeneratedImage(srcBitmap: ImageBitmap) {
+  const w = app.doc.meta.width;
+  const h = app.doc.meta.height;
+  const layer = app.doc.getLayer(app.doc.templateLayerId);
+  if (!layer) {
+    srcBitmap.close();
+    return;
+  }
+  let processed: ImageBitmap | null = null;
+  try {
+    processed = await rasterizeImageBitmap(srcBitmap, w, h);
+  } finally {
+    srcBitmap.close();
+  }
+  layer.clear();
+  layer.ctx.drawImage(processed, 0, 0);
+  processed.close();
+  // Sentinel template id so saved projects can be told apart from
+  // manifest-backed ones if we ever add per-template metadata to the picker.
+  app.doc.meta.templateId = `ai:${Date.now()}`;
   const paint = app.doc.layers.find((l) => !l.locked && l.id !== app.doc.templateLayerId);
   paint?.clear();
   app.history.clear();
@@ -259,8 +292,10 @@ async function openTemplateChooser() {
 }
 
 async function openProjects() {
+  // Plain wrapper — no modal-body grid here. We render a real <table> so
+  // each project is one row with Name / Date / Actions columns.
   const body = document.createElement('div');
-  body.className = 'modal-body';
+  body.className = 'projects-list-wrap';
   body.innerHTML = '<div class="loading">Loading…</div>';
   const destroy = showModal('Saved projects', body);
   let docs = await listDocuments();
@@ -274,12 +309,35 @@ async function openProjects() {
       body.appendChild(empty);
       return;
     }
+
+    const table = document.createElement('table');
+    table.className = 'projects-table';
+
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+      <tr>
+        <th class="col-name">Name</th>
+        <th class="col-date">Saved</th>
+        <th class="col-actions"></th>
+      </tr>`;
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
     for (const meta of docs) {
-      const card = document.createElement('div');
-      card.className = 'project-card';
-      const title = document.createElement('div');
-      title.className = 'project-title';
-      title.innerHTML = `<strong>${escape(meta.name)}</strong><br><small>${new Date(meta.updatedAt).toLocaleString()}</small>`;
+      const row = document.createElement('tr');
+      row.className = 'project-row';
+
+      const nameCell = document.createElement('td');
+      nameCell.className = 'col-name';
+      nameCell.textContent = meta.name;
+      nameCell.title = meta.name;
+
+      const dateCell = document.createElement('td');
+      dateCell.className = 'col-date';
+      dateCell.textContent = new Date(meta.updatedAt).toLocaleString();
+
+      const actionsCell = document.createElement('td');
+      actionsCell.className = 'col-actions';
       const actions = document.createElement('div');
       actions.className = 'project-actions';
 
@@ -337,9 +395,12 @@ async function openProjects() {
       });
 
       actions.append(open, rename, del);
-      card.append(title, actions);
-      body.appendChild(card);
+      actionsCell.appendChild(actions);
+      row.append(nameCell, dateCell, actionsCell);
+      tbody.appendChild(row);
     }
+    table.appendChild(tbody);
+    body.appendChild(table);
   };
 
   render();
@@ -353,6 +414,3 @@ function flash(msg: string) {
   setTimeout(() => n.remove(), 1400);
 }
 
-function escape(s: string): string {
-  return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
-}

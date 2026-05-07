@@ -584,7 +584,7 @@ html, body {
 }
 
 /* ---------- Templates / projects ---------- */
-.template-card, .project-card {
+.template-card {
   background: #fff;
   border: 1px solid #eee;
   border-radius: 14px;
@@ -600,12 +600,67 @@ html, body {
   text-align: center;
   font-family: inherit;
 }
-.template-card:hover, .project-card:hover {
+.template-card:hover {
   transform: translateY(-2px);
   border-color: #ff6b9d;
   box-shadow: 0 4px 12px rgba(0,0,0,0.06);
 }
-.template-card:active, .project-card:active { transform: translateY(0); }
+.template-card:active { transform: translateY(0); }
+
+/* Saved Projects list — proper table layout: Name | Saved | Actions.
+   Wraps in its own scroll container instead of using the modal-body grid
+   so each row spans the full width. */
+.projects-list-wrap {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px 20px;
+}
+.projects-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  color: #2a2a3a;
+}
+.projects-table thead th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #888;
+  padding: 8px 10px;
+  border-bottom: 2px solid #eee;
+  background: #fafafa;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.projects-table tbody td {
+  padding: 10px;
+  border-bottom: 1px solid #f0f0f3;
+  vertical-align: middle;
+}
+.projects-table tbody tr:last-child td { border-bottom: none; }
+.projects-table tbody tr:hover td { background: #fafafa; }
+.projects-table .col-name {
+  font-weight: 500;
+  /* Long names ellipsize so the row stays one line. */
+  max-width: 0;
+  width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.projects-table .col-date {
+  color: #777;
+  font-size: 13px;
+  white-space: nowrap;
+  width: 1%; /* Shrink to content */
+}
+.projects-table .col-actions {
+  width: 1%; /* Shrink to content */
+  text-align: right;
+}
 .template-thumb {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -629,13 +684,6 @@ html, body {
   font-weight: bold;
 }
 .template-label { font-size: 13px; color: #555; }
-.project-card img {
-  max-width: 100%;
-  height: 110px;
-  background: #fff;
-  border-radius: 10px;
-  border: 1px solid #f0f0f3;
-}
 .loading {
   grid-column: 1 / -1;
   text-align: center;
@@ -705,18 +753,19 @@ html, body {
 .project-actions {
   display: flex;
   gap: 6px;
-  width: 100%;
+  flex-shrink: 0;
+  justify-content: flex-end;
 }
 .project-actions button {
-  flex: 1;
-  padding: 8px 10px;
+  padding: 6px 12px;
   font-size: 13px;
-  border-radius: 10px;
+  border-radius: 8px;
   border: none;
   background: #5b6cff;
   color: #fff;
   cursor: pointer;
   font-family: inherit;
+  white-space: nowrap;
 }
 .project-actions button:hover { filter: brightness(1.05); }
 .project-actions button:active { transform: scale(0.96); }
@@ -849,4 +898,115 @@ html, body {
   font-size: 16px;
   z-index: 200;
   box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+}
+
+/* ---------- AI prompt dialog ---------- */
+/* Top-bar Make-a-picture button. Slight pink-purple tint so it pops out
+   from the neutral icon buttons next to it without being garish. */
+.kid-aibtn {
+  background: linear-gradient(135deg, #ffe7f1 0%, #efe6ff 100%);
+}
+.kid-aibtn:hover {
+  background: linear-gradient(135deg, #ffd6e6 0%, #e1d4ff 100%);
+}
+
+.ai-prompt-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 24px 22px;
+  min-width: 320px;
+  max-width: 460px;
+}
+.ai-prompt-hint {
+  font-size: 14px;
+  color: #555;
+}
+.ai-prompt-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+.ai-prompt-input {
+  flex: 1;
+  padding: 12px 14px;
+  font-size: 16px;
+  border: 2px solid #e5e5ea;
+  border-radius: 10px;
+  outline: none;
+  font-family: inherit;
+  color: #2a2a3a;
+  background: #fff;
+  transition: border-color 0.15s;
+}
+.ai-prompt-input:focus { border-color: #ff6b9d; }
+.ai-prompt-input:disabled { background: #f4f4f7; color: #888; }
+
+.ai-mic-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border: 2px solid #ffd6e6;
+  background: #fff8fa;
+  cursor: pointer;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+.ai-mic-btn svg { width: 26px; height: 26px; }
+.ai-mic-btn:hover { background: #fff1f6; }
+.ai-mic-btn:disabled { opacity: 0.5; cursor: default; }
+/* Pulse ring while listening so kids see the mic is on. */
+.ai-mic-btn.is-listening {
+  background: #ff6b9d;
+  border-color: #e74c8e;
+  animation: ai-mic-pulse 1.2s ease-out infinite;
+}
+.ai-mic-btn.is-listening svg { stroke: #fff; }
+@keyframes ai-mic-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 107, 157, 0.6); }
+  70%  { box-shadow: 0 0 0 14px rgba(255, 107, 157, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 107, 157, 0); }
+}
+
+.ai-generate-btn {
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 12px;
+  border: none;
+  background: #ff6b9d;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+  transition: background 0.15s, transform 0.08s;
+}
+.ai-generate-btn:hover { background: #ff7faa; }
+.ai-generate-btn:active { transform: scale(0.98); }
+.ai-generate-btn:disabled {
+  background: #d6d6dc;
+  color: #fff;
+  cursor: default;
+}
+
+.ai-prompt-error {
+  font-size: 14px;
+  color: #c0392b;
+  background: #fff0ee;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+/* Loading state — caret-aware: dimmed input, animated button text. */
+.ai-prompt-dialog.is-loading .ai-generate-btn {
+  background: #ffb3c8;
+  /* Tiny shimmer while waiting on the API. ~10s of staring at this. */
+  background-image: linear-gradient(90deg, #ffb3c8 0%, #ff6b9d 50%, #ffb3c8 100%);
+  background-size: 200% 100%;
+  animation: ai-loading-shimmer 1.4s linear infinite;
+}
+@keyframes ai-loading-shimmer {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }

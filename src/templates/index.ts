@@ -48,6 +48,71 @@ export async function loadSvg(tpl: Template): Promise<string | null> {
   return text;
 }
 
+// Strip near-white pixels to transparent and force the rest to black so only
+// the line art remains on the template layer. Used by both the SVG template
+// pipeline and the AI-generated PNG pipeline.
+//
+// Without this, opaque white pixels cover the user's paint layer underneath —
+// the kid taps fill or paints inside the shape and sees nothing happen,
+// because the white is on top.
+//
+// Anti-aliased line edges (greyscale) keep their darkness proportional to how
+// dark they were, with alpha proportional to (1 - lightness). That preserves
+// smooth edges while killing the fills.
+function processLineArt(ctx: CanvasRenderingContext2D, width: number, height: number) {
+  const data = ctx.getImageData(0, 0, width, height);
+  const px = data.data;
+  for (let i = 0; i < px.length; i += 4) {
+    const r = px[i], g = px[i + 1], b = px[i + 2], a = px[i + 3];
+    if (a === 0) continue;
+    // Lightness 0..255. Pure white = 255, pure black = 0.
+    const light = (r + g + b) / 3;
+    // Map: light >= 240 → fully transparent (was white interior fill).
+    //      light <= 64  → keep fully opaque (the line itself).
+    //      in between   → linearly fade alpha so edge anti-aliasing
+    //                     remains smooth.
+    let newAlpha: number;
+    if (light >= 240) newAlpha = 0;
+    else if (light <= 64) newAlpha = a;
+    else newAlpha = Math.round(a * (1 - (light - 64) / (240 - 64)));
+    // Force the visible color to black so the lines read crisply on any
+    // background and so undo replays produce the same pixels.
+    px[i] = 0;
+    px[i + 1] = 0;
+    px[i + 2] = 0;
+    px[i + 3] = newAlpha;
+  }
+  ctx.putImageData(data, 0, 0);
+}
+
+// Letterbox a source image (any aspect ratio) into width×height while
+// preserving its aspect ratio. Returns the destination box on the canvas.
+// Centralizes the letterbox math so the SVG and PNG paths use the same logic.
+function letterbox(srcW: number, srcH: number, dstW: number, dstH: number) {
+  // Reserve a margin around the picture so it doesn't touch the canvas
+  // edges. 6% on each side leaves room for the kid to color the
+  // background and gives the picture visual breathing room.
+  const margin = 0.06;
+  const innerW = dstW * (1 - margin * 2);
+  const innerH = dstH * (1 - margin * 2);
+  const aspectImg = srcW / srcH;
+  const aspectInner = innerW / innerH;
+  let dw: number, dh: number;
+  if (aspectImg > aspectInner) {
+    dw = innerW;
+    dh = innerW / aspectImg;
+  } else {
+    dh = innerH;
+    dw = innerH * aspectImg;
+  }
+  return {
+    dx: Math.round((dstW - dw) / 2),
+    dy: Math.round((dstH - dh) / 2),
+    dw: Math.round(dw),
+    dh: Math.round(dh),
+  };
+}
+
 export async function rasterizeTemplate(
   tpl: Template,
   width: number,
@@ -64,72 +129,40 @@ export async function rasterizeTemplate(
     await img.decode();
     // Letterbox the SVG into the canvas while preserving aspect ratio. Many
     // openclipart files have arbitrary viewBoxes (square / portrait /
-    // landscape); stretching them to 1200x800 distorts the artwork. We center
-    // the rasterized image and scale uniformly to fit.
+    // landscape); stretching them to 1200x800 distorts the artwork.
     const tmp = document.createElement('canvas');
     tmp.width = width;
     tmp.height = height;
     const ctx = tmp.getContext('2d', { willReadFrequently: true });
     if (!ctx) throw new Error('Could not get template 2D context');
 
-    // Reserve a margin around the picture so it doesn't touch the canvas
-    // edges. 6% on each side leaves room for the kid to color the
-    // background and gives the picture visual breathing room.
-    const margin = 0.06;
-    const innerW = width * (1 - margin * 2);
-    const innerH = height * (1 - margin * 2);
-
-    const aspectImg = img.naturalWidth / img.naturalHeight;
-    const aspectInner = innerW / innerH;
-    let dw: number, dh: number;
-    if (aspectImg > aspectInner) {
-      dw = innerW;
-      dh = innerW / aspectImg;
-    } else {
-      dh = innerH;
-      dw = innerH * aspectImg;
-    }
-    const dx = Math.round((width - dw) / 2);
-    const dy = Math.round((height - dh) / 2);
-    ctx.drawImage(img, dx, dy, Math.round(dw), Math.round(dh));
-
-    // Strip the SVG's solid white interior fills so only the line art lands
-    // on the template layer. Without this, opaque white pixels cover the
-    // user's paint layer underneath — the kid taps fill or paints inside the
-    // shape and sees nothing happen, because the white is on top.
-    //
-    // Approach: walk the ImageData and convert near-white pixels to
-    // transparent. Anti-aliased line edges (greyscale) keep their darkness
-    // proportional to how dark they were, with alpha proportional to
-    // (1 - lightness). That preserves smooth edges while killing the fills.
-    const data = ctx.getImageData(0, 0, width, height);
-    const px = data.data;
-    for (let i = 0; i < px.length; i += 4) {
-      const r = px[i], g = px[i + 1], b = px[i + 2], a = px[i + 3];
-      if (a === 0) continue;
-      // Lightness 0..255. Pure white = 255, pure black = 0.
-      const light = (r + g + b) / 3;
-      // Map: light >= 240 → fully transparent (was white interior fill).
-      //      light <= 64  → keep fully opaque (the line itself).
-      //      in between   → linearly fade alpha so edge anti-aliasing
-      //                     remains smooth.
-      let newAlpha: number;
-      if (light >= 240) newAlpha = 0;
-      else if (light <= 64) newAlpha = a;
-      else newAlpha = Math.round(a * (1 - (light - 64) / (240 - 64)));
-      // Force the visible color to black so the lines read crisply on any
-      // background and so undo replays produce the same pixels.
-      px[i] = 0;
-      px[i + 1] = 0;
-      px[i + 2] = 0;
-      px[i + 3] = newAlpha;
-    }
-    ctx.putImageData(data, 0, 0);
-
+    const box = letterbox(img.naturalWidth, img.naturalHeight, width, height);
+    ctx.drawImage(img, box.dx, box.dy, box.dw, box.dh);
+    processLineArt(ctx, width, height);
     return await createImageBitmap(tmp);
   } finally {
     URL.revokeObjectURL(objUrl);
   }
+}
+
+// Same letterbox + line-art post-process as rasterizeTemplate, but the source
+// is an already-decoded ImageBitmap (e.g. an AI-generated PNG). The bitmap is
+// drawn through `getImageData`, so the source canvas must not be tainted —
+// see the AI client for the CORS-mode handling.
+export async function rasterizeImageBitmap(
+  src: ImageBitmap,
+  width: number,
+  height: number,
+): Promise<ImageBitmap> {
+  const tmp = document.createElement('canvas');
+  tmp.width = width;
+  tmp.height = height;
+  const ctx = tmp.getContext('2d', { willReadFrequently: true });
+  if (!ctx) throw new Error('Could not get template 2D context');
+  const box = letterbox(src.width, src.height, width, height);
+  ctx.drawImage(src, box.dx, box.dy, box.dw, box.dh);
+  processLineArt(ctx, width, height);
+  return await createImageBitmap(tmp);
 }
 
 export function thumbnailUrl(tpl: Template): string | null {

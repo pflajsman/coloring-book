@@ -41,6 +41,11 @@
 
     { "id": "apple",     "name": "Apple",       "file": "apple.svg",     "category": "Food" },
     { "id": "cherry",    "name": "Cherries",    "file": "cherry.svg",    "category": "Food" },
+    { "id": "icecream-cone",     "name": "Ice cream cone",  "file": "icecream-cone.svg",     "category": "Food" },
+    { "id": "icecream-popsicle", "name": "Popsicle",        "file": "icecream-popsicle.svg", "category": "Food" },
+    { "id": "icecream-sundae",   "name": "Sundae",          "file": "icecream-sundae.svg",   "category": "Food" },
+    { "id": "icecream-cup",      "name": "Ice cream cup",   "file": "icecream-cup.svg",      "category": "Food" },
+    { "id": "icecream-soft",     "name": "Soft serve",      "file": "icecream-soft.svg",     "category": "Food" },
 
     { "id": "unicorn",          "name": "Unicorn",          "file": "unicorn.svg",          "category": "Fantasy" },
     { "id": "unicorn-cute",     "name": "Cute unicorn",     "file": "unicorn-cute.svg",     "category": "Fantasy" },
@@ -57,6 +62,12 @@
     { "id": "princess-crown",   "name": "Princess crown",   "file": "princess-crown.svg",   "category": "Fantasy" },
     { "id": "princess-couple",  "name": "Prince & princess","file": "princess-couple.svg",  "category": "Fantasy" },
     { "id": "princess-fairy",   "name": "Butterfly fairy",  "file": "princess-fairy.svg",   "category": "Fantasy" },
-    { "id": "princess-wand",    "name": "Fairy princess",   "file": "princess-wand.svg",    "category": "Fantasy" }
+    { "id": "princess-wand",    "name": "Fairy princess",   "file": "princess-wand.svg",    "category": "Fantasy" },
+
+    { "id": "lego-brick",     "name": "Lego brick",      "file": "lego-brick.svg",     "category": "Toys" },
+    { "id": "lego-stack",     "name": "Lego stack",      "file": "lego-stack.svg",     "category": "Toys" },
+    { "id": "lego-baseplate", "name": "Lego baseplate",  "file": "lego-baseplate.svg", "category": "Toys" },
+    { "id": "lego-minifig",   "name": "Lego minifigure", "file": "lego-minifig.svg",   "category": "Toys" },
+    { "id": "lego-wheel",     "name": "Lego car",        "file": "lego-wheel.svg",     "category": "Toys" }
   ]
 }

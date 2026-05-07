@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <g fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Scoop -->
+    <path d="M 60 90 Q 60 50 100 50 Q 140 50 140 90 Z"/>
+    <!-- Cherry on top -->
+    <circle cx="100" cy="42" r="8"/>
+    <path d="M 100 34 Q 105 22 115 22"/>
+    <!-- Cone -->
+    <path d="M 55 90 L 145 90 L 100 180 Z"/>
+    <!-- Cone waffle pattern -->
+    <line x1="70" y1="110" x2="130" y2="110"/>
+    <line x1="78" y1="130" x2="122" y2="130"/>
+    <line x1="86" y1="150" x2="114" y2="150"/>
+    <line x1="80" y1="90" x2="115" y2="170"/>
+    <line x1="120" y1="90" x2="85" y2="170"/>
+  </g>
+</svg>

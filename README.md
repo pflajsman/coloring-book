@@ -14,7 +14,7 @@ Live: deployed via GitHub Actions to Azure Static Web Apps on every push to `mai
 - **24-color palette** with chevron-button scrolling, organized basics-first
 - **Always-visible brush size slider** in the top bar
 - **PWA** — installable, offline, opens fullscreen on Android home-screen launch
-- **54 line-art templates** across Animals, Vehicles, Nature, Food, Fantasy, Places — all CC0 from openclipart.org, lazy-loaded with category filter
+- **64 line-art templates** across Animals, Vehicles, Nature, Food, Fantasy, Places, Toys — most CC0 from openclipart.org plus a hand-authored ice-cream + lego set, lazy-loaded with category filter
 - **Project saving** — IndexedDB store, name / rename / delete, export as PNG
 - **Tablet-first** — palm rejection, custom long-press menu suppression, OS callout disabled, fullscreen toggle
 

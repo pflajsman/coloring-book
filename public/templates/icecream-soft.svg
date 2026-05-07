@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <g fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Soft-serve swirl: stack of 3 lobes tapering up -->
+    <path d="M 60 100 Q 60 85 100 85 Q 140 85 140 100 Z"/>
+    <path d="M 70 85 Q 70 70 100 70 Q 130 70 130 85"/>
+    <path d="M 80 70 Q 80 56 100 56 Q 120 56 120 70"/>
+    <!-- Pointed tip -->
+    <path d="M 90 56 Q 95 40 100 32 Q 105 40 110 56"/>
+    <!-- Cone -->
+    <path d="M 55 100 L 145 100 L 100 180 Z"/>
+    <!-- Waffle pattern -->
+    <line x1="68" y1="118" x2="132" y2="118"/>
+    <line x1="76" y1="138" x2="124" y2="138"/>
+    <line x1="84" y1="158" x2="116" y2="158"/>
+    <line x1="78" y1="100" x2="115" y2="175"/>
+    <line x1="122" y1="100" x2="85" y2="175"/>
+  </g>
+</svg>

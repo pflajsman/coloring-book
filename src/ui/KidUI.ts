@@ -79,6 +79,7 @@ export type KidUIActions = {
   onSavePng: () => Promise<void> | void;
   onLoadTemplate: () => void;
   onOpenProjects: () => void;
+  onAiGenerate: () => void;
 };
 
 export function buildKidUI(app: App, actions: KidUIActions): {
@@ -136,6 +137,15 @@ export function buildKidUI(app: App, actions: KidUIActions): {
   picturesBtn.addEventListener('click', () => actions.onLoadTemplate());
   attachTooltip(picturesBtn, 'Pictures');
   leftGroup.appendChild(picturesBtn);
+
+  // Magic-make button — opens the AI prompt dialog. Sits next to Pictures so
+  // kids learn "this is the other place pictures come from."
+  const aiBtn = document.createElement('button');
+  aiBtn.className = 'kid-iconbtn kid-aibtn';
+  aiBtn.innerHTML = aiSparkleSvg();
+  aiBtn.addEventListener('click', () => actions.onAiGenerate());
+  attachTooltip(aiBtn, 'Make a picture');
+  leftGroup.appendChild(aiBtn);
 
   const clearBtn = document.createElement('button');
   clearBtn.className = 'kid-iconbtn kid-clear-top';
@@ -832,6 +842,23 @@ function fullscreenExitSvg() {
     <polyline points="42,22 54,22 42,10"/>
     <polyline points="54,42 42,42 42,54"/>
     <polyline points="22,42 10,42 22,54"/>
+  </svg>`;
+}
+
+function aiSparkleSvg() {
+  // Magic 4-point sparkle with two satellite stars, gradient pink→purple.
+  // Reads as "create with magic" — distinct silhouette from the picture-frame
+  // Pictures button so kids can tell the two apart at a glance.
+  return `<svg viewBox="0 0 64 64">
+    <!-- Big central sparkle -->
+    <path d="M32 8 L 36 26 L 54 32 L 36 38 L 32 56 L 28 38 L 10 32 L 28 26 Z"
+          fill="#ff6b9d" stroke="#7a2548" stroke-width="2.5" stroke-linejoin="round"/>
+    <!-- Top-right satellite -->
+    <path d="M50 14 L 52 20 L 58 22 L 52 24 L 50 30 L 48 24 L 42 22 L 48 20 Z"
+          fill="#b8a4ff" stroke="#5a4a99" stroke-width="2" stroke-linejoin="round"/>
+    <!-- Bottom-left satellite -->
+    <path d="M14 44 L 16 50 L 22 52 L 16 54 L 14 60 L 12 54 L 6 52 L 12 50 Z"
+          fill="#ffd166" stroke="#a87b00" stroke-width="2" stroke-linejoin="round"/>
   </svg>`;
 }
 

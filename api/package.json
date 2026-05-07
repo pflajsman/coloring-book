@@ -1,0 +1,20 @@
+{
+  "name": "coloring-book-api",
+  "version": "1.0.0",
+  "description": "Azure Functions API for the coloring-book PWA — proxies the Pollinations image-gen API so the secret key stays server-side.",
+  "main": "dist/src/functions/*.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "prestart": "npm run build",
+    "start": "func start",
+    "test": "echo \"No tests yet\""
+  },
+  "dependencies": {
+    "@azure/functions": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  }
+}

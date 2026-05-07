@@ -1,0 +1,8 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "POLLINATIONS_KEY": "sk_paste_your_key_here_for_local_dev_only"
+  }
+}

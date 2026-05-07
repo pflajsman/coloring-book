@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <g fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Classic 2x4 brick in 3/4 view -->
+    <!-- Top face (parallelogram) -->
+    <path d="M 30 90 L 130 90 L 170 70 L 70 70 Z"/>
+    <!-- Front face -->
+    <path d="M 30 90 L 30 145 L 130 145 L 130 90 Z"/>
+    <!-- Right side -->
+    <path d="M 130 90 L 170 70 L 170 125 L 130 145 Z"/>
+    <!-- 8 studs on top (2 rows of 4) -->
+    <!-- Back row (further away, smaller-looking) -->
+    <ellipse cx="88" cy="78" rx="8" ry="3"/>
+    <ellipse cx="108" cy="78" rx="8" ry="3"/>
+    <ellipse cx="128" cy="78" rx="8" ry="3"/>
+    <ellipse cx="148" cy="78" rx="8" ry="3"/>
+    <!-- Stud cylinder side hints (back row) -->
+    <path d="M 80 78 L 80 73"/>
+    <path d="M 96 78 L 96 73"/>
+    <path d="M 100 78 L 100 73"/>
+    <path d="M 116 78 L 116 73"/>
+    <!-- Front row -->
+    <ellipse cx="50" cy="84" rx="9" ry="3"/>
+    <ellipse cx="72" cy="84" rx="9" ry="3"/>
+    <ellipse cx="94" cy="84" rx="9" ry="3"/>
+    <ellipse cx="116" cy="84" rx="9" ry="3"/>
+  </g>
+</svg>

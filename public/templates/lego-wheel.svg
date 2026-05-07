@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <g fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Lego car/buggy: 2x4 plate body + 2 wheels + axle holes -->
+    <!-- Body (front view brick) -->
+    <rect x="30" y="80" width="140" height="40"/>
+    <!-- Studs on top of body -->
+    <circle cx="50" cy="74" r="6"/>
+    <circle cx="78" cy="74" r="6"/>
+    <circle cx="106" cy="74" r="6"/>
+    <circle cx="134" cy="74" r="6"/>
+    <line x1="44" y1="80" x2="44" y2="68"/>
+    <line x1="56" y1="80" x2="56" y2="68"/>
+    <line x1="72" y1="80" x2="72" y2="68"/>
+    <line x1="84" y1="80" x2="84" y2="68"/>
+    <line x1="100" y1="80" x2="100" y2="68"/>
+    <line x1="112" y1="80" x2="112" y2="68"/>
+    <line x1="128" y1="80" x2="128" y2="68"/>
+    <line x1="140" y1="80" x2="140" y2="68"/>
+    <!-- Front axle hole -->
+    <circle cx="60" cy="100" r="4"/>
+    <!-- Rear axle hole -->
+    <circle cx="140" cy="100" r="4"/>
+    <!-- Front wheel (tire + hub) -->
+    <circle cx="60" cy="140" r="22"/>
+    <circle cx="60" cy="140" r="14"/>
+    <circle cx="60" cy="140" r="5"/>
+    <!-- Spoke crosses -->
+    <line x1="46" y1="140" x2="74" y2="140"/>
+    <line x1="60" y1="126" x2="60" y2="154"/>
+    <!-- Rear wheel -->
+    <circle cx="140" cy="140" r="22"/>
+    <circle cx="140" cy="140" r="14"/>
+    <circle cx="140" cy="140" r="5"/>
+    <line x1="126" y1="140" x2="154" y2="140"/>
+    <line x1="140" y1="126" x2="140" y2="154"/>
+  </g>
+</svg>

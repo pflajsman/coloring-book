@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <g fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Flat 6x4 baseplate, slight 3/4 view -->
+    <!-- Top face -->
+    <path d="M 25 80 L 145 80 L 175 60 L 55 60 Z"/>
+    <!-- Front edge -->
+    <path d="M 25 80 L 25 95 L 145 95 L 145 80"/>
+    <!-- Right edge -->
+    <path d="M 145 80 L 175 60 L 175 75 L 145 95"/>
+    <!-- 6x4 grid of studs (24 dots) on the top face. Studs are stylized
+         as small circles in slight perspective rows. -->
+    <!-- Row 1 (back) -->
+    <circle cx="68" cy="68" r="3.5"/>
+    <circle cx="86" cy="68" r="3.5"/>
+    <circle cx="104" cy="68" r="3.5"/>
+    <circle cx="122" cy="68" r="3.5"/>
+    <circle cx="140" cy="68" r="3.5"/>
+    <circle cx="158" cy="68" r="3.5"/>
+    <!-- Row 2 -->
+    <circle cx="62" cy="72" r="3.7"/>
+    <circle cx="80" cy="72" r="3.7"/>
+    <circle cx="98" cy="72" r="3.7"/>
+    <circle cx="116" cy="72" r="3.7"/>
+    <circle cx="134" cy="72" r="3.7"/>
+    <circle cx="152" cy="72" r="3.7"/>
+    <!-- Row 3 -->
+    <circle cx="56" cy="76" r="3.9"/>
+    <circle cx="74" cy="76" r="3.9"/>
+    <circle cx="92" cy="76" r="3.9"/>
+    <circle cx="110" cy="76" r="3.9"/>
+    <circle cx="128" cy="76" r="3.9"/>
+    <circle cx="146" cy="76" r="3.9"/>
+    <!-- Bottom skirt (showing thickness) -->
+    <line x1="25" y1="95" x2="25" y2="115"/>
+    <line x1="145" y1="95" x2="145" y2="115"/>
+    <line x1="25" y1="115" x2="145" y2="115"/>
+  </g>
+</svg>
