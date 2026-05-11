@@ -181,11 +181,12 @@ html, body {
   .kid-dock { top: 152px; }
 }
 
-/* On phone the topbar is shorter (smaller buttons + smaller slider), so the
-   panels can start higher again. */
+/* On phone the topbar is shorter (smaller buttons, slider hidden) so the
+   side panels can start much closer to the top — gives the canvas more
+   vertical room. */
 @media (max-width: 600px) {
   .kid-palette,
-  .kid-dock { top: 128px; }
+  .kid-dock { top: 72px; }
 }
 
 .kid-iconbtn {
@@ -843,16 +844,10 @@ html, body {
   .kid-iconbtn { width: 48px; height: 48px; }
   .kid-iconbtn svg { width: 28px; height: 28px; }
 
-  /* Slider stays compact on its second row so the canvas isn't pushed
-     down too far. */
-  .kid-slider {
-    padding: 6px 12px;
-    gap: 8px;
-    width: min(320px, 100%);
-  }
-  .kid-slider-icon svg { width: 22px; height: 22px; }
-  .kid-slider-name { font-size: 13px; }
-  .kid-slider-readout { font-size: 13px; min-width: 32px; }
+  /* Hide the topbar brush slider on phone — screen is too narrow to fit it
+     alongside the icon buttons without crowding. The Settings dialog still
+     exposes brush size, so the feature isn't lost. */
+  .kid-topbar-sliders { display: none; }
 
   /* Side panels: narrower so the canvas gets more horizontal room. */
   .kid-palette {
