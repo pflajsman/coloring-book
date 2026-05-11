@@ -816,15 +816,10 @@ html, body {
   .kid-iconbtn { width: 48px; height: 48px; }
   .kid-iconbtn svg { width: 28px; height: 28px; }
 
-  /* Compact slider on phone — narrower so it fits in the right-icon row
-     alongside settings + fullscreen. */
-  .kid-slider {
-    width: 160px;
-    padding: 4px 10px;
-    gap: 6px;
-  }
-  /* Hide the label text on phone — the icon alone reads as "size". */
-  .kid-slider-name { display: none; }
+  /* Hide the topbar brush slider on phone — screen is too narrow to fit it
+     alongside the icon buttons without crowding. The Settings dialog still
+     exposes brush size, so the feature isn't lost. */
+  .kid-slider { display: none; }
 
   /* Side panels: narrower so the canvas gets more horizontal room. */
   .kid-palette {
@@ -849,24 +844,12 @@ html, body {
 
 /* ---------- Tiny phone layout (≤400px wide — typical portrait) ---------- */
 @media (max-width: 400px) {
-  /* Tight calculation for a 360px-wide screen:
-     left group: 4 × 40 + 3 × 4 = 172px
-     right group: slider 100 + 2 × 40 + 2 × 4 = 188px
-     Total: 360px exactly — the topbar fills the row, no wrapping. */
+  /* Slider is hidden at ≤600px, so the topbar holds only 4 left icons
+     + 2 right icons. 6 × 40 + 5 × 4 = 260px — comfortable on a 360px screen. */
   .kid-iconbtn { width: 40px; height: 40px; }
   .kid-iconbtn svg { width: 24px; height: 24px; }
   .kid-topbar-left,
   .kid-topbar-right { gap: 4px; }
-  .kid-slider {
-    width: 100px;
-    padding: 3px 8px;
-    gap: 4px;
-  }
-  .kid-slider-icon svg { width: 16px; height: 16px; }
-  .kid-slider-track { height: 6px; }
-  .kid-slider-track::-webkit-slider-thumb { width: 18px; height: 18px; border-width: 2px; }
-  .kid-slider-track::-moz-range-thumb { width: 18px; height: 18px; border-width: 2px; }
-  .kid-slider-readout { font-size: 12px; min-width: 22px; }
 
   /* Squeeze the side panels further. */
   .kid-palette .kid-scroll-body { width: 44px; }
