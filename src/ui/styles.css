@@ -72,14 +72,6 @@ html, body {
 }
 
 /* ---------- Slider inside the top control row ----- */
-.kid-topbar-sliders {
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  padding: 0 16px;
-}
 .kid-slider {
   display: flex;
   align-items: center;
@@ -159,31 +151,11 @@ html, body {
   text-align: right;
 }
 
-/* On smaller viewports, let the topbar wrap so the sliders move below the
-   icon buttons instead of being hidden. The slider group then occupies the
-   full width.
-   The canvas insets are recomputed dynamically by App.fitToWindow() from
-   the actual rendered geometry — no need to hardcode `top:` here. */
-@media (max-width: 1100px) {
-  .kid-topbar {
-    flex-wrap: wrap;
-    row-gap: 10px;
-  }
-  .kid-topbar-sliders {
-    order: 99;
-    flex-basis: 100%;
-    justify-content: center;
-  }
-  /* When the slider wraps to row 2 the topbar is taller. Push the side
-     panels down so they don't get hidden behind it. The canvas insets are
-     measured at runtime so it stays in sync automatically. */
-  .kid-palette,
-  .kid-dock { top: 152px; }
-}
-
-/* On phone the topbar is shorter (smaller buttons, slider hidden) so the
-   side panels can start much closer to the top — gives the canvas more
-   vertical room. */
+/* The slider lives inside the right-icon group now, so the topbar is a
+   single flex row that never needs to wrap. Side panels keep their default
+   `top: 100px`; the canvas insets are recomputed dynamically by
+   App.fitToWindow() so the picture always claims the real free space.
+   On phone the topbar is shorter, so panels start higher. */
 @media (max-width: 600px) {
   .kid-palette,
   .kid-dock { top: 72px; }
@@ -844,10 +816,15 @@ html, body {
   .kid-iconbtn { width: 48px; height: 48px; }
   .kid-iconbtn svg { width: 28px; height: 28px; }
 
-  /* Hide the topbar brush slider on phone — screen is too narrow to fit it
-     alongside the icon buttons without crowding. The Settings dialog still
-     exposes brush size, so the feature isn't lost. */
-  .kid-topbar-sliders { display: none; }
+  /* Compact slider on phone — narrower so it fits in the right-icon row
+     alongside settings + fullscreen. */
+  .kid-slider {
+    width: 160px;
+    padding: 4px 10px;
+    gap: 6px;
+  }
+  /* Hide the label text on phone — the icon alone reads as "size". */
+  .kid-slider-name { display: none; }
 
   /* Side panels: narrower so the canvas gets more horizontal room. */
   .kid-palette {
@@ -872,12 +849,24 @@ html, body {
 
 /* ---------- Tiny phone layout (≤400px wide — typical portrait) ---------- */
 @media (max-width: 400px) {
-  /* 6 icon buttons in the top bar at 44px + tight gaps. Calculation:
-     4 left + 2 right = 6 buttons × 44 + 5 × 4 gap = 284px → fits 360px. */
-  .kid-iconbtn { width: 44px; height: 44px; }
-  .kid-iconbtn svg { width: 26px; height: 26px; }
+  /* Tight calculation for a 360px-wide screen:
+     left group: 4 × 40 + 3 × 4 = 172px
+     right group: slider 100 + 2 × 40 + 2 × 4 = 188px
+     Total: 360px exactly — the topbar fills the row, no wrapping. */
+  .kid-iconbtn { width: 40px; height: 40px; }
+  .kid-iconbtn svg { width: 24px; height: 24px; }
   .kid-topbar-left,
   .kid-topbar-right { gap: 4px; }
+  .kid-slider {
+    width: 100px;
+    padding: 3px 8px;
+    gap: 4px;
+  }
+  .kid-slider-icon svg { width: 16px; height: 16px; }
+  .kid-slider-track { height: 6px; }
+  .kid-slider-track::-webkit-slider-thumb { width: 18px; height: 18px; border-width: 2px; }
+  .kid-slider-track::-moz-range-thumb { width: 18px; height: 18px; border-width: 2px; }
+  .kid-slider-readout { font-size: 12px; min-width: 22px; }
 
   /* Squeeze the side panels further. */
   .kid-palette .kid-scroll-body { width: 44px; }

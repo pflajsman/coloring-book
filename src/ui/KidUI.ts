@@ -165,11 +165,14 @@ export function buildKidUI(app: App, actions: KidUIActions): {
 
   topBar.appendChild(leftGroup);
 
-  // Center: brush size slider on the same row as the icon buttons.
+  // Right-side group: slider + settings + fullscreen, all on the same row.
+  // Putting the slider here (instead of centered between left/right groups)
+  // keeps it on row 1 at every viewport — no more wrapping to a second row
+  // on narrow screens, and it's visible on phone too.
   // Pressure lives in the settings dialog only — too many sliders crowded
   // the bar and most kids never need to change pressure sensitivity.
-  const sliderGroup = document.createElement('div');
-  sliderGroup.className = 'kid-topbar-sliders';
+  const rightGroup = document.createElement('div');
+  rightGroup.className = 'kid-topbar-right';
 
   const sizeSlider = buildTopSlider({
     kind: 'size',
@@ -180,13 +183,7 @@ export function buildKidUI(app: App, actions: KidUIActions): {
     value: app.state.size,
     onInput: (v) => app.setState({ size: v }),
   });
-  sliderGroup.appendChild(sizeSlider.root);
-
-  topBar.appendChild(sliderGroup);
-
-  // Right-side group: settings on the left, fullscreen flush to the edge.
-  const rightGroup = document.createElement('div');
-  rightGroup.className = 'kid-topbar-right';
+  rightGroup.appendChild(sizeSlider.root);
 
   const gear = document.createElement('button');
   gear.className = 'kid-iconbtn kid-gear';
