@@ -161,7 +161,9 @@ html, body {
 
 /* On smaller viewports, let the topbar wrap so the sliders move below the
    icon buttons instead of being hidden. The slider group then occupies the
-   full width. */
+   full width.
+   The canvas insets are recomputed dynamically by App.fitToWindow() from
+   the actual rendered geometry — no need to hardcode `top:` here. */
 @media (max-width: 1100px) {
   .kid-topbar {
     flex-wrap: wrap;
@@ -172,10 +174,18 @@ html, body {
     flex-basis: 100%;
     justify-content: center;
   }
-  /* When sliders wrap to row 2, the canvas + side panels need more headroom. */
-  .canvas-wrap { top: 168px; }
-  .kid-palette { top: 168px; }
-  .kid-dock { top: 168px; }
+  /* When the slider wraps to row 2 the topbar is taller. Push the side
+     panels down so they don't get hidden behind it. The canvas insets are
+     measured at runtime so it stays in sync automatically. */
+  .kid-palette,
+  .kid-dock { top: 152px; }
+}
+
+/* On phone the topbar is shorter (smaller buttons + smaller slider), so the
+   panels can start higher again. */
+@media (max-width: 600px) {
+  .kid-palette,
+  .kid-dock { top: 128px; }
 }
 
 .kid-iconbtn {
@@ -820,20 +830,66 @@ html, body {
   cursor: pointer;
 }
 
-/* ---------- Compact phone layout ---------- */
+/* ---------- Compact phone layout (tablets + landscape phones) ---------- */
 @media (max-width: 600px) {
-  .kid-swatch { width: 40px; height: 40px; }
-  .kid-palette { gap: 6px; padding: 6px 8px; width: 64px; }
-  .kid-tool { width: 60px; height: 60px; }
-  .kid-tool svg { width: 36px; height: 36px; }
-  .kid-iconbtn { width: 52px; height: 52px; }
-  .kid-iconbtn svg { width: 30px; height: 30px; }
+  /* Tighter topbar so the row of 4 left icons + 2 right icons fits at all. */
+  .kid-topbar {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+  }
+  .kid-topbar-left,
+  .kid-topbar-right { gap: 6px; }
+  .kid-iconbtn { width: 48px; height: 48px; }
+  .kid-iconbtn svg { width: 28px; height: 28px; }
+
+  /* Slider stays compact on its second row so the canvas isn't pushed
+     down too far. */
+  .kid-slider {
+    padding: 6px 12px;
+    gap: 8px;
+    width: min(320px, 100%);
+  }
+  .kid-slider-icon svg { width: 22px; height: 22px; }
+  .kid-slider-name { font-size: 13px; }
+  .kid-slider-readout { font-size: 13px; min-width: 32px; }
+
+  /* Side panels: narrower so the canvas gets more horizontal room. */
+  .kid-palette {
+    left: 8px;
+    gap: 4px;
+    padding: 4px 6px;
+    border-width: 3px;
+  }
+  .kid-palette .kid-scroll-body { width: 48px; }
+  .kid-swatch { width: 44px; height: 44px; border-width: 3px; }
+
   .kid-dock {
     right: 8px;
-    gap: 6px;
-    padding: 8px 10px;
-    width: 84px;
+    gap: 4px;
+    padding: 4px 6px;
+    border-width: 3px;
   }
+  .kid-dock .kid-scroll-body { width: 60px; }
+  .kid-tool { width: 56px; height: 56px; }
+  .kid-tool svg { width: 32px; height: 32px; }
+}
+
+/* ---------- Tiny phone layout (≤400px wide — typical portrait) ---------- */
+@media (max-width: 400px) {
+  /* 6 icon buttons in the top bar at 44px + tight gaps. Calculation:
+     4 left + 2 right = 6 buttons × 44 + 5 × 4 gap = 284px → fits 360px. */
+  .kid-iconbtn { width: 44px; height: 44px; }
+  .kid-iconbtn svg { width: 26px; height: 26px; }
+  .kid-topbar-left,
+  .kid-topbar-right { gap: 4px; }
+
+  /* Squeeze the side panels further. */
+  .kid-palette .kid-scroll-body { width: 44px; }
+  .kid-swatch { width: 40px; height: 40px; }
+  .kid-dock .kid-scroll-body { width: 56px; }
+  .kid-tool { width: 52px; height: 52px; }
+  .kid-tool svg { width: 30px; height: 30px; }
 }
 
 /* ---------- Short viewport (most tablets in landscape): smaller items

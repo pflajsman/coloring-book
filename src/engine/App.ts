@@ -158,6 +158,20 @@ export class App {
 
     this.fitToWindow();
     window.addEventListener('resize', () => this.fitToWindow());
+    // Re-fit whenever the floating UI's height changes (slider wrapping to a
+    // new row, panels growing). Without this, the topbar can wrap on mobile
+    // but the canvas insets stay stuck at boot-time values.
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => this.fitToWindow());
+      requestAnimationFrame(() => {
+        const topbar = document.querySelector('.kid-topbar');
+        const palette = document.querySelector('.kid-palette');
+        const dock = document.querySelector('.kid-dock');
+        if (topbar) ro.observe(topbar);
+        if (palette) ro.observe(palette);
+        if (dock) ro.observe(dock);
+      });
+    }
     // Eat wheel events so the canvas doesn't pan/zoom and the page can't
     // scroll either — kids using a mouse will spin the wheel and we want the
     // picture to stay put.
@@ -193,16 +207,33 @@ export class App {
     this.displayCanvas.width = Math.floor(rect.width * dpr);
     this.displayCanvas.height = Math.floor(rect.height * dpr);
     this.displayCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    // Reserve just enough margin for the floating UI; everything else is
-    // drawing area. `padding: 0` on the fit means we don't add an extra
-    // gap on top of the per-edge insets.
-    //   top: top control row (button height + tiny gap)
-    //   left/right: side panel widths (palette/dock + tiny gap)
-    //   bottom: minimal — nothing floats there
+
+    // Measure the actual floating UI rather than hardcoding insets. The
+    // topbar height changes when its slider wraps to a second row on narrow
+    // viewports; the palette/dock widths shrink on phone breakpoints. Hard
+    // values used to lie about both and the canvas got cropped behind UI.
+    //
+    // Fallbacks keep boot-time + worker-only environments working when the
+    // panels haven't been mounted yet.
+    const GAP = 8;
+    const topbar = document.querySelector('.kid-topbar') as HTMLElement | null;
+    const palette = document.querySelector('.kid-palette') as HTMLElement | null;
+    const dock = document.querySelector('.kid-dock') as HTMLElement | null;
+
+    const topInset = topbar
+      ? Math.ceil(topbar.getBoundingClientRect().bottom + GAP)
+      : 92;
+    const leftInset = palette
+      ? Math.ceil(palette.getBoundingClientRect().right + GAP)
+      : 88;
+    const rightInset = dock
+      ? Math.ceil(rect.width - dock.getBoundingClientRect().left + GAP)
+      : 96;
+
     this.viewport.fit(rect.width, rect.height, {
-      top: 92,
-      left: 88,
-      right: 96,
+      top: topInset,
+      left: leftInset,
+      right: rightInset,
       bottom: 8,
       padding: 0,
     });
