@@ -86,6 +86,9 @@ export const drawSegment = drawLineSegment;
 
 const BRUSH_HEAD_SIZE = 128;
 const brushHeadCache = new Map<string, HTMLCanvasElement>();
+// 24 palette colours + 36 rainbow steps fit without evicting each other.
+// Each head is 128x128 RGBA (64 KB), so the cap is about 4 MB.
+export const BRUSH_HEAD_CACHE_MAX = 64;
 
 function getBrushHead(color: string): HTMLCanvasElement {
   const cached = brushHeadCache.get(color);
@@ -111,7 +114,7 @@ function getBrushHead(color: string): HTMLCanvasElement {
 
   brushHeadCache.set(color, c);
   // Don't let the cache grow unbounded — drop the oldest when it gets big.
-  if (brushHeadCache.size > 16) {
+  if (brushHeadCache.size > BRUSH_HEAD_CACHE_MAX) {
     const first = brushHeadCache.keys().next().value;
     if (first) brushHeadCache.delete(first);
   }
