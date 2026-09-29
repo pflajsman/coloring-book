@@ -39,3 +39,28 @@ describe('HoldTimer', () => {
     t.release();
   });
 });
+
+describe('HoldTimer click after a completed hold', () => {
+  it('reports the click that ends a completed hold exactly once', () => {
+    vi.useFakeTimers();
+    const t = new HoldTimer(2000, () => {});
+    t.press();
+    vi.advanceTimersByTime(2000);
+    t.release();
+    // The click the browser fires on release belongs to the hold, not to a
+    // separate tap, and must be swallowed.
+    expect(t.takeClickAfterFire()).toBe(true);
+    expect(t.takeClickAfterFire()).toBe(false);
+    vi.useRealTimers();
+  });
+
+  it('a short tap does not swallow its click', () => {
+    vi.useFakeTimers();
+    const t = new HoldTimer(2000, () => {});
+    t.press();
+    vi.advanceTimersByTime(300);
+    t.release();
+    expect(t.takeClickAfterFire()).toBe(false);
+    vi.useRealTimers();
+  });
+});

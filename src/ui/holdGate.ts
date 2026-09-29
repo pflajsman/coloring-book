@@ -20,12 +20,14 @@ export class HoldTimer {
   private startedAt: number | null = null;
   private timer: ReturnType<typeof setTimeout> | null = null;
   private fired = false;
+  private swallowClick = false;
 
   constructor(private ms: number, private onFire: () => void, private clock: HoldClock = realClock) {}
 
   press() {
     this.cancelTimer();
     this.fired = false;
+    this.swallowClick = false;
     this.startedAt = this.clock.now();
     this.timer = this.clock.setTimeout(() => {
       this.timer = null;
@@ -37,7 +39,17 @@ export class HoldTimer {
   release(): 'fired' | 'short' {
     this.cancelTimer();
     this.startedAt = null;
+    if (this.fired) this.swallowClick = true;
     return this.fired ? 'fired' : 'short';
+  }
+
+  // The browser fires a click when a completed hold is released. That click
+  // is part of the hold, so other click handlers on the button (fullscreen:
+  // "tap to enter") must not see it. Returns true once per completed hold.
+  takeClickAfterFire(): boolean {
+    const v = this.swallowClick;
+    this.swallowClick = false;
+    return v;
   }
 
   progress(now = this.clock.now()): number {
@@ -102,7 +114,16 @@ export function holdToActivate(
       onActivate();
     }
   });
-  btn.addEventListener('click', (e) => e.preventDefault());
+  // Capture phase so this runs before any other click listener on the
+  // button, whichever was registered first.
+  btn.addEventListener(
+    'click',
+    (e) => {
+      e.preventDefault();
+      if (timer.takeClickAfterFire()) e.stopImmediatePropagation();
+    },
+    { capture: true },
+  );
 }
 
 function showHint(anchor: HTMLElement) {
