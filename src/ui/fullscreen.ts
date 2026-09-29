@@ -50,8 +50,17 @@ export class StickyFullscreen {
   exitedByParent() { this.wanted = false; this.pending = false; }
   lost() { if (this.wanted) this.pending = true; }
   shouldReenter(): boolean { return this.wanted && this.pending; }
-  reentered() { this.pending = false; }
+  // Called on every tap. Stays pending until fullscreenchange reports we
+  // are back in (entered()), so a request the browser rejected is retried
+  // on the next tap instead of being given up.
+  tap(enter: () => void) {
+    if (this.shouldReenter()) enter();
+  }
 }
+
+// Touch only grants user activation on pointerup (mouse already on
+// pointerdown), and requestFullscreen needs that activation.
+export const REENTER_EVENT = 'pointerup';
 
 export const sticky = new StickyFullscreen();
 
@@ -61,16 +70,8 @@ export function initStickyFullscreen(): void {
     else sticky.lost();
   });
   // Capture phase so the re-entry request runs inside the same user gesture
-  // even if the canvas handler calls preventDefault.
-  document.addEventListener(
-    'pointerdown',
-    () => {
-      if (!sticky.shouldReenter()) return;
-      sticky.reentered();
-      enterFullscreen();
-    },
-    { capture: true },
-  );
+  // before any other handler.
+  document.addEventListener(REENTER_EVENT, () => sticky.tap(enterFullscreen), { capture: true });
 }
 
 // Keep the screen on while the app is visible. Not all browsers support it
