@@ -1,8 +1,14 @@
 import type { Document } from './Document';
 import { patchFromSnapshots, type PatchCommand } from './commands';
+import { SerialQueue } from './SerialQueue';
 
 let worker: Worker | null = null;
-const pending = new Map<string, (img: ImageData) => void>();
+const pending = new Map<string, { resolve: (img: ImageData) => void; reject: (e: unknown) => void }>();
+const queue = new SerialQueue();
+
+// Fills in flight or waiting. The App ignores new strokes while > 0 so a
+// stroke can't be overwritten by a fill result computed before it.
+export const fillsPending = () => queue.pending;
 
 function getWorker(): Worker {
   if (!worker) {
@@ -10,12 +16,23 @@ function getWorker(): Worker {
       type: 'module',
     });
     worker.onmessage = (e: MessageEvent<{ id: string; result: ImageData }>) => {
-      const cb = pending.get(e.data.id);
-      if (cb) {
+      const p = pending.get(e.data.id);
+      if (p) {
         pending.delete(e.data.id);
-        cb(e.data.result);
+        p.resolve(e.data.result);
       }
     };
+    // A crashed worker would otherwise leave the fill promise pending
+    // forever and the fill tool dead. Fail the waiting fills and start a
+    // fresh worker on the next tap.
+    const fail = (err: unknown) => {
+      for (const p of pending.values()) p.reject(err);
+      pending.clear();
+      worker?.terminate();
+      worker = null;
+    };
+    worker.onerror = (e) => fail(e);
+    worker.onmessageerror = (e) => fail(e);
   }
   return worker;
 }
@@ -53,7 +70,7 @@ function buildSourceImage(doc: Document): ImageData {
   return ctx.getImageData(0, 0, w, h);
 }
 
-export async function runFill(
+async function runFillNow(
   doc: Document,
   layerId: string,
   x: number,
@@ -74,8 +91,8 @@ export async function runFill(
 
   const id = fillId();
   const w = getWorker();
-  const result = await new Promise<ImageData>((resolve) => {
-    pending.set(id, resolve);
+  const result = await new Promise<ImageData>((resolve, reject) => {
+    pending.set(id, { resolve, reject });
     w.postMessage(
       {
         id,
@@ -94,4 +111,16 @@ export async function runFill(
   // Paint the fill result onto the layer.
   layer.ctx.putImageData(result, 0, 0);
   return cmd;
+}
+
+export function runFill(
+  doc: Document,
+  layerId: string,
+  x: number,
+  y: number,
+  color: string,
+  tolerance = 28,
+): Promise<PatchCommand | null> {
+  // `before` is read inside the queued task, after earlier fills landed.
+  return queue.run(() => runFillNow(doc, layerId, x, y, color, tolerance));
 }

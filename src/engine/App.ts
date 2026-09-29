@@ -15,7 +15,7 @@ import {
   spraySplatter,
   stampAt,
 } from './StrokeRenderer';
-import { runFill } from './fillClient';
+import { fillsPending, runFill } from './fillClient';
 import type { Point, StrokeStyle } from '../types/document';
 
 export type Tool = 'brush' | 'pen' | 'spray' | 'glitter' | 'stamp' | 'line' | 'circle' | 'rect' | 'blur' | 'eraser' | 'fill' | 'pan';
@@ -302,6 +302,9 @@ export class App {
       return;
     }
     if (this.state.tool === 'pan') return;
+    // A fill result is computed from a snapshot; a stroke drawn before it
+    // lands would be overwritten. Fills take well under a second.
+    if (fillsPending() > 0) return;
 
     const layer = this.doc.getActiveLayer();
     if (layer.locked) return;
@@ -560,8 +563,10 @@ export class App {
       const cmd = await runFill(this.doc, layer.id, p.x, p.y, this.state.color, 28);
       if (cmd) this.history.push(cmd);
       this.scheduleRender();
+    } catch (e) {
+      console.error('Fill failed', e);
     } finally {
-      this.setState({ busy: false });
+      this.setState({ busy: fillsPending() > 0 });
     }
   }
 

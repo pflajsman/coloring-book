@@ -1,3 +1,4 @@
+import { compositeCoverage } from './composite';
 // Off-main-thread flood fill. The main thread sends:
 //   - source: ImageData of the composited image (layers BELOW target + line art)
 //             used purely for boundary detection.
@@ -237,18 +238,7 @@ function floodFill(
     }
   }
 
-  // Composite the coverage mask into the target buffer using "over" with the
-  // existing pixel, so re-filling an already-painted area looks natural.
-  for (let i = 0, p = 0; i < visited.length; i++, p += 4) {
-    const cov = visited[i];
-    if (cov === 0) continue;
-    const a = (cov / 255) * (color.a / 255);
-    const inv = 1 - a;
-    dst[p] = Math.round(color.r * a + dst[p] * inv);
-    dst[p + 1] = Math.round(color.g * a + dst[p + 1] * inv);
-    dst[p + 2] = Math.round(color.b * a + dst[p + 2] * inv);
-    dst[p + 3] = Math.round(255 * a + dst[p + 3] * inv);
-  }
+  compositeCoverage(dst, visited, color);
 
   return new ImageData(dst, w, h);
 }
