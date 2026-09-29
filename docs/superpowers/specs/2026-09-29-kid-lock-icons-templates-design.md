@@ -26,7 +26,7 @@ Out of scope for this round: server-side AI content moderation and rate limiting
 
 ### A1. Canvas lock and multi-touch handling
 - New app state `zoomLocked: boolean`, default `true`, persisted in `localStorage` (try/catch, default to locked on any failure).
-- When locked: `PointerInput` never enters gesture mode. The first pointer on the canvas owns the stroke; any additional pointers are ignored until all pointers lift. The viewport stays at fit-to-window.
+- When locked: `PointerInput` never enters gesture mode. The first pointer that lands while no stroke is running owns the stroke; other pointers (resting palm, extra fingers) are ignored and never interrupt it. A resting palm does not block the next stroke. The viewport stays at fit-to-window.
 - When unlocked: current pinch/pan behavior, plus zoom is clamped to a minimum of fit scale (never smaller than the page), and switching the lock back on resets the view to fit.
 - Fix the existing gesture-cancel bug (review item 1): when an in-flight stroke is interrupted (only possible when unlocked), end it properly: stop the spray/glitter loop and commit the partial stroke as an undo step.
 - Tracking: pointer bookkeeping must tolerate 3+ simultaneous pointers without leaving stale "active" entries.
@@ -67,7 +67,7 @@ Out of scope for this round: server-side AI content moderation and rate limiting
 - `Modal` × button and backdrop resolve `promptDialog` with `null` and `confirmDialog` with `false`, so callers always continue (fixes the stuck AI toast).
 
 ### A10. Fill correctness
-- Serialize fills: a queue in `fillClient`, each fill starts from the current layer pixels after the previous fill has been applied. Strokes started while a fill is pending wait until it is applied (fills are typically under 100 ms).
+- Serialize fills: a queue in `fillClient`, each fill starts from the current layer pixels after the previous fill has been applied. Strokes started while a fill is pending are ignored (fills finish in well under a second), so a fill result can never overwrite a newer stroke.
 - Worker `onerror` / `messageerror` rejects the pending promise and recreates the worker.
 - Fix the straight-alpha compositing in `floodFill.worker.ts` so partially covered pixels keep their colour (no dark fringes).
 
