@@ -329,6 +329,7 @@ html, body {
 .kid-tool:active { transform: scale(0.94); }
 /* Each tool gets a distinct accent so they're easy to remember by color */
 .kid-tool[data-tool="brush"] { border-color: #ff6b9d; }
+.kid-tool[data-tool="rainbow"] { border-color: #a45cff; }
 .kid-tool[data-tool="pen"] { border-color: #6dd5ed; }
 .kid-tool[data-tool="line"] { border-color: #ffd54a; }
 .kid-tool[data-tool="circle"] { border-color: #1abc9c; }

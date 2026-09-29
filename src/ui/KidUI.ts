@@ -1,6 +1,7 @@
 import type { App, Tool } from '../engine/App';
 import { showModal } from './Modal';
 import { attachTooltip } from './Tooltip';
+import { toolIconSvg, type DockTool } from './toolIcons';
 import { HOLD_MS, holdToActivate } from './holdGate';
 import { enterFullscreen, exitFullscreen, isFullscreen, isInstalledApp, onFullscreenChange, sticky } from './fullscreen';
 import { PREF_ZOOM_LOCKED, writeBoolPref } from '../storage/prefs';
@@ -40,30 +41,17 @@ const KID_COLORS = [
   '#95a5a6', // grey
 ];
 
-type Tools = Extract<Tool, 'brush' | 'pen' | 'line' | 'circle' | 'rect' | 'spray' | 'glitter' | 'stamp' | 'blur' | 'fill' | 'eraser'>;
+type Tools = Extract<Tool, DockTool>;
 
-// Order matters — this is the visual order in the dock (top to bottom).
-// Basic tools first (pen, brush, fill, eraser), then shape tools, then
-// special/effect tools at the bottom.
-const TOOL_LIST: Tools[] = ['pen', 'brush', 'fill', 'eraser', 'line', 'circle', 'rect', 'spray', 'glitter', 'stamp', 'blur'];
-
-const TOOL_ICONS: Record<Tools, string> = {
-  brush: brushSvg(),
-  pen: penSvg(),
-  line: lineSvg(),
-  circle: circleSvg(),
-  rect: rectSvg(),
-  spray: spraySvg(),
-  glitter: glitterSvg(),
-  stamp: stampSvg(),
-  blur: blurSvg(),
-  fill: fillSvg(),
-  eraser: eraserSvg(),
-};
+// Order matters: this is the visual order in the dock (top to bottom).
+// Basic tools first (pen, brush, rainbow, fill, eraser), then shape tools,
+// then special/effect tools at the bottom.
+const TOOL_LIST: Tools[] = ['pen', 'brush', 'rainbow', 'fill', 'eraser', 'line', 'circle', 'rect', 'spray', 'glitter', 'stamp', 'blur'];
 
 const TOOL_NAMES: Record<Tools, string> = {
   pen: 'Pen',
   brush: 'Brush',
+  rainbow: 'Rainbow',
   line: 'Ruler',
   circle: 'Circle',
   rect: 'Rectangle',
@@ -121,7 +109,7 @@ export function buildKidUI(app: App, actions: KidUIActions): {
     const b = document.createElement('button');
     b.className = 'kid-tool';
     b.dataset.tool = t;
-    b.innerHTML = TOOL_ICONS[t];
+    b.innerHTML = toolIconSvg(t, app.state.color, t);
     b.addEventListener('click', () => app.setState({ tool: t }));
     attachTooltip(b, TOOL_NAMES[t]);
     toolBtns[t] = b;
@@ -232,7 +220,16 @@ export function buildKidUI(app: App, actions: KidUIActions): {
   topBar.appendChild(rightGroup);
 
   // ---- React to state changes ----
+  let iconColor = app.state.color;
   app.subscribe((s) => {
+    // Redraw the dock icons in the new paint colour so each icon shows the
+    // mark it will make.
+    if (s.color !== iconColor) {
+      iconColor = s.color;
+      (Object.entries(toolBtns) as [Tools, HTMLButtonElement][]).forEach(([id, b]) => {
+        b.innerHTML = toolIconSvg(id, s.color, id);
+      });
+    }
     swatches.forEach((sw) => sw.classList.toggle('active', sw.dataset.color === s.color));
     (Object.entries(toolBtns) as [Tools, HTMLButtonElement][]).forEach(([id, b]) => {
       b.classList.toggle('active', id === s.tool);
@@ -558,257 +555,7 @@ function bigBtn(label: string, onClick: () => void) {
 
 // ---- Inline icons (no external assets, scales crisply at any size) ----
 
-// Each icon is drawn with explicit colors (not currentColor) so the dock
-// reads as a row of physical art tools — wooden pencil, painted brush,
-// fluorescent marker, metallic spray can, etc. Stroke widths and corner
-// radii are tuned for crispness at the dock's 76 px size.
-
-function brushSvg() {
-  // Vertical paintbrush, centered. Big bristle clump on top with paint
-  // splotch above it so it reads "brush dipped in paint" at a glance.
-  return `<svg viewBox="0 0 64 64">
-    <!-- paint drop on bristle tip -->
-    <ellipse cx="32" cy="8" rx="10" ry="3" fill="#ff6b9d"/>
-    <!-- bristles (broad, tapered) -->
-    <path d="M22 10 Q 22 8 32 8 Q 42 8 42 10 L 40 28 L 24 28 Z"
-          fill="#ff6b9d" stroke="#7a2548" stroke-width="2" stroke-linejoin="round"/>
-    <!-- ferrule (gold band) -->
-    <rect x="22" y="28" width="20" height="6" fill="#ffd166"
-          stroke="#a87b00" stroke-width="2"/>
-    <!-- ferrule rivets -->
-    <circle cx="27" cy="31" r="0.9" fill="#a87b00"/>
-    <circle cx="37" cy="31" r="0.9" fill="#a87b00"/>
-    <!-- wooden handle, slightly tapered toward bottom -->
-    <path d="M24 34 L40 34 L36 58 L28 58 Z"
-          fill="#d97a3a" stroke="#7a3e16" stroke-width="2" stroke-linejoin="round"/>
-    <!-- handle highlight -->
-    <line x1="28" y1="38" x2="29" y2="54" stroke="#f5b483" stroke-width="2"/>
-  </svg>`;
-}
-
-function penSvg() {
-  // Vertical pencil, centered, classic yellow body. Sharpened tip at the
-  // bottom (graphite point), pink eraser at the top.
-  return `<svg viewBox="0 0 64 64">
-    <!-- pink eraser cap -->
-    <rect x="24" y="6" width="16" height="8" rx="1.5" fill="#ff6b9d"
-          stroke="#7a2548" stroke-width="2"/>
-    <!-- silver ferrule (band) -->
-    <rect x="24" y="14" width="16" height="4" fill="#bfc7d4"
-          stroke="#5a6276" stroke-width="2"/>
-    <line x1="26" y1="16" x2="38" y2="16" stroke="#5a6276" stroke-width="1"/>
-    <!-- yellow body -->
-    <rect x="24" y="18" width="16" height="28" fill="#ffd54a"
-          stroke="#a07900" stroke-width="2"/>
-    <!-- body highlight -->
-    <line x1="28" y1="20" x2="28" y2="44" stroke="#fff1a8" stroke-width="2"/>
-    <!-- wood cone (tip section) -->
-    <path d="M24 46 L40 46 L36 56 L28 56 Z"
-          fill="#f0c990" stroke="#7a3e16" stroke-width="2" stroke-linejoin="round"/>
-    <!-- graphite point -->
-    <path d="M28 56 L36 56 L32 60 Z" fill="#2a2a3a"/>
-  </svg>`;
-}
-
-
-function circleSvg() {
-  // Circle outline — instantly reads as "circle tool". Teal accent.
-  return `<svg viewBox="0 0 64 64">
-    <circle cx="32" cy="32" r="20"
-            fill="none" stroke="#1abc9c" stroke-width="6"/>
-    <!-- corner anchor dots showing the bounding-box drag style -->
-    <circle cx="14" cy="14" r="3.5" fill="#1abc9c"/>
-    <circle cx="50" cy="50" r="3.5" fill="#1abc9c"/>
-  </svg>`;
-}
-
-function rectSvg() {
-  // Rounded rectangle outline. Coral accent so it's distinct from the
-  // teal circle next to it.
-  return `<svg viewBox="0 0 64 64">
-    <rect x="12" y="14" width="40" height="36" rx="4"
-          fill="none" stroke="#ff8a80" stroke-width="6" stroke-linejoin="round"/>
-    <!-- corner anchor dots -->
-    <circle cx="12" cy="14" r="3.5" fill="#ff8a80"/>
-    <circle cx="52" cy="50" r="3.5" fill="#ff8a80"/>
-  </svg>`;
-}
-
-function lineSvg() {
-  // Classic translucent yellow ruler tilted 45°, with tick marks along the
-  // top edge. Reads as "draw a straight line" instantly.
-  return `<svg viewBox="0 0 64 64">
-    <g transform="rotate(-30 32 32)">
-      <!-- ruler body -->
-      <rect x="6" y="26" width="52" height="12" rx="1.5"
-            fill="#ffd54a" stroke="#a07900" stroke-width="2"/>
-      <!-- tick marks on the top edge -->
-      <line x1="12" y1="26" x2="12" y2="32" stroke="#a07900" stroke-width="1.6"/>
-      <line x1="20" y1="26" x2="20" y2="30" stroke="#a07900" stroke-width="1.4"/>
-      <line x1="28" y1="26" x2="28" y2="32" stroke="#a07900" stroke-width="1.6"/>
-      <line x1="36" y1="26" x2="36" y2="30" stroke="#a07900" stroke-width="1.4"/>
-      <line x1="44" y1="26" x2="44" y2="32" stroke="#a07900" stroke-width="1.6"/>
-      <line x1="52" y1="26" x2="52" y2="30" stroke="#a07900" stroke-width="1.4"/>
-      <!-- subtle highlight -->
-      <line x1="8" y1="36" x2="56" y2="36" stroke="#fff1a8" stroke-width="1.5"/>
-    </g>
-  </svg>`;
-}
-
-function blurSvg() {
-  // Pointing finger with a small magical swirl coming off the tip — reads
-  // as "magic touch that smudges". Distinct from the eraser silhouette.
-  return `<svg viewBox="0 0 64 64">
-    <!-- swirl above the fingertip -->
-    <path d="M40 10 Q 48 14 44 22 Q 36 24 40 32"
-          fill="none" stroke="#b8a4ff" stroke-width="3"
-          stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="46" cy="11" r="2" fill="#ffd166"/>
-    <circle cx="50" cy="20" r="1.6" fill="#ff6b9d"/>
-    <!-- finger body -->
-    <path d="M22 50 L 22 28 Q 22 22 28 22 Q 34 22 34 28 L 34 32
-             Q 36 28 40 30 Q 44 32 42 38 L 40 50 Z"
-          fill="#fff8dc" stroke="#7a3e16" stroke-width="2.5"
-          stroke-linejoin="round"/>
-    <!-- knuckle line -->
-    <path d="M26 42 L 38 42" stroke="#7a3e16" stroke-width="1.5"
-          stroke-linecap="round"/>
-    <!-- nail -->
-    <path d="M26 26 Q 28 24 30 26" stroke="#7a3e16" stroke-width="1.5"
-          fill="none" stroke-linecap="round"/>
-    <!-- wrist/cuff -->
-    <rect x="18" y="50" width="20" height="6" rx="1.5"
-          fill="#b8a4ff" stroke="#5a4a99" stroke-width="2"/>
-  </svg>`;
-}
-
-function spraySvg() {
-  // Spray can centered upright. Cap on top, can body in middle, mist
-  // emerging straight up from the nozzle so it's clear what it does.
-  return `<svg viewBox="0 0 64 64">
-    <!-- mist cloud above the can -->
-    <g fill="#b8a4ff">
-      <circle cx="32" cy="6" r="1.4"/>
-      <circle cx="26" cy="9" r="1.1"/>
-      <circle cx="38" cy="9" r="1.1"/>
-      <circle cx="22" cy="12" r="1.0"/>
-      <circle cx="42" cy="12" r="1.0"/>
-      <circle cx="32" cy="13" r="1.2"/>
-      <circle cx="28" cy="15" r="0.9"/>
-      <circle cx="36" cy="15" r="0.9"/>
-    </g>
-    <!-- cap (top) -->
-    <rect x="26" y="16" width="12" height="8" rx="1.5" fill="#ff8c00"
-          stroke="#7a4400" stroke-width="2"/>
-    <!-- nozzle slot -->
-    <rect x="30" y="13" width="4" height="3" fill="#2a2a3a"/>
-    <!-- can body -->
-    <rect x="20" y="24" width="24" height="32" rx="2" fill="#dfe4ee"
-          stroke="#5a6276" stroke-width="2"/>
-    <!-- label band -->
-    <rect x="20" y="34" width="24" height="12" fill="#b8a4ff"
-          stroke="#5a4a99" stroke-width="2"/>
-    <!-- label stripe -->
-    <line x1="22" y1="40" x2="42" y2="40" stroke="#fff" stroke-width="1.5" opacity="0.8"/>
-    <!-- can highlight (left edge) -->
-    <line x1="23" y1="28" x2="23" y2="54" stroke="#fff" stroke-width="2" opacity="0.7"/>
-  </svg>`;
-}
-
-function glitterSvg() {
-  // Magic wand with a star tip emitting rainbow sparkles. Reads as
-  // "magic glitter" instantly. Distinct silhouette from the spray can.
-  return `<svg viewBox="0 0 64 64">
-    <!-- rainbow sparkles around the tip -->
-    <g>
-      <circle cx="14" cy="10" r="1.6" fill="#ff6b9d"/>
-      <circle cx="22" cy="6" r="1.2" fill="#ffd166"/>
-      <circle cx="32" cy="10" r="1.4" fill="#6dd5ed"/>
-      <circle cx="42" cy="6" r="1.2" fill="#b8a4ff"/>
-      <circle cx="50" cy="12" r="1.6" fill="#06d6a0"/>
-      <circle cx="8" cy="20" r="1.3" fill="#ffd166"/>
-      <circle cx="50" cy="22" r="1.3" fill="#ff6b9d"/>
-    </g>
-    <!-- 4-point sparkle near tip -->
-    <path d="M22 18 L 24 22 L 28 24 L 24 26 L 22 30 L 20 26 L 16 24 L 20 22 Z"
-          fill="#fff8dc" stroke="#a87b00" stroke-width="1.5" stroke-linejoin="round"/>
-    <!-- big star tip -->
-    <path d="M40 14 L 44 24 L 54 26 L 46 32 L 48 42 L 40 36 L 32 42 L 34 32 L 26 26 L 36 24 Z"
-          fill="#ffd166" stroke="#a87b00" stroke-width="2" stroke-linejoin="round"/>
-    <!-- wand handle -->
-    <path d="M30 40 L 18 56 L 14 52 L 26 36 Z"
-          fill="#b8a4ff" stroke="#5a4a99" stroke-width="2" stroke-linejoin="round"/>
-    <!-- handle highlight -->
-    <line x1="22" y1="42" x2="16" y2="50" stroke="#fff" stroke-width="1.5" opacity="0.7"/>
-  </svg>`;
-}
-
-function stampSvg() {
-  // Rubber stamp with a star imprint and a glow under it. Reads as
-  // "press to stamp a shape".
-  return `<svg viewBox="0 0 64 64">
-    <!-- decorative star floating above (the stamp shape) -->
-    <path d="M48 6 L 50 12 L 56 12 L 51 16 L 53 22 L 48 18 L 43 22 L 45 16 L 40 12 L 46 12 Z"
-          fill="#ffd166" stroke="#a87b00" stroke-width="1.5" stroke-linejoin="round"/>
-    <!-- handle (top knob) -->
-    <rect x="22" y="10" width="20" height="8" rx="2" fill="#d97a3a"
-          stroke="#7a3e16" stroke-width="2"/>
-    <!-- shaft narrowing -->
-    <path d="M22 18 L 42 18 L 38 26 L 26 26 Z"
-          fill="#f0c990" stroke="#7a3e16" stroke-width="2" stroke-linejoin="round"/>
-    <!-- pad block -->
-    <rect x="14" y="26" width="36" height="16" rx="2" fill="#bfc7d4"
-          stroke="#5a6276" stroke-width="2"/>
-    <!-- rubber face (the printing surface) -->
-    <rect x="16" y="40" width="32" height="6" rx="1" fill="#ff6b9d"
-          stroke="#7a2548" stroke-width="2"/>
-    <!-- impression on the page -->
-    <path d="M22 52 L 24 56 L 28 56 L 25 58 L 26 62 L 22 60 L 18 62 L 19 58 L 16 56 L 20 56 Z"
-          fill="#1abc9c" stroke="#0a7a5b" stroke-width="1.2" stroke-linejoin="round" opacity="0.85"/>
-    <path d="M40 50 L 42 54 L 46 54 L 43 57 L 44 60 L 40 58 L 36 60 L 37 57 L 34 54 L 38 54 Z"
-          fill="#ff6b9d" stroke="#7a2548" stroke-width="1.2" stroke-linejoin="round" opacity="0.85"/>
-  </svg>`;
-}
-
-function fillSvg() {
-  // Tipping paint bucket, paint pouring, blue paint inside.
-  return `<svg viewBox="0 0 64 64">
-    <!-- paint splash on ground -->
-    <path d="M6 56 Q 16 50 28 54 Q 36 58 32 62 Q 18 60 6 60 Z" fill="#3498db" stroke="#1e5a91" stroke-width="2" stroke-linejoin="round"/>
-    <!-- bucket body, tilted -->
-    <g transform="rotate(20 40 30)">
-      <rect x="22" y="14" width="32" height="32" rx="2" fill="#bfc7d4" stroke="#5a6276" stroke-width="2"/>
-      <!-- paint inside -->
-      <path d="M22 14 L54 14 L52 24 L24 24 Z" fill="#3498db"/>
-      <!-- handle -->
-      <path d="M26 14 Q 38 4 50 14" stroke="#5a6276" stroke-width="2" fill="none"/>
-      <!-- highlight -->
-      <line x1="26" y1="28" x2="26" y2="42" stroke="#fff" stroke-width="2" opacity="0.6"/>
-    </g>
-    <!-- pouring stream -->
-    <path d="M48 30 Q 44 44 36 52" stroke="#3498db" stroke-width="6" stroke-linecap="round" fill="none"/>
-  </svg>`;
-}
-
-function eraserSvg() {
-  // Pink + blue eraser block, perfectly centered in the 64x64 viewBox.
-  // No tilt — kids see it head-on. Bevel highlights make it 3D-ish.
-  return `<svg viewBox="0 0 64 64">
-    <!-- pink top half -->
-    <path d="M14 22 L50 22 L50 32 L14 32 Z"
-          fill="#ff8fb1" stroke="#7a2548" stroke-width="2" stroke-linejoin="round"/>
-    <!-- blue bottom half -->
-    <path d="M14 32 L50 32 L50 42 L14 42 Z"
-          fill="#6dd5ed" stroke="#1e6e80" stroke-width="2" stroke-linejoin="round"/>
-    <!-- highlights along the top of each half -->
-    <line x1="18" y1="26" x2="46" y2="26" stroke="#ffd0dc" stroke-width="1.5"/>
-    <line x1="18" y1="36" x2="46" y2="36" stroke="#b6ecf6" stroke-width="1.5"/>
-    <!-- shavings beneath the eraser -->
-    <ellipse cx="22" cy="48" rx="2" ry="1" fill="#d97a8c"/>
-    <ellipse cx="32" cy="50" rx="2.4" ry="1" fill="#6dd5ed"/>
-    <ellipse cx="42" cy="48" rx="2" ry="1" fill="#d97a8c"/>
-  </svg>`;
-}
+// Top-bar and panel icons. Dock tool icons live in toolIcons.ts.
 
 function undoSvg() {
   // U-turn arrow centered in the viewBox. A single horizontal arrow body
