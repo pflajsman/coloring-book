@@ -1,7 +1,8 @@
 import type { App, Tool } from '../engine/App';
 import { showModal } from './Modal';
 import { attachTooltip } from './Tooltip';
-import { holdToActivate } from './holdGate';
+import { HOLD_MS, holdToActivate } from './holdGate';
+import { enterFullscreen, exitFullscreen, isFullscreen, isInstalledApp, onFullscreenChange, sticky } from './fullscreen';
 import { PREF_ZOOM_LOCKED, writeBoolPref } from '../storage/prefs';
 
 // Big, bright, uncluttered. The aim: a 3-year-old can use it without reading.
@@ -194,20 +195,31 @@ export function buildKidUI(app: App, actions: KidUIActions): {
   attachTooltip(gear, 'Settings');
   rightGroup.appendChild(gear);
 
-  const fullscreenBtn = document.createElement('button');
-  fullscreenBtn.className = 'kid-iconbtn kid-fullscreen';
-  fullscreenBtn.innerHTML = fullscreenEnterSvg();
-  attachTooltip(fullscreenBtn, 'Fullscreen');
-  fullscreenBtn.addEventListener('click', () => toggleFullscreen());
-  // Reflect the current state on every fullscreenchange — covers the case
-  // where the user exits via Esc rather than the button.
-  const updateFullscreenIcon = () => {
-    const isFs = !!document.fullscreenElement;
-    fullscreenBtn.innerHTML = isFs ? fullscreenExitSvg() : fullscreenEnterSvg();
-    fullscreenBtn.setAttribute('aria-label', isFs ? 'Exit fullscreen' : 'Fullscreen');
-  };
-  document.addEventListener('fullscreenchange', updateFullscreenIcon);
-  rightGroup.appendChild(fullscreenBtn);
+  // Hidden when installed to the home screen: the app is already
+  // chromeless there and the Fullscreen API does nothing.
+  if (!isInstalledApp()) {
+    const fullscreenBtn = document.createElement('button');
+    fullscreenBtn.className = 'kid-iconbtn kid-fullscreen';
+    attachTooltip(fullscreenBtn, 'Fullscreen');
+    // Entering is one tap (the child can't get stuck). Leaving needs the
+    // parent hold, and a deliberate exit turns sticky fullscreen off.
+    fullscreenBtn.addEventListener('click', () => {
+      if (!isFullscreen()) enterFullscreen();
+    });
+    holdToActivateWhen(fullscreenBtn, isFullscreen, () => {
+      sticky.exitedByParent();
+      exitFullscreen();
+    });
+    const updateFullscreenIcon = () => {
+      const isFs = isFullscreen();
+      fullscreenBtn.querySelector('svg')?.remove();
+      fullscreenBtn.insertAdjacentHTML('afterbegin', isFs ? fullscreenExitSvg() : fullscreenEnterSvg());
+      fullscreenBtn.setAttribute('aria-label', isFs ? 'Exit fullscreen (hold)' : 'Fullscreen');
+    };
+    updateFullscreenIcon();
+    onFullscreenChange(updateFullscreenIcon);
+    rightGroup.appendChild(fullscreenBtn);
+  }
 
   topBar.appendChild(rightGroup);
 
@@ -396,6 +408,12 @@ function lockGuide(): HTMLElement {
     <p><b>App pinning</b> keeps the tablet in this app. Turn it on in Settings, Security (or Security &amp; privacy, sometimes under Advanced or More security settings), App pinning. The place differs between tablet makers. Then open the recent-apps view, tap the Coloring icon at the top of its card and choose Pin.</p>
     <p>Tip: install Coloring to the home screen first (Share, Add to Home Screen on iPad; menu, Install app on Android). It then opens full screen.</p>`;
   return el;
+}
+
+// Gate only while `active()` is true. Used by the fullscreen button:
+// entering is a plain tap, leaving is a parent hold.
+function holdToActivateWhen(btn: HTMLElement, active: () => boolean, onActivate: () => void) {
+  holdToActivate(btn, () => { if (active()) onActivate(); }, HOLD_MS, active);
 }
 
 function toggleRow(label: string, value: boolean, onChange: (v: boolean) => void): HTMLElement {
@@ -827,29 +845,6 @@ function gearSvg() {
     <circle cx="22" cy="32" r="5" fill="#ff6b9d" stroke="#2a2a3a" stroke-width="3"/>
     <circle cx="44" cy="44" r="5" fill="#6dd5ed" stroke="#2a2a3a" stroke-width="3"/>
   </svg>`;
-}
-
-// Toggle fullscreen on document.documentElement. Some browsers (Safari) used
-// to expose only the webkit-prefixed names; modern Safari supports the
-// standard API but we still cast loosely to handle very old engines.
-function toggleFullscreen(): void {
-  type FsDocument = Document & {
-    webkitFullscreenElement?: Element | null;
-    webkitExitFullscreen?: () => Promise<void> | void;
-  };
-  type FsElement = Element & {
-    webkitRequestFullscreen?: () => Promise<void> | void;
-  };
-  const doc = document as FsDocument;
-  const el = document.documentElement as FsElement;
-  const isFs = !!(document.fullscreenElement || doc.webkitFullscreenElement);
-  if (isFs) {
-    if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
-    else if (doc.webkitExitFullscreen) doc.webkitExitFullscreen();
-  } else {
-    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
-    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-  }
 }
 
 function fullscreenEnterSvg() {

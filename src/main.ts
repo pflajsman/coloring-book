@@ -8,6 +8,7 @@ import { openAiPromptDialog } from './ui/AiPromptDialog';
 import { saveDocument, listDocuments, loadDocument, deleteDocument, renameProject, applyStoredDocument, saveAiTemplate, listAiTemplates, deleteAiTemplate, type AiTemplateRecord } from './storage/db';
 import { registerSW } from 'virtual:pwa-register';
 import { PREF_ZOOM_LOCKED, readBoolPref } from './storage/prefs';
+import { initStickyFullscreen, keepScreenAwake } from './ui/fullscreen';
 
 registerSW({ immediate: true });
 
@@ -122,6 +123,8 @@ const ui = buildKidUI(app, {
 });
 
 root.append(canvasWrap, ui.topBar, ui.palette, ui.dock);
+initStickyFullscreen();
+keepScreenAwake();
 
 // Defer fitToWindow until after layout.
 requestAnimationFrame(() => app.fitToWindow());
