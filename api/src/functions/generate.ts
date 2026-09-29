@@ -62,7 +62,11 @@ async function handler(
   const upstreamUrl =
     POLLINATIONS_BASE +
     encodeURIComponent(fullPrompt) +
-    `?width=1024&height=1024&nologo=true&model=flux&seed=${seed}`;
+    // safe=true: strict NSFW filtering on this (legacy) endpoint, which
+    // refuses the request instead of returning an unsuitable picture. On the
+    // newer gen.pollinations.ai endpoint the same filter is `safe=nsfw`
+    // (there `true` only means privacy/secrets), so change it if migrating.
+    `?width=1024&height=1024&nologo=true&model=flux&safe=true&seed=${seed}`;
 
   let upstream: Response;
   try {
@@ -87,6 +91,11 @@ async function handler(
     context.warn(`Pollinations ${upstream.status}: ${upstreamMessage.slice(0, 200)}`);
     if (upstream.status === 429) {
       return { status: 429, jsonBody: { error: 'Slow down a tiny bit and try again.' } };
+    }
+    // The safety filter answers with a client error. Keep the wording gentle
+    // and generic: a child may have typed it, a grown-up reads it.
+    if (upstream.status === 400 || upstream.status === 403) {
+      return { status: 400, jsonBody: { error: "Let's pick a different idea and try again." } };
     }
     return {
       status: 502,
