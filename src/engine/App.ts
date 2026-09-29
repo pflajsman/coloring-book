@@ -16,9 +16,10 @@ import {
   stampAt,
 } from './StrokeRenderer';
 import { fillsPending, runFill } from './fillClient';
+import { rainbowColorAt } from './rainbow';
 import type { Point, StrokeStyle } from '../types/document';
 
-export type Tool = 'brush' | 'pen' | 'spray' | 'glitter' | 'stamp' | 'line' | 'circle' | 'rect' | 'blur' | 'eraser' | 'fill' | 'pan';
+export type Tool = 'brush' | 'rainbow' | 'pen' | 'spray' | 'glitter' | 'stamp' | 'line' | 'circle' | 'rect' | 'blur' | 'eraser' | 'fill' | 'pan';
 
 // Blur a circular region around (cx, cy) on the given canvas context.
 // Reads the pixels, runs a 3x3 box blur (one pass), masks the write to a
@@ -140,6 +141,10 @@ export class App {
   // Stamp tool tracks the last stamp position so consecutive stamps along a
   // drag are spaced by ~one stamp size (no piling up).
   private lastStampPos: Point | null = null;
+
+  // Rainbow brush: hue follows the distance travelled since stroke start.
+  private rainbowStartHue = 0;
+  private rainbowDist = 0;
 
   constructor(canvas: HTMLCanvasElement, doc: Document) {
     this.displayCanvas = canvas;
@@ -330,6 +335,12 @@ export class App {
       resetStampCycle();
       stampAt(layer.ctx, p, this.strokeStyle, nextStampShape());
       this.lastStampPos = p;
+    } else if (this.state.tool === 'rainbow') {
+      // Random start so every rainbow stroke looks a little different.
+      this.rainbowStartHue = Math.random() * 360;
+      this.rainbowDist = 0;
+      this.strokeStyle = { ...this.strokeStyle, color: rainbowColorAt(0, this.rainbowStartHue) };
+      drawBrushSegment(layer.ctx, p, p, this.strokeStyle);
     } else if (this.state.tool === 'brush') {
       // Stamp at the same point twice so a tap produces a visible blob; the
       // brush head's center is opaque so a single stamp reads as a soft dot.
@@ -491,6 +502,10 @@ export class App {
             this.strokeStyle.size,
           );
         }
+      } else if (tool === 'rainbow') {
+        this.rainbowDist += Math.hypot(p.x - prev.x, p.y - prev.y);
+        this.strokeStyle = { ...this.strokeStyle, color: rainbowColorAt(this.rainbowDist, this.rainbowStartHue) };
+        drawBrushSegment(layer.ctx, prev, p, this.strokeStyle);
       } else if (tool === 'brush') {
         drawBrushSegment(layer.ctx, prev, p, this.strokeStyle);
       } else if (tool === 'pen' || buf.length < 3) {
@@ -593,6 +608,7 @@ export class App {
       e.preventDefault();
       if (this.history.redo(this.doc)) this.scheduleRender();
     } else if (e.key === 'b') this.setState({ tool: 'brush' });
+    else if (e.key === 'w') this.setState({ tool: 'rainbow' });
     else if (e.key === 'p') this.setState({ tool: 'pen' });
     else if (e.key === 's') this.setState({ tool: 'spray' });
     else if (e.key === 'i') this.setState({ tool: 'glitter' });
