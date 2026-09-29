@@ -1,7 +1,7 @@
 import { Document, newId } from './Document';
 import { Viewport } from './Viewport';
 import { PointerInput } from './PointerInput';
-import { History, StrokeCommand } from './commands';
+import { History, patchFromSnapshots } from './commands';
 import {
   beginStroke,
   drawBrushSegment,
@@ -536,22 +536,8 @@ export class App {
     endStroke(layer.ctx);
 
     const after = layer.ctx.getImageData(0, 0, layer.canvas.width, layer.canvas.height);
-    const cmd = new StrokeCommand(this.strokeLayerId, this.strokePoints, this.strokeStyle);
-
-    // Inject pre-captured before/after so the command can undo/redo without
-    // re-rendering. The bbox is the full canvas — fine for normal strokes;
-    // for very large docs, switch to a tiled snapshot strategy.
-    type CmdInternals = {
-      before: ImageData;
-      after: ImageData;
-      bbox: { x: number; y: number; w: number; h: number };
-    };
-    const internals = cmd as unknown as CmdInternals;
-    internals.before = this.strokeBefore;
-    internals.after = after;
-    internals.bbox = { x: 0, y: 0, w: layer.canvas.width, h: layer.canvas.height };
-
-    this.history.push(cmd);
+    const cmd = patchFromSnapshots(this.strokeLayerId, this.strokeBefore, after);
+    if (cmd) this.history.push(cmd);
     this.resetStroke();
     this.scheduleRender();
   }
@@ -572,7 +558,7 @@ export class App {
     this.setState({ busy: true });
     try {
       const cmd = await runFill(this.doc, layer.id, p.x, p.y, this.state.color, 28);
-      this.history.push(cmd);
+      if (cmd) this.history.push(cmd);
       this.scheduleRender();
     } finally {
       this.setState({ busy: false });

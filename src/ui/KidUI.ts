@@ -77,6 +77,7 @@ const TOOL_NAMES: Record<Tools, string> = {
 
 export type KidUIActions = {
   onUndo: () => void;
+  onRedo: () => void;
   onClear: () => void;
   onSave: () => Promise<void> | void;
   onSavePng: () => Promise<void> | void;
@@ -165,6 +166,13 @@ export function buildKidUI(app: App, actions: KidUIActions): {
   undoBtn.addEventListener('click', () => actions.onUndo());
   attachTooltip(undoBtn, 'Undo');
   leftGroup.appendChild(undoBtn);
+
+  const redoBtn = document.createElement('button');
+  redoBtn.className = 'kid-iconbtn kid-redo-top';
+  redoBtn.innerHTML = redoSvg();
+  redoBtn.addEventListener('click', () => actions.onRedo());
+  attachTooltip(redoBtn, 'Redo');
+  leftGroup.appendChild(redoBtn);
 
   topBar.appendChild(leftGroup);
 
@@ -816,6 +824,11 @@ function undoSvg() {
               fill="none" stroke="#2a2a3a" stroke-width="7"
               stroke-linecap="round" stroke-linejoin="round"/>
   </svg>`;
+}
+
+function redoSvg() {
+  // The undo arrow, mirrored.
+  return undoSvg().replace('<svg ', '<svg style="transform: scaleX(-1)" ');
 }
 
 function trashSvg() {

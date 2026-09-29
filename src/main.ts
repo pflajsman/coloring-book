@@ -1,6 +1,7 @@
 import './ui/styles.css';
 import { App } from './engine/App';
 import { Document, newId } from './engine/Document';
+import { patchFromSnapshots } from './engine/commands';
 import { buildKidUI } from './ui/KidUI';
 import { showModal, promptDialog, confirmDialog } from './ui/Modal';
 import { loadManifest, rasterizeImageBitmap, rasterizeTemplate, thumbnailUrl, type Template } from './templates';
@@ -65,35 +66,18 @@ const ui = buildKidUI(app, {
   onClear: () => {
     // Wipe every non-locked layer (the bg and template layers are locked,
     // so the line art stays). No confirmation: a stray tap is recoverable
-    // by Undo, which is right next to it in the dock.
-    //
-    // We push a single ClearCommand so undo restores all paint layers in
-    // one step.
-    const beforeMap = new Map<string, ImageData>();
+    // by Undo, which is right next to it.
     for (const layer of app.doc.layers) {
       if (layer.locked) continue;
-      beforeMap.set(
-        layer.id,
-        layer.ctx.getImageData(0, 0, layer.canvas.width, layer.canvas.height),
-      );
+      const before = layer.ctx.getImageData(0, 0, layer.canvas.width, layer.canvas.height);
       layer.clear();
+      const after = layer.ctx.getImageData(0, 0, layer.canvas.width, layer.canvas.height);
+      const cmd = patchFromSnapshots(layer.id, before, after);
+      if (cmd) app.history.push(cmd);
     }
-    if (beforeMap.size === 0) return;
-    app.history.push({
-      apply(doc) {
-        for (const layer of doc.layers) {
-          if (beforeMap.has(layer.id)) layer.clear();
-        }
-      },
-      invert(doc) {
-        for (const [id, before] of beforeMap) {
-          const layer = doc.getLayer(id);
-          if (layer) layer.ctx.putImageData(before, 0, 0);
-        }
-      },
-    });
     app.scheduleRender();
   },
+  onRedo: () => { if (app.history.redo(app.doc)) app.scheduleRender(); },
   onSave: async () => {
     // First save: ask for a name. Subsequent saves on the same project keep
     // the existing name silently (the user can rename via the projects list).

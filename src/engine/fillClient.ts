@@ -1,5 +1,5 @@
 import type { Document } from './Document';
-import { FillCommand } from './commands';
+import { patchFromSnapshots, type PatchCommand } from './commands';
 
 let worker: Worker | null = null;
 const pending = new Map<string, (img: ImageData) => void>();
@@ -60,7 +60,7 @@ export async function runFill(
   y: number,
   color: string,
   tolerance = 28,
-): Promise<FillCommand> {
+): Promise<PatchCommand | null> {
   const layer = doc.getLayer(layerId);
   if (!layer) throw new Error(`Layer ${layerId} not found`);
 
@@ -90,9 +90,8 @@ export async function runFill(
     );
   });
 
-  const cmd = new FillCommand(layerId, x, y, color, tolerance, result);
-  cmd.before = before;
-  // Apply paints `after` to the layer.
-  cmd.apply(doc);
+  const cmd = patchFromSnapshots(layerId, before, result);
+  // Paint the fill result onto the layer.
+  layer.ctx.putImageData(result, 0, 0);
   return cmd;
 }
