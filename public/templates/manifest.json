@@ -199,6 +199,84 @@
       "category": "Animals"
     },
     {
+      "id": "dragon",
+      "name": "Dragon",
+      "file": "dragon.svg",
+      "category": "Fairy tales"
+    },
+    {
+      "id": "witch",
+      "name": "Witch",
+      "file": "witch.svg",
+      "category": "Fairy tales"
+    },
+    {
+      "id": "princess",
+      "name": "Princess",
+      "file": "princess.svg",
+      "category": "Fairy tales"
+    },
+    {
+      "id": "red-riding-hood",
+      "name": "Red Riding Hood",
+      "file": "red-riding-hood.svg",
+      "category": "Fairy tales"
+    },
+    {
+      "id": "wolf",
+      "name": "Wolf",
+      "file": "wolf.svg",
+      "category": "Fairy tales"
+    },
+    {
+      "id": "three-pigs-house",
+      "name": "Three little pigs' house",
+      "file": "three-pigs-house.svg",
+      "category": "Fairy tales"
+    },
+    {
+      "id": "castle",
+      "name": "Castle",
+      "file": "castle.svg",
+      "category": "Fairy tales"
+    },
+    {
+      "id": "knight",
+      "name": "Knight",
+      "file": "knight.svg",
+      "category": "Fairy tales"
+    },
+    {
+      "id": "mermaid",
+      "name": "Mermaid",
+      "file": "mermaid.svg",
+      "category": "Fairy tales"
+    },
+    {
+      "id": "gnome",
+      "name": "Gnome",
+      "file": "gnome.svg",
+      "category": "Fairy tales"
+    },
+    {
+      "id": "frog-prince",
+      "name": "Frog prince",
+      "file": "frog-prince.svg",
+      "category": "Fairy tales"
+    },
+    {
+      "id": "gingerbread-house",
+      "name": "Gingerbread house",
+      "file": "gingerbread-house.svg",
+      "category": "Fairy tales"
+    },
+    {
+      "id": "pumpkin-carriage",
+      "name": "Pumpkin carriage",
+      "file": "pumpkin-carriage.svg",
+      "category": "Fairy tales"
+    },
+    {
       "id": "unicorn-cute",
       "name": "Cute unicorn",
       "file": "unicorn-cute.svg",
@@ -229,27 +307,9 @@
       "category": "Fantasy"
     },
     {
-      "id": "dragon",
-      "name": "Dragon",
-      "file": "dragon.svg",
-      "category": "Fantasy"
-    },
-    {
       "id": "robot",
       "name": "Robot",
       "file": "robot.svg",
-      "category": "Fantasy"
-    },
-    {
-      "id": "witch",
-      "name": "Witch",
-      "file": "witch.svg",
-      "category": "Fantasy"
-    },
-    {
-      "id": "princess",
-      "name": "Princess",
-      "file": "princess.svg",
       "category": "Fantasy"
     },
     {
