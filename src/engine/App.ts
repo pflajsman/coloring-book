@@ -17,6 +17,7 @@ import {
 } from './StrokeRenderer';
 import { fillsPending, runFill } from './fillClient';
 import { rainbowColorAt } from './rainbow';
+import { strokeStartAction } from './inputPolicy';
 import type { Point, StrokeStyle } from '../types/document';
 
 export type Tool = 'brush' | 'rainbow' | 'pen' | 'spray' | 'glitter' | 'stamp' | 'line' | 'circle' | 'rect' | 'blur' | 'eraser' | 'fill' | 'pan';
@@ -145,6 +146,10 @@ export class App {
   // Rainbow brush: hue follows the distance travelled since stroke start.
   private rainbowStartHue = 0;
   private rainbowDist = 0;
+
+  // True until main.ts has restored the autosave (or loaded the blank page).
+  // Presses are ignored meanwhile so nothing drawn gets wiped by the restore.
+  booting = true;
 
   constructor(canvas: HTMLCanvasElement, doc: Document) {
     this.displayCanvas = canvas;
@@ -304,14 +309,9 @@ export class App {
   // Returns false when no stroke was started, so PointerInput can hand the
   // canvas to the next finger.
   private handleStrokeStart(p: Point): boolean {
-    if (this.state.tool === 'fill') {
-      void this.runFillAt(p);
-      return false;
-    }
-    if (this.state.tool === 'pan') return false;
-    // A fill result is computed from a snapshot; a stroke drawn before it
-    // lands would be overwritten. Fills take well under a second.
-    if (fillsPending() > 0) return false;
+    const action = strokeStartAction({ tool: this.state.tool, booting: this.booting, fillsPending: fillsPending() });
+    if (action === 'fill') void this.runFillAt(p);
+    if (action !== 'stroke') return false;
 
     const layer = this.doc.getActiveLayer();
     if (layer.locked) return false;

@@ -2,6 +2,7 @@ import type { App, Tool } from '../engine/App';
 import { showModal } from './Modal';
 import { attachTooltip } from './Tooltip';
 import { toolIconSvg, type DockTool } from './toolIcons';
+import { toolAfterColorPick } from '../engine/inputPolicy';
 import { HOLD_MS, holdToActivate } from './holdGate';
 import { enterFullscreen, exitFullscreen, isFullscreen, isInstalledApp, onFullscreenChange, sticky } from './fullscreen';
 import { PREF_ZOOM_LOCKED, writeBoolPref } from '../storage/prefs';
@@ -96,7 +97,8 @@ export function buildKidUI(app: App, actions: KidUIActions): {
       // Brush is the natural default after picking a color, but only if the
       // current tool is fill/eraser — let kids stay in fill mode if they want
       // to keep filling shapes one after another.
-      if (app.state.tool === 'eraser') app.setState({ tool: 'brush' });
+      const next = toolAfterColorPick(app.state.tool);
+      if (next !== app.state.tool) app.setState({ tool: next });
     });
     swatches.push(s);
     palette.body.appendChild(s);

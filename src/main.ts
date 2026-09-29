@@ -130,9 +130,19 @@ window.addEventListener('pagehide', flush);
 requestPersistentStorage();
 
 // Boot: bring back the last drawing if there is one, otherwise a blank page.
-// The blank template only loads if the child hasn't started drawing in the
-// meantime (history still empty), so an early stroke is never wiped.
+// Canvas presses are ignored until this finishes (app.booting), so a stroke
+// drawn in the first moment can't be wiped by the restore. A slow network
+// must not leave the child unable to draw, so input opens after 3 s anyway.
+setTimeout(() => { app.booting = false; }, 3000);
 void (async () => {
+  try {
+    await bootDocument();
+  } finally {
+    app.booting = false;
+  }
+})();
+
+async function bootDocument() {
   try {
     const saved = await loadAutosave();
     if (isValidAutosave(saved)) {
@@ -157,7 +167,7 @@ void (async () => {
   } catch (e) {
     console.error(e);
   }
-})();
+}
 
 function defaultProjectName(): string {
   const tplId = app.doc.meta.templateId;
