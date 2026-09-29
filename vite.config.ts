@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
   plugins: [
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon.svg'],
       manifest: {
         name: 'Coloring Book',
@@ -27,7 +27,10 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        // json: the template manifest, so Pictures works offline.
+        globPatterns: ['**/*.{js,css,html,svg,png,woff2,json}'],
+        // Old preview renders, not referenced by the app.
+        globIgnores: ['**/templates/_uni_preview/**'],
       },
     }),
   ],

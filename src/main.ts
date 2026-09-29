@@ -13,7 +13,10 @@ import { PREF_ZOOM_LOCKED, readBoolPref } from './storage/prefs';
 import { initStickyFullscreen, keepScreenAwake } from './ui/fullscreen';
 import { AutosaveScheduler, isValidAutosave } from './storage/autosave';
 
-registerSW({ immediate: true });
+// Updates install in the background but never reload the page on their
+// own: an automatic reload would throw away the drawing in progress. The
+// new version takes over the next time the app is opened fresh.
+registerSW({ immediate: true, onNeedRefresh() { /* apply on next launch */ } });
 
 // Suppress the OS long-press / right-click context menu everywhere in the
 // app. On a tablet this is the "Save Image / Download / Inspect" sheet that
