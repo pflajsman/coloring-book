@@ -326,7 +326,7 @@
     },
     {
       "id": "car",
-      "name": "Race car",
+      "name": "Car",
       "file": "car.svg",
       "category": "Vehicles"
     },
@@ -346,6 +346,54 @@
       "id": "bicycle",
       "name": "Bicycle",
       "file": "bicycle.svg",
+      "category": "Vehicles"
+    },
+    {
+      "id": "race-car",
+      "name": "Race car",
+      "file": "race-car.svg",
+      "category": "Vehicles"
+    },
+    {
+      "id": "fire-truck",
+      "name": "Fire truck",
+      "file": "fire-truck.svg",
+      "category": "Vehicles"
+    },
+    {
+      "id": "police-car",
+      "name": "Police car",
+      "file": "police-car.svg",
+      "category": "Vehicles"
+    },
+    {
+      "id": "bus",
+      "name": "Bus",
+      "file": "bus.svg",
+      "category": "Vehicles"
+    },
+    {
+      "id": "tractor",
+      "name": "Tractor",
+      "file": "tractor.svg",
+      "category": "Vehicles"
+    },
+    {
+      "id": "excavator",
+      "name": "Excavator",
+      "file": "excavator.svg",
+      "category": "Vehicles"
+    },
+    {
+      "id": "ambulance",
+      "name": "Ambulance",
+      "file": "ambulance.svg",
+      "category": "Vehicles"
+    },
+    {
+      "id": "monster-truck",
+      "name": "Monster truck",
+      "file": "monster-truck.svg",
       "category": "Vehicles"
     },
     {

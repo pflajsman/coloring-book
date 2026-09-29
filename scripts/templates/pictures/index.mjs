@@ -1,5 +1,7 @@
 import { ANIMALS } from './animals.mjs';
 import { FAIRY } from './fairy.mjs';
+import { VEHICLES } from './vehicles.mjs';
+import { PLACES_FOOD } from './places-food.mjs';
 
-// All generated picture sets; filled in set by set.
-export const PICTURES = [...ANIMALS, ...FAIRY];
+// All generated picture sets.
+export const PICTURES = [...ANIMALS, ...FAIRY, ...VEHICLES, ...PLACES_FOOD];
