@@ -17,12 +17,16 @@ Live: deployed via GitHub Actions to Azure Static Web Apps on every push to `mai
 - **64 line-art templates** across Animals, Vehicles, Nature, Food, Fantasy, Places, Toys — most CC0 from openclipart.org plus a hand-authored ice-cream + lego set, lazy-loaded with category filter
 - **Project saving** — IndexedDB store, name / rename / delete, export as PNG
 - **Tablet-first** — palm rejection, custom long-press menu suppression, OS callout disabled, fullscreen toggle
+- **Kid lock**: canvas zoom locked by default (parents can allow it in Settings), extra fingers and resting palms ignored while drawing, Settings / AI / fullscreen exit behind a 2-second press-and-hold
+- **Autosave**: the current drawing is saved automatically and restored when the app reopens
+- **Redo button** next to Undo
 
 ## Run
 
 ```bash
 npm install
 npm run dev
+npm test      # Vitest unit tests (pure logic)
 ```
 
 Open http://localhost:5173/.

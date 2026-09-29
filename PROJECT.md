@@ -35,13 +35,20 @@ src/
     Layer.ts                   OffscreenCanvas wrapper
     Viewport.ts                Pan/zoom transform with per-edge insets
     PointerInput.ts            Pointer events, palm rejection, gestures
+    PointerTracker.ts          Pure touch-ownership rules (zoom lock, extra fingers)
+    dirtyRect.ts               Changed-rectangle diff/crop for undo entries
+    SerialQueue.ts             One-at-a-time async queue (fills)
+    SwitchPictureCommand.ts    Undoable picture switch
     StrokeRenderer.ts          Brush stamps, spline smoothing, pressure→width
-    commands.ts                StrokeCommand, FillCommand, History
+    commands.ts                PatchCommand, patchFromSnapshots, History (byte cap)
     fillClient.ts              Main-thread side of worker fill
   workers/
     floodFill.worker.ts        Off-main-thread fill w/ edge bleed dilation
+    composite.ts               Straight-alpha "over" compositing of the fill mask
   storage/
-    db.ts                      IndexedDB project store (idb)
+    db.ts                      IndexedDB project store (idb) + autosave store
+    autosave.ts                Debounced autosave scheduler + record validation
+    prefs.ts                   localStorage prefs (zoom lock)
   templates/
     index.ts                   Manifest loader + SVG/raster line-art pipeline (strips white fills)
   ai/
@@ -49,6 +56,8 @@ src/
   ui/
     KidUI.ts                   Tool dock, palette, top bar — all of the chrome
     Modal.ts                   Modal + promptDialog + confirmDialog helpers
+    holdGate.ts                2-second press-and-hold parent gate
+    fullscreen.ts              Prefixed Fullscreen API, sticky fullscreen, wake lock
     Tooltip.ts                 Hover tooltips (singleton)
     AiPromptDialog.ts          Chat + speech prompt for AI-generated templates
     LayerPanel.ts              Layer list (currently unused — kept for future)
@@ -78,7 +87,7 @@ public/
 2. `PointerInput` fires `pointerdown`, captures the pointer, calls `App.handleStrokeStart(p)`.
 3. `App` snapshots the active layer's pixels into `strokeBefore` (used later for undo) and stores a per-tool live state (e.g. `shapeAnchor` for line/circle/rect, `sprayPoint` for spray/glitter, `lastStampPos` for stamps).
 4. On each `pointermove`, `getCoalescedEvents()` returns all the high-frequency samples the OS batched into this frame. We render them to the layer using the per-tool path (`drawLineSegment` for pen, `drawBrushSegment` (radial-gradient stamp) for brush, `spraySplatter` for spray, `glitterSplatter` for the glitter wand, `stampAt` for the stamp tool, `blurStamp` for the magic-finger tool, `drawSmoothSegment` for default 3-point spline smoothing).
-5. On `pointerup`, the rendered layer is snapshotted again into `after`, and a `StrokeCommand` is built carrying `strokePoints`, `style`, `before`, `after`, `bbox`. It's pushed into `History`.
+5. On `pointerup`, the rendered layer is snapshotted again into `after`; `patchFromSnapshots` diffs the two, keeps only the changed rectangle as a `PatchCommand` and pushes it into `History` (nothing is pushed if no pixel changed).
 6. Undo restores `before`. Redo blits `after`. No re-rendering needed.
 
 Shape tools (line, circle, rect) work the same except their `pointermove` handler **restores the snapshot first** then redraws the shape from anchor to current position, so the preview is non-destructive.
@@ -276,7 +285,11 @@ Things that bit us and how we settled them:
 
 - **No framework** — drawing apps are mostly canvas + a few panels of buttons. React's overhead and re-render model don't help here.
 - **Persistence per layer as PNG blobs** vs. op-replay log — PNG blobs are simpler and faster. The `types/document.ts` Op type is in place if we ever want to add server-side delta sync, but for now the op log isn't actually built up.
-- **Stroke history snapshots** vs. per-stroke replay — full-canvas before/after `ImageData` is fast for typical 1200×800 canvases. For larger canvases we'd need bbox-clipped snapshots; the `bbox` field in `StrokeCommand` is already wired but the implementation uses the full canvas.
+- **Undo stores changed rectangles** (`PatchCommand`): the full-layer before/after snapshots are diffed at stroke end and only the changed box is kept. History is capped at 50 steps and about 60 MB, so iPad Safari is not killed for memory.
+- **Zoom locked by default**: the first pointer owns the stroke, other pointers are ignored (see `PointerTracker`). Parents can allow pinch zoom in Settings; zoom never goes below fit.
+- **Fills are serialized** (`SerialQueue`), strokes are ignored while a fill is pending, and a crashed worker is replaced.
+- **Autosave** goes to its own IndexedDB store (`autosave`, key `current`, DB v3), 3 s after each change and on `visibilitychange`/`pagehide`; restored at boot.
+- **Service worker `registerType: 'prompt'`**: updates never reload the page mid-drawing; they apply on the next fresh launch.
 - **Worker for fill, not for paint** — fill is the only operation slow enough to need off-main-thread. Stroke rendering is sub-millisecond per segment; moving it to a worker would cost more in postMessage latency than it saves.
 - **Brush as gradient stamp**, not `lineTo` — gives the soft painterly edges that read as "real brush". Cached per color so it's basically free at runtime.
 - **Light-seed vs. color-seed fill matchers** — single matcher couldn't handle both "tap white inside a colored shape" and "re-color an existing region" cleanly. Branch on seed lightness/saturation.
@@ -295,7 +308,8 @@ In rough priority order:
 
 - **Custom domain not wired up.** Default `*.azurestaticapps.net` URL works but the user wants their own domain eventually. Add CNAME → SWA hostname in DNS, then add custom domain in Azure portal.
 - **Brush head cache key by color only.** If we ever add a "brush opacity" or "brush hardness" setting, the cache key needs to include those.
-- **Stroke history uses full-canvas ImageData.** Fine at 1200×800; for bigger documents (4K+), switch to bbox-tile snapshots. The `bbox` field in `StrokeCommand` is already there.
+- **OS gestures cannot be blocked by a web app.** iPad 4/5-finger multitasking gestures and Android edge swipes leave the app; parents use Guided Access / App pinning (guide in Settings).
+- **AI prompt and image moderation, and rate limiting on `/api/generate`, are not implemented yet.**
 - **Ops not actually recorded.** `types/document.ts` defines the op shape but `App.ts` doesn't push to an op log. If we want delta-sync someday, plumb that through.
 - **Layer panel UI** (`LayerPanel.ts`) exists but isn't surfaced in the kid UI. Could be exposed in a "grown-up mode" later.
 - **Fill rendering is single-threaded inside the worker.** For very large fills it can take 200+ ms. Could be split into chunks with cooperative yielding, but that complicates the algorithm. Currently fine in practice.
