@@ -2,6 +2,7 @@ import './ui/styles.css';
 import { App } from './engine/App';
 import { Document, newId } from './engine/Document';
 import { patchFromSnapshots } from './engine/commands';
+import { SwitchPictureCommand, captureLayers, freshMeta } from './engine/SwitchPictureCommand';
 import { buildKidUI } from './ui/KidUI';
 import { showModal, promptDialog, confirmDialog } from './ui/Modal';
 import { loadManifest, rasterizeImageBitmap, rasterizeTemplate, thumbnailUrl, type Template } from './templates';
@@ -143,7 +144,10 @@ void (async () => {
   try {
     const tpls = await loadManifest();
     const blank = tpls.find((t) => t.id === 'blank') ?? tpls[0];
-    if (blank && !app.history.canUndo()) await loadTemplate(blank);
+    if (blank && !app.history.canUndo()) {
+      await loadTemplate(blank);
+      app.history.clear();
+    }
   } catch (e) {
     console.error(e);
   }
@@ -162,40 +166,49 @@ function capitalize(s: string): string {
 
 // ----- Helpers -----
 
+// Shared path for every "new picture" action (template, saved AI picture,
+// fresh AI picture):
+// 1. autosave the current drawing first,
+// 2. draw the new line art and clear the paint,
+// 3. make it a new untitled project, so Save can't overwrite the old one,
+// 4. record one undo step that restores the previous pixels.
+async function switchPicture(draw: () => Promise<void>, templateId: string) {
+  await autosave.flushNow();
+  const paint = app.doc.layers.find((l) => !l.locked && l.id !== app.doc.templateLayerId);
+  const ids = [app.doc.templateLayerId, ...(paint ? [paint.id] : [])];
+  const before = captureLayers(app.doc, ids);
+  const beforeTemplateId = app.doc.meta.templateId;
+
+  await draw();
+  paint?.clear();
+  app.doc.meta = { ...freshMeta(app.doc.meta, Date.now()), templateId };
+
+  const after = captureLayers(app.doc, ids);
+  app.history.push(new SwitchPictureCommand(before, after, beforeTemplateId, templateId));
+  app.scheduleRender();
+}
+
 async function loadTemplate(tpl: Template) {
   const w = app.doc.meta.width;
   const h = app.doc.meta.height;
   const layer = app.doc.getLayer(app.doc.templateLayerId);
   if (!layer) return;
-  layer.clear();
-  if (tpl.file) {
-    const bmp = await rasterizeTemplate(tpl, w, h);
+  // Rasterize before touching the canvas so a slow or failed load never
+  // leaves a half-switched picture.
+  const bmp = tpl.file ? await rasterizeTemplate(tpl, w, h) : null;
+  await switchPicture(async () => {
+    layer.clear();
     if (bmp) {
       layer.ctx.drawImage(bmp, 0, 0);
       bmp.close();
     }
-  }
-  app.doc.meta.templateId = tpl.id;
-  // Also clear the paint layer so kids start fresh on the new picture.
-  const paint = app.doc.layers.find((l) => !l.locked && l.id !== app.doc.templateLayerId);
-  paint?.clear();
-  app.history.clear();
-  app.scheduleRender();
+  }, tpl.id);
 }
 
-// Load a previously-saved AI template from IndexedDB. The blob is already
-// post-processed (letterboxed + line-art-stripped at save time), so this
-// just decodes and draws it onto the line-art layer — no API call, no
-// rasterizer pass.
 async function loadAiTemplate(ai: AiTemplateRecord) {
   const layer = app.doc.getLayer(app.doc.templateLayerId);
   if (!layer) return;
-  await layer.loadFromBlob(ai.blob);
-  app.doc.meta.templateId = `ai:${ai.id}`;
-  const paint = app.doc.layers.find((l) => !l.locked && l.id !== app.doc.templateLayerId);
-  paint?.clear();
-  app.history.clear();
-  app.scheduleRender();
+  await switchPicture(() => layer.loadFromBlob(ai.blob), `ai:${ai.id}`);
 }
 
 // Same effect as loadTemplate but the source is an already-decoded raster
@@ -218,18 +231,15 @@ async function loadGeneratedImage(srcBitmap: ImageBitmap, prompt: string) {
   } finally {
     srcBitmap.close();
   }
-  layer.clear();
-  layer.ctx.drawImage(processed, 0, 0);
-  processed.close();
+  await switchPicture(async () => {
+    layer.clear();
+    layer.ctx.drawImage(processed!, 0, 0);
+    processed!.close();
+  }, `ai:${Date.now()}`);
   // Snapshot the just-drawn line-art layer as a PNG blob. This is what we
-  // persist if the user taps "Save to my pictures" — saving the *processed*
+  // persist if the user taps "Save to my pictures": saving the processed
   // bytes means a re-load doesn't re-process or re-call the API.
   const processedBlob = await layer.toBlob();
-  app.doc.meta.templateId = `ai:${Date.now()}`;
-  const paint = app.doc.layers.find((l) => !l.locked && l.id !== app.doc.templateLayerId);
-  paint?.clear();
-  app.history.clear();
-  app.scheduleRender();
   // Prompt the user to save. This is non-blocking — the picture is already
   // on the canvas; the toast just offers the option.
   offerSaveToGallery(processedBlob, prompt);
