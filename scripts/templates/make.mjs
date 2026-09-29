@@ -12,13 +12,20 @@ const DIR = path.resolve('public/templates');
 export const REMOVE = ['santa', 'princess-couple', 'princess-fairy', 'unicorn', 'unicorn-castle'];
 
 const generated = [...PICTURES, ...GAMES];
-for (const g of generated) await writeFile(path.join(DIR, `${g.id}.svg`), g.svg);
+
 // Crop each page's viewBox to its drawing (plus a margin) so the app's
 // letterbox scales the art up to fill the page like the tightly cropped
-// clipart does. Measured in headless Chrome because paths and transforms
-// make the bounding box hard to compute here.
+// clipart does. Measured in headless Chrome from memory, before anything is
+// written, so a failed run leaves public/templates untouched.
 const PAD = 24;
-const boxes = await withServer((base) => pageJson(`${base}/fit.html?ids=${generated.map((g) => g.id).join(',')}`, 'BOXES'));
+const memory = Object.fromEntries(generated.map((g) => [`templates/${g.id}.svg`, g.svg]));
+let boxes;
+try {
+  boxes = await withServer((base) => pageJson(`${base}/fit.html?ids=${generated.map((g) => g.id).join(',')}`, 'BOXES'), memory);
+} catch (e) {
+  console.error(`Nothing written: ${e.message}`);
+  process.exit(1);
+}
 for (const g of generated) {
   const [x, y, w, h] = boxes[g.id];
   const vb = [x - PAD, y - PAD, w + PAD * 2, h + PAD * 2].map((v) => Math.round(v));
