@@ -86,7 +86,9 @@ export function holdToActivate(
 
   btn.addEventListener('pointerdown', (e) => {
     e.preventDefault();
-    btn.setPointerCapture(e.pointerId);
+    // Capture can throw if the pointer is already gone (very fast tap);
+    // the gate must still work without it.
+    try { btn.setPointerCapture(e.pointerId); } catch { /* not capturable */ }
     btn.classList.add('is-holding');
     timer.press();
     raf = requestAnimationFrame(tick);

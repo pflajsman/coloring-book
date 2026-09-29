@@ -58,7 +58,9 @@ export class PointerInput {
 
   private onDown = (e: PointerEvent) => {
     e.preventDefault();
-    this.el.setPointerCapture(e.pointerId);
+    // Capture can throw if the pointer is already gone; input must still
+    // be tracked without it.
+    try { this.el.setPointerCapture(e.pointerId); } catch { /* not capturable */ }
 
     // Palm rejection: when pen-only mode is on and we see a touch, drop it.
     if (this.h.isPenOnly() && e.pointerType === 'touch') return;
