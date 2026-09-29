@@ -88,7 +88,19 @@ export function openAiPromptDialog(opts: AiPromptOptions): void {
 
   body.append(hint, inputRow, generateBtn, error);
 
-  const destroy = showModal('Make a picture', body, { narrow: true });
+  // Closing the dialog cancels everything: a late picture must never
+  // replace what the child has started colouring in the meantime.
+  let recognition: SpeechRecognitionLike | null = null;
+  let aborter: AbortController | null = null;
+  let closed = false;
+  const destroy = showModal('Make a picture', body, {
+    narrow: true,
+    onDismiss: () => {
+      closed = true;
+      aborter?.abort();
+      recognition?.abort();
+    },
+  });
 
   // Sync generate-button enablement to whether there's a prompt to send.
   input.addEventListener('input', () => {
@@ -109,7 +121,6 @@ export function openAiPromptDialog(opts: AiPromptOptions): void {
   // Default to the browser's UI language (e.g. cs-CZ for Czech speakers).
   // Forcing en-US silently dropped non-English utterances — Chrome returns
   // no result rather than mis-transcribing.
-  let recognition: SpeechRecognitionLike | null = null;
   let listening = false;
   const recogLang = navigator.language || 'en-US';
   if (micBtn && SpeechCtor) {
@@ -140,7 +151,6 @@ export function openAiPromptDialog(opts: AiPromptOptions): void {
         const transcript = e.results[0][0].transcript;
         input.value = transcript;
         generateBtn.disabled = transcript.trim().length === 0;
-        input.focus();
       };
       recognition.onerror = (e) => {
         // The Web Speech error vocabulary: 'no-speech', 'not-allowed',
@@ -189,16 +199,23 @@ export function openAiPromptDialog(opts: AiPromptOptions): void {
     if (!prompt) return;
     inFlight = true;
     setLoading(true);
+    aborter = new AbortController();
     try {
-      const bitmap = await generateColoringImage(prompt);
+      const bitmap = await generateColoringImage(prompt, aborter.signal);
+      if (closed) {
+        bitmap.close();
+        return;
+      }
       await opts.onGenerated(bitmap, prompt);
       destroy();
     } catch (e) {
-      const msg = e instanceof GenerateError ? e.message : "Something went wrong. Try again.";
+      if (closed) return;
+      const msg = e instanceof GenerateError ? e.message : 'Something went wrong. Try again.';
       showError(msg);
     } finally {
+      aborter = null;
       inFlight = false;
-      setLoading(false);
+      if (!closed) setLoading(false);
     }
   }
 
@@ -222,10 +239,6 @@ export function openAiPromptDialog(opts: AiPromptOptions): void {
     error.textContent = msg;
     error.style.display = '';
   }
-
-  // Focus the input so the kid (or parent) can start typing immediately
-  // without the extra tap.
-  setTimeout(() => input.focus(), 0);
 }
 
 function micSvg(): string {
