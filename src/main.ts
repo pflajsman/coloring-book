@@ -19,6 +19,13 @@ registerSW({ immediate: true });
 // catch it at the document level.
 window.addEventListener('contextmenu', (e) => e.preventDefault());
 
+// iPad Safari fires its own gesture* events for pinch zoom on the page,
+// even with user-scalable=no. Cancelling them keeps the whole app at 100%
+// when a child pinches the toolbar or a dialog.
+for (const type of ['gesturestart', 'gesturechange', 'gestureend']) {
+  document.addEventListener(type, (e) => e.preventDefault(), { passive: false });
+}
+
 // ----- Boot -----
 
 const root = document.getElementById('app');

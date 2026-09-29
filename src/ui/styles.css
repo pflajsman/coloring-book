@@ -18,12 +18,21 @@ html, body {
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
+  /* No double-tap zoom or pinch zoom on the chrome around the canvas.
+     iOS ignores user-scalable=no, so this (plus the gesture* handlers in
+     main.ts) is what actually keeps the page at 100%. */
+  touch-action: manipulation;
 }
 
 #app {
   position: relative;
   height: 100%;
   width: 100%;
+}
+
+/* Everything that is not the canvas: pan-free, zoom-free taps only. */
+.kid-topbar, .kid-palette, .kid-dock, .modal-overlay {
+  touch-action: manipulation;
 }
 
 /* Canvas fills the entire viewport — UI floats over it. The picture itself
@@ -54,9 +63,9 @@ html, body {
 /* ---------- Top bar (templates, settings) ---------- */
 .kid-topbar {
   position: absolute;
-  top: 16px;
-  left: 16px;
-  right: 16px;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  left: calc(16px + env(safe-area-inset-left, 0px));
+  right: calc(16px + env(safe-area-inset-right, 0px));
   display: flex;
   justify-content: space-between;
   pointer-events: none;
@@ -187,9 +196,9 @@ html, body {
    buttons at top/bottom. */
 .kid-palette {
   position: absolute;
-  left: 16px;
+  left: calc(16px + env(safe-area-inset-left, 0px));
   top: 100px;
-  bottom: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -234,9 +243,9 @@ html, body {
    Same scroll-with-chevrons pattern as the palette. */
 .kid-dock {
   position: absolute;
-  right: 16px;
+  right: calc(16px + env(safe-area-inset-right, 0px));
   top: 100px;
-  bottom: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -807,9 +816,9 @@ html, body {
 @media (max-width: 600px) {
   /* Tighter topbar so the row of 4 left icons + 2 right icons fits at all. */
   .kid-topbar {
-    top: 8px;
-    left: 8px;
-    right: 8px;
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    left: calc(8px + env(safe-area-inset-left, 0px));
+    right: calc(8px + env(safe-area-inset-right, 0px));
   }
   .kid-topbar-left,
   .kid-topbar-right { gap: 6px; }
@@ -823,7 +832,7 @@ html, body {
 
   /* Side panels: narrower so the canvas gets more horizontal room. */
   .kid-palette {
-    left: 8px;
+    left: calc(8px + env(safe-area-inset-left, 0px));
     gap: 4px;
     padding: 4px 6px;
     border-width: 3px;
@@ -832,7 +841,7 @@ html, body {
   .kid-swatch { width: 44px; height: 44px; border-width: 3px; }
 
   .kid-dock {
-    right: 8px;
+    right: calc(8px + env(safe-area-inset-right, 0px));
     gap: 4px;
     padding: 4px 6px;
     border-width: 3px;
