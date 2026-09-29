@@ -90,13 +90,13 @@ Out of scope for this round: server-side AI content moderation and rate limiting
 
 ### B1. Option A icons
 - Replace the 11 dock icons in `KidUI.ts` with the Option A set from the approved preview (https://claude.ai/artifact/FPi1XwYB376CdutaRQGMrE), plus the Rainbow brush icon.
-- Icons are functions of the current paint color; the dock re-renders the icons on every color change. Glitter and Rainbow ignore the color.
+- Icons are functions of the current paint color; the dock re-renders the icons on every color change. Glitter and Rainbow ignore the color. Very light paint (white, pale yellow) shows its marks in light grey so they stay visible on the white dock buttons.
 - Top-bar icons unchanged.
 - SVG gradient ids must be unique per icon instance.
 
 ### B2. Rainbow brush
 - New tool `rainbow`, placed after Brush in the dock, keyboard shortcut `W`, tooltip "Rainbow".
-- Renders exactly like Brush, but the stamp color is `hsl(hue, 90%, 55%)` where hue advances with distance travelled: one full cycle every 600 px of stroke length in document space, starting at a random hue per stroke.
+- Renders exactly like Brush, but the stamp color is the `#rrggbb` equivalent of `hsl(hue, 90%, 55%)` (brush heads append hex alpha, so hex is required) where hue advances with distance travelled: one full cycle every 600 px of stroke length in document space, starting at a random hue per stroke.
 - Hue is quantized to 36 steps (10° each) so the existing per-color brush stamp cache is reused.
 - Pure function `rainbowColorAt(distance, startHue): string` is unit tested.
 - Undo works like a normal brush stroke.
