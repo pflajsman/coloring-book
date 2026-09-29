@@ -6,10 +6,11 @@ import { buildKidUI } from './ui/KidUI';
 import { showModal, promptDialog, confirmDialog } from './ui/Modal';
 import { loadManifest, rasterizeImageBitmap, rasterizeTemplate, thumbnailUrl, type Template } from './templates';
 import { openAiPromptDialog } from './ui/AiPromptDialog';
-import { saveDocument, listDocuments, loadDocument, deleteDocument, renameProject, applyStoredDocument, saveAiTemplate, listAiTemplates, deleteAiTemplate, type AiTemplateRecord } from './storage/db';
+import { saveAutosave, loadAutosave, requestPersistentStorage, saveDocument, listDocuments, loadDocument, deleteDocument, renameProject, applyStoredDocument, saveAiTemplate, listAiTemplates, deleteAiTemplate, type AiTemplateRecord } from './storage/db';
 import { registerSW } from 'virtual:pwa-register';
 import { PREF_ZOOM_LOCKED, readBoolPref } from './storage/prefs';
 import { initStickyFullscreen, keepScreenAwake } from './ui/fullscreen';
+import { AutosaveScheduler, isValidAutosave } from './storage/autosave';
 
 registerSW({ immediate: true });
 
@@ -113,22 +114,40 @@ keepScreenAwake();
 // Defer fitToWindow until after layout.
 requestAnimationFrame(() => app.fitToWindow());
 
-// Boot with a blank canvas so kids see a fresh page they can immediately use.
-loadManifest()
-  .then((tpls) => {
-    const blank = tpls.find((t) => t.id === 'blank') ?? tpls[0];
-    if (blank) return loadTemplate(blank);
-  })
-  .catch(console.error);
+// ----- Autosave -----
 
-// Auto-save on tab close so unsaved work isn't lost — but only if the user
-// has explicitly saved this project at least once (it has a real name).
-// Otherwise we'd pollute the projects list with anonymous "Untitled" entries.
-window.addEventListener('beforeunload', () => {
-  if (app.doc.meta.name && app.doc.meta.name !== 'Untitled') {
-    void saveDocument(app.doc);
-  }
+const autosave = new AutosaveScheduler(() => saveAutosave(app.doc));
+app.history.onChange = () => autosave.markDirty();
+const flush = () => { void autosave.flushNow(); };
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') flush();
 });
+window.addEventListener('pagehide', flush);
+requestPersistentStorage();
+
+// Boot: bring back the last drawing if there is one, otherwise a blank page.
+// The blank template only loads if the child hasn't started drawing in the
+// meantime (history still empty), so an early stroke is never wiped.
+void (async () => {
+  try {
+    const saved = await loadAutosave();
+    if (isValidAutosave(saved)) {
+      await applyStoredDocument(app.doc, saved);
+      app.history.clear();
+      app.scheduleRender();
+      return;
+    }
+  } catch (e) {
+    console.error('Could not restore autosave', e);
+  }
+  try {
+    const tpls = await loadManifest();
+    const blank = tpls.find((t) => t.id === 'blank') ?? tpls[0];
+    if (blank && !app.history.canUndo()) await loadTemplate(blank);
+  } catch (e) {
+    console.error(e);
+  }
+})();
 
 function defaultProjectName(): string {
   const tplId = app.doc.meta.templateId;

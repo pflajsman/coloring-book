@@ -11,6 +11,7 @@ import { Layer } from '../engine/Layer';
 interface Schema {
   documents: { key: string; value: StoredDocument };
   aiTemplates: { key: string; value: AiTemplateRecord };
+  autosave: { key: string; value: StoredDocument };
 }
 
 // AI-generated coloring page saved by the user. The PNG blob is the
@@ -50,13 +51,18 @@ function getDb() {
     // v2 added the `aiTemplates` store. The `upgrade` callback runs for
     // each version transition the user is missing, so first-time installs
     // and existing users both end up with both stores.
-    dbPromise = openDB('coloring-book', 2, {
+    dbPromise = openDB('coloring-book', 3, {
       upgrade(db) {
         if (!db.objectStoreNames.contains('documents')) {
           db.createObjectStore('documents', { keyPath: 'meta.id' });
         }
         if (!db.objectStoreNames.contains('aiTemplates')) {
           db.createObjectStore('aiTemplates', { keyPath: 'id' });
+        }
+        // v3: single-record store for the always-on autosave. Kept apart
+        // from `documents` so it never shows up in "My projects".
+        if (!db.objectStoreNames.contains('autosave')) {
+          db.createObjectStore('autosave');
         }
       },
     });
@@ -66,6 +72,13 @@ function getDb() {
 
 export async function saveDocument(doc: Document): Promise<void> {
   const db = await getDb();
+  const stored = await toStored(doc);
+  await db.put('documents', stored as unknown as Schema['documents']['value']);
+}
+
+// Serialise a live document (layer pixels as PNG blobs) into the stored
+// record shape shared by named projects and the autosave.
+async function toStored(doc: Document): Promise<StoredDocument> {
   const layers: StoredLayer[] = [];
   for (const l of doc.layers) {
     layers.push({
@@ -83,7 +96,7 @@ export async function saveDocument(doc: Document): Promise<void> {
     activeLayerId: doc.activeLayerId,
     layers,
   };
-  await db.put('documents', stored as unknown as Schema['documents']['value']);
+  return stored;
 }
 
 export async function listDocuments(): Promise<DocumentMeta[]> {
@@ -150,4 +163,24 @@ export async function listAiTemplates(): Promise<AiTemplateRecord[]> {
 export async function deleteAiTemplate(id: string): Promise<void> {
   const db = await getDb();
   await db.delete('aiTemplates', id);
+}
+
+// ---------- Autosave (current drawing) ----------
+
+const AUTOSAVE_KEY = 'current';
+
+export async function saveAutosave(doc: Document): Promise<void> {
+  const db = await getDb();
+  await db.put('autosave', (await toStored(doc)) as never, AUTOSAVE_KEY);
+}
+
+export async function loadAutosave(): Promise<StoredDocument | undefined> {
+  const db = await getDb();
+  return (await db.get('autosave', AUTOSAVE_KEY)) as StoredDocument | undefined;
+}
+
+// Ask the browser not to evict our data under storage pressure (Safari
+// clears site data for sites it considers unused). Best effort only.
+export function requestPersistentStorage(): void {
+  void navigator.storage?.persist?.().catch(() => {});
 }
