@@ -254,6 +254,9 @@ function offerSaveToGallery(blob: Blob, prompt: string) {
   document.body.appendChild(toast);
 
   let dismissed = false;
+  // Auto-dismiss after 8s: long enough to read and decide, short enough
+  // not to clutter once the kid is back to coloring.
+  let autoTimer = 0;
   const dismiss = () => {
     if (dismissed) return;
     dismissed = true;
@@ -261,9 +264,7 @@ function offerSaveToGallery(blob: Blob, prompt: string) {
     toast.classList.add('is-leaving');
     setTimeout(() => toast.remove(), 250);
   };
-  // Auto-dismiss after 8s — long enough to read and decide, short enough
-  // not to clutter once the kid is back to coloring.
-  const autoTimer = window.setTimeout(dismiss, 8000);
+  autoTimer = window.setTimeout(dismiss, 8000);
   close.addEventListener('click', dismiss);
 
   saveBtn.addEventListener('click', async () => {
@@ -277,7 +278,8 @@ function offerSaveToGallery(blob: Blob, prompt: string) {
       maxLength: 40,
     });
     if (name === null) {
-      // Cancelled — leave the toast visible briefly so the user can retry.
+      // Cancelled: give the toast a fresh few seconds, then let it go.
+      autoTimer = window.setTimeout(dismiss, 4000);
       return;
     }
     await saveAiTemplate({

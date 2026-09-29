@@ -1,5 +1,9 @@
 export type ModalOptions = {
   narrow?: boolean;
+  // Called when the user closes the modal with the × button or by tapping
+  // the backdrop. Dialog helpers use it to settle their promise, so callers
+  // never wait forever on a dismissed dialog.
+  onDismiss?: () => void;
 };
 
 export function showModal(title: string, body: HTMLElement, opts: ModalOptions = {}): () => void {
@@ -16,18 +20,27 @@ export function showModal(title: string, body: HTMLElement, opts: ModalOptions =
   const close = document.createElement('button');
   close.className = 'tool';
   close.textContent = '×';
-  close.addEventListener('click', () => destroy());
+  close.setAttribute('aria-label', 'Close');
+  close.addEventListener('click', () => dismiss());
   head.append(titleEl, close);
 
   card.append(head, body);
   overlay.appendChild(card);
   overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) destroy();
+    if (e.target === overlay) dismiss();
   });
   document.body.appendChild(overlay);
 
+  let removed = false;
   function destroy() {
+    if (removed) return;
+    removed = true;
     overlay.remove();
+  }
+  function dismiss() {
+    if (removed) return;
+    destroy();
+    opts.onDismiss?.();
   }
   return destroy;
 }
@@ -94,7 +107,7 @@ export function promptDialog(opts: {
       }
     });
 
-    const destroy = showModal(opts.title, body, { narrow: true });
+    const destroy = showModal(opts.title, body, { narrow: true, onDismiss: () => finish(null) });
 
     // Focus + select on next frame so the field is ready when the modal lands.
     requestAnimationFrame(() => {
@@ -143,7 +156,7 @@ export function confirmDialog(opts: {
     cancel.addEventListener('click', () => finish(false));
     ok.addEventListener('click', () => finish(true));
 
-    const destroy = showModal(opts.title, body, { narrow: true });
+    const destroy = showModal(opts.title, body, { narrow: true, onDismiss: () => finish(false) });
 
     requestAnimationFrame(() => ok.focus());
   });
