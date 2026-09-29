@@ -7,7 +7,7 @@ import { buildKidUI } from './ui/KidUI';
 import { showModal, promptDialog, confirmDialog } from './ui/Modal';
 import { loadManifest, rasterizeImageBitmap, rasterizeTemplate, thumbnailUrl, type Template } from './templates';
 import { openAiPromptDialog } from './ui/AiPromptDialog';
-import { saveAutosave, loadAutosave, requestPersistentStorage, saveDocument, listDocuments, loadDocument, deleteDocument, renameProject, applyStoredDocument, saveAiTemplate, listAiTemplates, deleteAiTemplate, type AiTemplateRecord } from './storage/db';
+import { saveAutosave, loadAutosave, clearAutosave, requestPersistentStorage, saveDocument, listDocuments, loadDocument, deleteDocument, renameProject, applyStoredDocument, saveAiTemplate, listAiTemplates, deleteAiTemplate, type AiTemplateRecord } from './storage/db';
 import { registerSW } from 'virtual:pwa-register';
 import { PREF_ZOOM_LOCKED, readBoolPref } from './storage/prefs';
 import { initStickyFullscreen, keepScreenAwake } from './ui/fullscreen';
@@ -142,7 +142,10 @@ void (async () => {
       return;
     }
   } catch (e) {
+    // A record that can't be restored would fail the same way on every
+    // launch. Drop it so the next start is a clean blank page.
     console.error('Could not restore autosave', e);
+    void clearAutosave().catch(() => {});
   }
   try {
     const tpls = await loadManifest();

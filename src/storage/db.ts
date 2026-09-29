@@ -127,20 +127,30 @@ export async function renameProject(id: string, name: string): Promise<void> {
   await db.put('documents', stored as unknown as Schema['documents']['value']);
 }
 
-export async function applyStoredDocument(target: Document, stored: StoredDocument): Promise<void> {
-  // Replace the target document's layers with what's in storage.
-  target.meta = stored.meta;
-  target.layers = [];
-  target.templateLayerId = '';
-  for (const sl of stored.layers) {
+export async function applyStoredDocument(
+  target: Document,
+  stored: StoredDocument,
+  decode: (blob: Blob) => Promise<ImageBitmap> = (b) => createImageBitmap(b),
+): Promise<void> {
+  // Decode every layer before touching the target. A truncated or corrupt
+  // blob then throws with the live document still intact, instead of leaving
+  // it half replaced (no active layer, every stroke throwing).
+  const bitmaps = await Promise.all(stored.layers.map((sl) => decode(sl.blob)));
+  const layers: Layer[] = [];
+  let templateLayerId = '';
+  stored.layers.forEach((sl, i) => {
     const layer = new Layer(sl.id, sl.name, stored.meta.width, stored.meta.height);
     layer.visible = sl.visible;
     layer.opacity = sl.opacity;
     layer.locked = sl.locked;
-    await layer.loadFromBlob(sl.blob);
-    target.layers.push(layer);
-    if (sl.isTemplate) target.templateLayerId = layer.id;
-  }
+    layer.ctx.drawImage(bitmaps[i], 0, 0);
+    bitmaps[i].close();
+    layers.push(layer);
+    if (sl.isTemplate) templateLayerId = layer.id;
+  });
+  target.meta = stored.meta;
+  target.layers = layers;
+  target.templateLayerId = templateLayerId;
   target.activeLayerId = stored.activeLayerId;
 }
 
@@ -172,6 +182,11 @@ const AUTOSAVE_KEY = 'current';
 export async function saveAutosave(doc: Document): Promise<void> {
   const db = await getDb();
   await db.put('autosave', (await toStored(doc)) as never, AUTOSAVE_KEY);
+}
+
+export async function clearAutosave(): Promise<void> {
+  const db = await getDb();
+  await db.delete('autosave', AUTOSAVE_KEY);
 }
 
 export async function loadAutosave(): Promise<StoredDocument | undefined> {

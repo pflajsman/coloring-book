@@ -45,12 +45,17 @@ describe('isValidAutosave', () => {
     const ok = {
       meta: { id: 'doc_1', name: 'Untitled', width: 1200, height: 800, createdAt: 1, updatedAt: 1 },
       activeLayerId: 'l2',
-      layers: [{ id: 'l2', name: 'Paint', visible: true, opacity: 1, locked: false, blob: {}, isTemplate: false }],
+      layers: [{ id: 'l2', name: 'Paint', visible: true, opacity: 1, locked: false, blob: new Blob([]), isTemplate: false }],
     };
     expect(isValidAutosave(ok)).toBe(true);
     expect(isValidAutosave(undefined)).toBe(false);
     expect(isValidAutosave({ meta: {} })).toBe(false);
     expect(isValidAutosave({ ...ok, layers: [] })).toBe(false);
     expect(isValidAutosave({ ...ok, meta: { ...ok.meta, width: 0 } })).toBe(false);
+    // A missing or non-Blob layer payload (partial write, older build).
+    expect(isValidAutosave({ ...ok, layers: [{ ...ok.layers[0], blob: {} }] })).toBe(false);
+    expect(isValidAutosave({ ...ok, layers: [{ ...ok.layers[0], blob: null }] })).toBe(false);
+    // Active layer must be one of the stored layers.
+    expect(isValidAutosave({ ...ok, activeLayerId: 'gone' })).toBe(false);
   });
 });

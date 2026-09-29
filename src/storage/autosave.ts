@@ -43,5 +43,8 @@ export function isValidAutosave(x: unknown): x is StoredDocument {
   if (!m || typeof m.id !== 'string' || !(m.width > 0) || !(m.height > 0)) return false;
   if (!Array.isArray(r.layers) || r.layers.length === 0) return false;
   if (typeof r.activeLayerId !== 'string') return false;
-  return r.layers.every((l) => l && typeof l.id === 'string' && 'blob' in l);
+  if (!r.layers.every((l) => l && typeof l.id === 'string' && typeof Blob !== 'undefined' && l.blob instanceof Blob)) {
+    return false;
+  }
+  return r.layers.some((l) => l.id === r.activeLayerId);
 }
