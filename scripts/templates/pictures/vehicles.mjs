@@ -1,10 +1,10 @@
-import { page, circle, rect, line, path, poly, dot, group } from '../svg.mjs';
+import { page, solidPage, circle, rect, line, path, poly, dot, group } from '../svg.mjs';
 
 // Vehicles in side view, facing right, bold closed shapes. Wheels have a
 // hub so each wheel gives two areas to colour.
 
 const wheel = (cx, cy, r) => circle(cx, cy, r) + circle(cx, cy, r * 0.36);
-const draw = (id, name, parts) => ({ id, name, category: 'Vehicles', svg: page(parts.flat().join('\n')) });
+const draw = (id, name, parts) => ({ id, name, category: 'Vehicles', svg: solidPage(parts.flat().join('\n')) });
 
 const raceCar = draw('race-car', 'Race car', [
   poly([[180, 430], [262, 430], [262, 470], [232, 470]]),

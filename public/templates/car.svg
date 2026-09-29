@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="175 306 850 398" width="850" height="398">
 <g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
-<path d="M200 580 Q 190 480 280 470 L 380 460 Q 450 330 600 330 Q 760 330 830 460 L 930 475 Q 1010 490 1000 580 Z"/>
-<path d="M420 460 Q 470 372 590 366 L 590 460 Z"/>
-<path d="M620 366 Q 740 372 790 460 L 620 460 Z"/>
-<circle cx="940" cy="528" r="24"/>
-<circle cx="340" cy="602" r="78"/><circle cx="340" cy="602" r="28.1"/>
-<circle cx="860" cy="602" r="78"/><circle cx="860" cy="602" r="28.1"/>
+<path d="M200 580 Q 190 480 280 470 L 380 460 Q 450 330 600 330 Q 760 330 830 460 L 930 475 Q 1010 490 1000 580 Z" fill="#fff"/>
+<path d="M420 460 Q 470 372 590 366 L 590 460 Z" fill="#fff"/>
+<path d="M620 366 Q 740 372 790 460 L 620 460 Z" fill="#fff"/>
+<circle fill="#fff" cx="940" cy="528" r="24"/>
+<circle fill="#fff" cx="340" cy="602" r="78"/><circle fill="#fff" cx="340" cy="602" r="28.1"/>
+<circle fill="#fff" cx="860" cy="602" r="78"/><circle fill="#fff" cx="860" cy="602" r="28.1"/>
 </g>
 </svg>

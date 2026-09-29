@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="196 286 818 390" width="818" height="390">
 <g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
-<rect x="560" y="310" width="92" height="42" rx="14"/>
-<path d="M220 560 L 220 470 Q 230 440 280 440 L 380 440 L 460 350 L 760 350 L 850 440 L 950 450 Q 990 460 990 500 L 990 560 Z"/>
-<path d="M480 370 L598 370 L598 440 L412 440 Z"/>
-<path d="M622 370 L745 370 L815 440 L622 440 Z"/>
+<rect fill="#fff" x="560" y="310" width="92" height="42" rx="14"/>
+<path d="M220 560 L 220 470 Q 230 440 280 440 L 380 440 L 460 350 L 760 350 L 850 440 L 950 450 Q 990 460 990 500 L 990 560 Z" fill="#fff"/>
+<path d="M480 370 L598 370 L598 440 L412 440 Z" fill="#fff"/>
+<path d="M622 370 L745 370 L815 440 L622 440 Z" fill="#fff"/>
 <line x1="610" y1="440" x2="610" y2="558"/>
-<circle cx="340" cy="582" r="70"/><circle cx="340" cy="582" r="25.2"/>
-<circle cx="850" cy="582" r="70"/><circle cx="850" cy="582" r="25.2"/>
+<circle fill="#fff" cx="340" cy="582" r="70"/><circle fill="#fff" cx="340" cy="582" r="25.2"/>
+<circle fill="#fff" cx="850" cy="582" r="70"/><circle fill="#fff" cx="850" cy="582" r="25.2"/>
 </g>
 </svg>

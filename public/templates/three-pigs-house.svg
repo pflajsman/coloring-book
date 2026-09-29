@@ -1,19 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="261 84 678 665" width="678" height="665">
 <g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
-<rect x="720" y="160" width="64" height="130"/>
-<path d="M285 345 L600 108 L915 345 Z"/>
-<rect x="330" y="340" width="540" height="385"/>
-<rect x="540" y="540" width="120" height="185" rx="20"/>
+<rect fill="#fff" x="720" y="160" width="64" height="130"/>
+<path d="M285 345 L600 108 L915 345 Z" fill="#fff"/>
+<rect fill="#fff" x="330" y="340" width="540" height="385"/>
+<rect fill="#fff" x="540" y="540" width="120" height="185" rx="20"/>
 <circle cx="640" cy="640" r="10" fill="#000" stroke="none"/>
-<rect x="385" y="420" width="115" height="95"/>
+<rect fill="#fff" x="385" y="420" width="115" height="95"/>
 <line x1="442" y1="420" x2="442" y2="515"/>
 <line x1="385" y1="467" x2="500" y2="467"/>
-<rect x="700" y="420" width="115" height="95"/>
+<rect fill="#fff" x="700" y="420" width="115" height="95"/>
 <line x1="757" y1="420" x2="757" y2="515"/>
 <line x1="700" y1="467" x2="815" y2="467"/>
-<rect x="360" y="575" width="85" height="42" rx="4"/>
-<rect x="410" y="650" width="85" height="42" rx="4"/>
-<rect x="735" y="575" width="85" height="42" rx="4"/>
-<rect x="700" y="650" width="85" height="42" rx="4"/>
+<rect fill="#fff" x="360" y="575" width="85" height="42" rx="4"/>
+<rect fill="#fff" x="410" y="650" width="85" height="42" rx="4"/>
+<rect fill="#fff" x="735" y="575" width="85" height="42" rx="4"/>
+<rect fill="#fff" x="700" y="650" width="85" height="42" rx="4"/>
 </g>
 </svg>

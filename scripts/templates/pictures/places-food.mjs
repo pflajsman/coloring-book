@@ -1,9 +1,9 @@
-import { page, circle, rect, line, path, poly, dot, group } from '../svg.mjs';
+import { page, solidPage, circle, rect, line, path, poly, dot, group } from '../svg.mjs';
 
 // Redrawn house, fruit and mushroom: the old clipart versions were hatched,
 // dot-shaded or hair-thin.
 
-const draw = (id, name, category, parts) => ({ id, name, category, svg: page(parts.flat().join('\n')) });
+const draw = (id, name, category, parts) => ({ id, name, category, svg: solidPage(parts.flat().join('\n')) });
 
 const house = draw('house', 'House', 'Places', [
   rect(730, 170, 62, 135),

@@ -2,8 +2,8 @@
 <g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
 <path d="M460 432 Q 480 282 650 172"/>
 <path d="M760 462 Q 722 302 650 172"/>
-<path d="M650 172 Q 760 92 870 142 Q 780 232 650 172 Z"/>
-<circle cx="460" cy="562" r="130"/>
-<circle cx="760" cy="592" r="130"/>
+<path d="M650 172 Q 760 92 870 142 Q 780 232 650 172 Z" fill="#fff"/>
+<circle fill="#fff" cx="460" cy="562" r="130"/>
+<circle fill="#fff" cx="760" cy="592" r="130"/>
 </g>
 </svg>

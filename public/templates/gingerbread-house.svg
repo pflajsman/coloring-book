@@ -1,17 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="261 86 678 663" width="678" height="663">
 <g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
-<rect x="340" y="350" width="520" height="375"/>
-<path d="M285 360 L 600 110 L 915 360 Q 875.625 420 836.25 360 Q 796.875 420 757.5 360 Q 718.125 420 678.75 360 Q 639.375 420 600 360 Q 560.625 420 521.25 360 Q 481.875 420 442.5 360 Q 403.125 420 363.75 360 Q 324.375 420 285 360 Z"/>
-<path d="M540 725 L 540 590 Q 600 520 660 590 L 660 725 Z"/>
-<circle cx="430" cy="480" r="50"/>
+<rect fill="#fff" x="340" y="350" width="520" height="375"/>
+<path d="M285 360 L 600 110 L 915 360 Q 875.625 420 836.25 360 Q 796.875 420 757.5 360 Q 718.125 420 678.75 360 Q 639.375 420 600 360 Q 560.625 420 521.25 360 Q 481.875 420 442.5 360 Q 403.125 420 363.75 360 Q 324.375 420 285 360 Z" fill="#fff"/>
+<path d="M540 725 L 540 590 Q 600 520 660 590 L 660 725 Z" fill="#fff"/>
+<circle fill="#fff" cx="430" cy="480" r="50"/>
 <line x1="380" y1="480" x2="480" y2="480"/>
 <line x1="430" y1="430" x2="430" y2="530"/>
-<circle cx="770" cy="480" r="50"/>
+<circle fill="#fff" cx="770" cy="480" r="50"/>
 <line x1="720" y1="480" x2="820" y2="480"/>
 <line x1="770" y1="430" x2="770" y2="530"/>
-<circle cx="600" cy="250" r="38"/>
-<circle cx="420" cy="640" r="28"/>
-<circle cx="780" cy="640" r="28"/>
-<circle cx="600" cy="440" r="26"/>
+<circle fill="#fff" cx="600" cy="250" r="38"/>
+<circle fill="#fff" cx="420" cy="640" r="28"/>
+<circle fill="#fff" cx="780" cy="640" r="28"/>
+<circle fill="#fff" cx="600" cy="440" r="26"/>
 </g>
 </svg>

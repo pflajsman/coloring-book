@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { page, circle, poly, dashed, dot, digit } from './svg.mjs';
+import { page, solidPage, circle, poly, path, line, dashed, dot, digit } from './svg.mjs';
 import { mergeManifest } from './manifest.mjs';
 import { checkEntry } from './checkRules.mjs';
 
@@ -65,5 +65,18 @@ describe('checkEntry', () => {
 
   it('games may have many small areas (digit counters)', () => {
     expect(checkEntry({ id: 'dots-star', ink: 3, big: 1, small: 40, tiny: 2 }, true)).toEqual([]);
+  });
+});
+
+describe('solidPage', () => {
+  it('paints closed shapes white so later shapes hide the lines behind them', () => {
+    const s = solidPage([circle(1, 1, 1), poly([[0, 0], [1, 0], [1, 1]]), path('M0 0 L1 1 Z')].join(''));
+    expect(s.match(/fill="#fff"/g)).toHaveLength(3);
+  });
+
+  it('leaves open paths, lines and black dots alone', () => {
+    const s = solidPage([path('M0 0 Q 1 1 2 0'), line(0, 0, 1, 1), dot(1, 1, 2)].join(''));
+    expect(s).not.toContain('fill="#fff"');
+    expect(s).toContain('fill="#000"');
   });
 });

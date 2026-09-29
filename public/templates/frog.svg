@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="221 136 758 616" width="758" height="616">
 <g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
-<ellipse cx="360" cy="610" rx="115" ry="72"/>
-<ellipse cx="840" cy="610" rx="115" ry="72"/>
-<ellipse cx="600" cy="505" rx="262" ry="182"/>
-<ellipse cx="600" cy="545" rx="152" ry="110"/>
-<ellipse cx="470" cy="640" rx="48" ry="88"/>
-<ellipse cx="730" cy="640" rx="48" ry="88"/>
-<ellipse cx="600" cy="330" rx="212" ry="122"/>
-<circle cx="480" cy="232" r="72"/>
-<circle cx="720" cy="232" r="72"/>
+<ellipse fill="#fff" cx="360" cy="610" rx="115" ry="72"/>
+<ellipse fill="#fff" cx="840" cy="610" rx="115" ry="72"/>
+<ellipse fill="#fff" cx="600" cy="505" rx="262" ry="182"/>
+<ellipse fill="#fff" cx="600" cy="545" rx="152" ry="110"/>
+<ellipse fill="#fff" cx="470" cy="640" rx="48" ry="88"/>
+<ellipse fill="#fff" cx="730" cy="640" rx="48" ry="88"/>
+<ellipse fill="#fff" cx="600" cy="330" rx="212" ry="122"/>
+<circle fill="#fff" cx="480" cy="232" r="72"/>
+<circle fill="#fff" cx="720" cy="232" r="72"/>
 <circle cx="480" cy="232" r="24" fill="#000" stroke="none"/>
 <circle cx="720" cy="232" r="24" fill="#000" stroke="none"/>
 <path d="M470 362 Q 600 442 730 362"/>

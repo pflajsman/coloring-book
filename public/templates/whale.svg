@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="86 61 898 575" width="898" height="575">
 <g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
-<path d="M235 430 L115 320 Q 165 420 110 525 L235 475 Z"/>
-<path d="M210 450 Q 250 255 600 262 Q 910 272 960 452 Q 910 605 600 612 Q 300 612 210 450 Z"/>
-<path d="M300 522 Q 600 652 905 502 Q 600 565 300 522 Z"/>
-<path d="M560 545 Q 610 630 680 565 Z"/>
+<path d="M235 430 L115 320 Q 165 420 110 525 L235 475 Z" fill="#fff"/>
+<path d="M210 450 Q 250 255 600 262 Q 910 272 960 452 Q 910 605 600 612 Q 300 612 210 450 Z" fill="#fff"/>
+<path d="M300 522 Q 600 652 905 502 Q 600 565 300 522 Z" fill="#fff"/>
+<path d="M560 545 Q 610 630 680 565 Z" fill="#fff"/>
 <circle cx="820" cy="400" r="15" fill="#000" stroke="none"/>
 <path d="M857 462 Q 895 478 933 462"/>
-<path d="M520 130 Q 554 188 520 218 Q 486 188 520 130 Z"/>
-<path d="M600 85 Q 634 143 600 173 Q 566 143 600 85 Z"/>
-<path d="M680 130 Q 714 188 680 218 Q 646 188 680 130 Z"/>
+<path d="M520 130 Q 554 188 520 218 Q 486 188 520 130 Z" fill="#fff"/>
+<path d="M600 85 Q 634 143 600 173 Q 566 143 600 85 Z" fill="#fff"/>
+<path d="M680 130 Q 714 188 680 218 Q 646 188 680 130 Z" fill="#fff"/>
 </g>
 </svg>

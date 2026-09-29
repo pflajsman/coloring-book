@@ -1,4 +1,4 @@
-import { page, circle, ellipse, rect, line, path, poly, dot, group } from '../svg.mjs';
+import { page, solidPage, circle, ellipse, rect, line, path, poly, dot, group } from '../svg.mjs';
 
 // Fairy-tale pictures: classic public-domain characters and places in the
 // same bold closed style as the animals.
@@ -21,7 +21,7 @@ const crown = (cx, base, w, h) => poly([
   [cx - w / 2, base], [cx - w / 2, base - h], [cx - w / 4, base - h * 0.55], [cx, base - h * 1.15],
   [cx + w / 4, base - h * 0.55], [cx + w / 2, base - h], [cx + w / 2, base],
 ]);
-const draw = (id, name, parts) => ({ id, name, category: 'Fairy tales', svg: page(parts.flat().join('\n')) });
+const draw = (id, name, parts) => ({ id, name, category: 'Fairy tales', svg: solidPage(parts.flat().join('\n')) });
 
 const redRidingHood = draw('red-riding-hood', 'Red Riding Hood', [
   leg(548, 640, 40, 110), leg(612, 640, 40, 110),
@@ -100,21 +100,22 @@ const gnome = draw('gnome', 'Gnome', [
   path('M480 360 Q 470 562 600 602 Q 730 562 720 360 Q 660 442 600 422 Q 540 442 480 360 Z'),
   circle(600, 370, 72),
   circle(600, 392, 32),
-  eyes(566, 634, 345, 11),
   tri([478, 332], [600, 58], [722, 332]),
   ellipse(600, 335, 135, 26),
+  eyes(545, 655, 372, 11),
 ]);
 
 const frogPrince = draw('frog-prince', 'Frog prince', [
-  ellipse(360, 610, 115, 72), ellipse(840, 610, 115, 72),
-  ellipse(600, 505, 262, 182),
-  ellipse(600, 545, 152, 110),
-  ellipse(470, 640, 48, 88), ellipse(730, 640, 48, 88),
-  ellipse(600, 330, 212, 122),
-  circle(470, 238, 72), circle(730, 238, 72),
-  dot(470, 238, 24), dot(730, 238, 24),
-  crown(600, 228, 96, 80),
-  path('M470 362 Q 600 442 730 362'),
+  // A frog sitting on a lily pad, wearing a big crown.
+  path('M190 640 Q 190 520 600 510 Q 1010 520 1010 640 Q 1010 760 600 770 Q 190 760 190 640 Z'),
+  poly([[600, 640], [760, 560], [800, 610]]),
+  ellipse(430, 650, 90, 45), ellipse(770, 650, 90, 45),
+  ellipse(600, 560, 200, 130),
+  ellipse(600, 380, 185, 110),
+  circle(490, 300, 62), circle(710, 300, 62),
+  dot(490, 300, 21), dot(710, 300, 21),
+  path('M500 410 Q 600 470 700 410'),
+  crown(600, 285, 130, 115),
 ]);
 
 const gingerbreadHouse = draw('gingerbread-house', 'Gingerbread house', [
@@ -141,20 +142,22 @@ const pumpkinCarriage = draw('pumpkin-carriage', 'Pumpkin carriage', [
 
 // Redraws of rejected clipart subjects.
 
+const dragonBackTop = (x) => 500 - 142 * Math.sqrt(Math.max(0, 1 - ((x - 520) / 222) ** 2));
 const dragon = draw('dragon', 'Dragon', [
-  leg(380, 580, 70, 150), leg(460, 592, 70, 138), leg(590, 592, 70, 138), leg(670, 580, 70, 150),
-  path('M320 520 Q 150 560 140 690 Q 205 625 332 580 Z'),
-  tri([140, 690], [92, 632], [190, 645]),
-  // Bat wing growing out of the back.
-  path('M430 400 L 330 180 Q 400 230 440 215 Q 470 270 520 250 Q 540 300 590 290 L 600 385 Z'),
+  // Listed back to front: spikes, tail and far wing sit behind the body.
+  [410, 480, 550, 620].map((x) => tri([x - 34, dragonBackTop(x) + 30], [x, dragonBackTop(x) - 58], [x + 34, dragonBackTop(x) + 30])),
+  tri([120, 662], [66, 606], [168, 612]),
+  path('M330 520 Q 170 540 120 662 Q 232 612 342 592 Z'),
+  path('M430 430 L 350 170 Q 425 222 470 195 Q 502 255 552 238 Q 578 298 625 298 L 612 430 Z'),
+  leg(380, 580, 70, 150), leg(470, 592, 70, 138), leg(590, 592, 70, 138), leg(670, 580, 70, 150),
   ellipse(520, 500, 222, 142),
-  path('M680 430 Q 760 380 770 300 L 860 305 Q 850 420 735 505 Z'),
-  circle(815, 285, 92),
-  ellipse(905, 318, 72, 46),
-  dot(930, 305, 8),
-  tri([770, 205], [772, 140], [808, 198]), tri([832, 196], [862, 140], [872, 212]),
-  dot(830, 262, 13),
-  smile(895, 345, 28, 14),
+  ellipse(540, 545, 140, 68),
+  path('M660 432 Q 742 382 747 300 L 837 305 Q 832 412 722 502 Z'),
+  tri([752, 210], [748, 140], [792, 196]), tri([818, 196], [852, 140], [862, 214]),
+  circle(800, 282, 95),
+  ellipse(890, 318, 76, 48),
+  dot(918, 302, 8), dot(815, 255, 13),
+  smile(890, 345, 30, 14),
 ]);
 
 const witch = draw('witch', 'Witch', [

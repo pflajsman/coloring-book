@@ -1,16 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="261 21 678 713" width="678" height="713">
 <g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
-<path d="M285 255 L365 105 L445 255 Z"/>
-<path d="M755 255 L835 105 L915 255 Z"/>
+<path d="M285 255 L365 105 L445 255 Z" fill="#fff"/>
+<path d="M755 255 L835 105 L915 255 Z" fill="#fff"/>
 <line x1="835" y1="105" x2="835" y2="45"/>
-<path d="M835 45 L895 62 L835 80 Z"/>
-<rect x="300" y="250" width="130" height="460"/>
-<rect x="770" y="250" width="130" height="460"/>
-<path d="M430 710 L430 300 L470 300 L470 262 L520 262 L520 300 L575 300 L575 262 L625 262 L625 300 L680 300 L680 262 L730 262 L730 300 L770 300 L770 710 Z"/>
-<path d="M535 710 L 535 560 Q 600 480 665 560 L 665 710 Z"/>
-<rect x="340" y="330" width="50" height="80" rx="25"/>
-<rect x="810" y="330" width="50" height="80" rx="25"/>
-<rect x="505" y="370" width="60" height="80" rx="30"/>
-<rect x="635" y="370" width="60" height="80" rx="30"/>
+<path d="M835 45 L895 62 L835 80 Z" fill="#fff"/>
+<rect fill="#fff" x="300" y="250" width="130" height="460"/>
+<rect fill="#fff" x="770" y="250" width="130" height="460"/>
+<path d="M430 710 L430 300 L470 300 L470 262 L520 262 L520 300 L575 300 L575 262 L625 262 L625 300 L680 300 L680 262 L730 262 L730 300 L770 300 L770 710 Z" fill="#fff"/>
+<path d="M535 710 L 535 560 Q 600 480 665 560 L 665 710 Z" fill="#fff"/>
+<rect fill="#fff" x="340" y="330" width="50" height="80" rx="25"/>
+<rect fill="#fff" x="810" y="330" width="50" height="80" rx="25"/>
+<rect fill="#fff" x="505" y="370" width="60" height="80" rx="30"/>
+<rect fill="#fff" x="635" y="370" width="60" height="80" rx="30"/>
 </g>
 </svg>

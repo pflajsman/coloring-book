@@ -1,19 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="237 76 753 673" width="753" height="673">
 <g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
-<rect x="470" y="500" width="44" height="225" rx="18"/>
-<rect x="552" y="512" width="44" height="213" rx="18"/>
-<rect x="742" y="512" width="44" height="213" rx="18"/>
-<rect x="824" y="500" width="44" height="225" rx="18"/>
-<path d="M872 400 Q 988 452 962 628 Q 912 560 884 470 Z"/>
-<ellipse cx="645" cy="430" rx="245" ry="122"/>
-<path d="M500 380 Q 445 285 425 200 L 505 168 L 605 350 Z"/>
-<path d="M505 168 Q 567.6 157.3 525.0 204.4 Q 587.6 193.7 545.0 240.8 Q 607.6 230.1 565.0 277.2 Q 627.6 266.5 585.0 313.6 Q 647.6 302.9 605.0 350.0 Z"/>
-<g transform="rotate(-40 380 212)"><ellipse cx="380" cy="212" rx="108" ry="56"/></g>
-<path d="M425 170 L440 100 L470 162 Z"/>
+<rect fill="#fff" x="470" y="500" width="44" height="225" rx="18"/>
+<rect fill="#fff" x="552" y="512" width="44" height="213" rx="18"/>
+<rect fill="#fff" x="742" y="512" width="44" height="213" rx="18"/>
+<rect fill="#fff" x="824" y="500" width="44" height="225" rx="18"/>
+<path d="M872 400 Q 988 452 962 628 Q 912 560 884 470 Z" fill="#fff"/>
+<ellipse fill="#fff" cx="645" cy="430" rx="245" ry="122"/>
+<path d="M500 380 Q 445 285 425 200 L 505 168 L 605 350 Z" fill="#fff"/>
+<path d="M505 168 Q 567.6 157.3 525.0 204.4 Q 587.6 193.7 545.0 240.8 Q 607.6 230.1 565.0 277.2 Q 627.6 266.5 585.0 313.6 Q 647.6 302.9 605.0 350.0 Z" fill="#fff"/>
+<g transform="rotate(-40 380 212)"><ellipse fill="#fff" cx="380" cy="212" rx="108" ry="56"/></g>
+<path d="M425 170 L440 100 L470 162 Z" fill="#fff"/>
 <circle cx="395" cy="190" r="12" fill="#000" stroke="none"/>
 <circle cx="298" cy="262" r="9" fill="#000" stroke="none"/>
-<path d="M600 352 Q 630 425 600 498 L 642 498 Q 672 425 642 352 Z"/>
-<path d="M690 352 Q 720 425 690 498 L 732 498 Q 762 425 732 352 Z"/>
-<path d="M780 352 Q 810 425 780 498 L 822 498 Q 852 425 822 352 Z"/>
+<path d="M600 352 Q 630 425 600 498 L 642 498 Q 672 425 642 352 Z" fill="#fff"/>
+<path d="M690 352 Q 720 425 690 498 L 732 498 Q 762 425 732 352 Z" fill="#fff"/>
+<path d="M780 352 Q 810 425 780 498 L 822 498 Q 852 425 822 352 Z" fill="#fff"/>
 </g>
 </svg>

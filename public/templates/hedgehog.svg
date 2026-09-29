@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="213 196 854 478" width="854" height="478">
 <g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
-<path d="M300 610 L300 610 L236.9 561.1 L309.4 530.4 L259.7 466.3 L337.1 455.8 L303.9 380.5 L381.3 390.9 L366.7 309.2 L439.3 339.8 L444.2 256.8 L507.3 305.7 L531.4 226.5 L581.2 290.6 L623 220.4 L656.2 295.7 L713.1 238.7 L727.7 320.5 L796.1 280.4 L791.2 363.4 L880 610 Z"/>
-<ellipse cx="430" cy="628" rx="45" ry="22"/>
-<ellipse cx="760" cy="628" rx="45" ry="22"/>
-<ellipse cx="905" cy="555" rx="125" ry="80"/>
+<path d="M300 610 L300 610 L236.9 561.1 L309.4 530.4 L259.7 466.3 L337.1 455.8 L303.9 380.5 L381.3 390.9 L366.7 309.2 L439.3 339.8 L444.2 256.8 L507.3 305.7 L531.4 226.5 L581.2 290.6 L623 220.4 L656.2 295.7 L713.1 238.7 L727.7 320.5 L796.1 280.4 L791.2 363.4 L880 610 Z" fill="#fff"/>
+<ellipse fill="#fff" cx="430" cy="628" rx="45" ry="22"/>
+<ellipse fill="#fff" cx="760" cy="628" rx="45" ry="22"/>
+<ellipse fill="#fff" cx="905" cy="555" rx="125" ry="80"/>
 <circle cx="935" cy="525" r="12" fill="#000" stroke="none"/>
 <circle cx="1025" cy="560" r="18" fill="#000" stroke="none"/>
 <path d="M935 585 Q 960 603 985 585"/>

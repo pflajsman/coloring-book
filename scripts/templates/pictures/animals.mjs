@@ -1,4 +1,4 @@
-import { page, circle, ellipse, rect, line, path, poly, dot, group } from '../svg.mjs';
+import { page, solidPage, circle, ellipse, rect, line, path, poly, dot, group } from '../svg.mjs';
 
 // Animals: bold, closed, friendly shapes on a 1200x800 page. Each picture
 // is a list of primitives; overlaps are intentional (they make more areas
@@ -46,7 +46,7 @@ const quadruped = ({ mane, extra = [] }) => [
   dot(395, 190, 12), dot(298, 262, 9),
   extra,
 ];
-const draw = (id, name, parts) => ({ id, name, category: 'Animals', svg: page(parts.flat().join('\n')) });
+const draw = (id, name, parts) => ({ id, name, category: 'Animals', svg: solidPage(parts.flat().join('\n')) });
 
 const lion = draw('lion', 'Lion', [
   ellipse(620, 600, 230, 130),

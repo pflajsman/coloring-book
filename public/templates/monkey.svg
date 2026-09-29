@@ -1,17 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="347 124 579 663" width="579" height="663">
 <g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
 <path d="M760 640 Q 905 662 902 540 Q 900 460 832 470 Q 782 480 802 532"/>
-<ellipse cx="600" cy="562" rx="172" ry="172"/>
-<ellipse cx="600" cy="590" rx="100" ry="110"/>
-<ellipse cx="500" cy="735" rx="62" ry="28"/>
-<ellipse cx="700" cy="735" rx="62" ry="28"/>
-<g transform="rotate(25 450 540)"><ellipse cx="450" cy="540" rx="40" ry="100"/></g>
-<g transform="rotate(-25 750 540)"><ellipse cx="750" cy="540" rx="40" ry="100"/></g>
-<path d="M700 505 Q 800 465 842 385 Q 832 475 712 535 Z"/>
-<circle cx="430" cy="300" r="56"/>
-<circle cx="770" cy="300" r="56"/>
-<circle cx="600" cy="300" r="152"/>
-<ellipse cx="600" cy="345" rx="115" ry="95"/>
+<ellipse fill="#fff" cx="600" cy="562" rx="172" ry="172"/>
+<ellipse fill="#fff" cx="600" cy="590" rx="100" ry="110"/>
+<ellipse fill="#fff" cx="500" cy="735" rx="62" ry="28"/>
+<ellipse fill="#fff" cx="700" cy="735" rx="62" ry="28"/>
+<g transform="rotate(25 450 540)"><ellipse fill="#fff" cx="450" cy="540" rx="40" ry="100"/></g>
+<g transform="rotate(-25 750 540)"><ellipse fill="#fff" cx="750" cy="540" rx="40" ry="100"/></g>
+<path d="M700 505 Q 800 465 842 385 Q 832 475 712 535 Z" fill="#fff"/>
+<circle fill="#fff" cx="430" cy="300" r="56"/>
+<circle fill="#fff" cx="770" cy="300" r="56"/>
+<circle fill="#fff" cx="600" cy="300" r="152"/>
+<ellipse fill="#fff" cx="600" cy="345" rx="115" ry="95"/>
 <circle cx="555" cy="312" r="14" fill="#000" stroke="none"/><circle cx="645" cy="312" r="14" fill="#000" stroke="none"/>
 <circle cx="585" cy="362" r="7" fill="#000" stroke="none"/>
 <circle cx="615" cy="362" r="7" fill="#000" stroke="none"/>

@@ -13,6 +13,18 @@ ${body}
 `;
 }
 
+// Picture pages: every closed shape is painted white, so a shape listed
+// later covers the lines of the shapes behind it (a leg behind the body, an
+// ear over the head). The app strips white when it loads a template, so the
+// fill never shows; it only hides the overlapping lines and the sliver areas
+// they would create. Open paths, lines and black dots are left alone.
+export function solidPage(body) {
+  const solid = body
+    .replace(/<(circle|ellipse|rect)(?![^>]*\bfill=)/g, '<$1 fill="#fff"')
+    .replace(/<path d="([^"]*Z)"\/>/g, '<path d="$1" fill="#fff"/>');
+  return page(solid);
+}
+
 export const circle = (cx, cy, r) => `<circle cx="${n(cx)}" cy="${n(cy)}" r="${n(r)}"/>`;
 export const ellipse = (cx, cy, rx, ry) => `<ellipse cx="${n(cx)}" cy="${n(cy)}" rx="${n(rx)}" ry="${n(ry)}"/>`;
 export const rect = (x, y, w, h, r = 0) =>
