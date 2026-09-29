@@ -1,0 +1,22 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>template fit</title>
+<!-- Measures the drawing's bounding box in each listed template so the
+     generator can crop the viewBox to the artwork. Used by make.mjs. -->
+<div id="host"></div>
+<pre id="out"></pre>
+<script>
+(async () => {
+  const ids = (new URLSearchParams(location.search).get('ids') || '').split(',').filter(Boolean);
+  const boxes = {};
+  for (const id of ids) {
+    const text = await fetch(`templates/${id}.svg`).then((r) => r.text());
+    const host = document.getElementById('host');
+    host.innerHTML = text;
+    const g = host.querySelector('svg > g');
+    const b = g.getBBox();
+    boxes[id] = [b.x, b.y, b.width, b.height];
+  }
+  document.getElementById('out').textContent = 'BOXES' + JSON.stringify(boxes);
+})();
+</script>

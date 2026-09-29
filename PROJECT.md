@@ -68,6 +68,11 @@ src/
     document.ts                Op + meta types (designed for future delta sync)
   main.ts                      Boot, wires UI ↔ engine, handles save/load actions
 
+scripts/templates/              Generated templates (Node, needs Chrome)
+  svg.mjs, games.mjs           Toolkit and procedural game pages
+  pictures/*.mjs               Picture sets (animals, fairy tales, vehicles, places/food)
+  make.mjs, check.mjs          Generate + crop viewBoxes; render check + contact sheet
+
 api/                            Azure Functions (managed by SWA)
   src/functions/
     generate.ts                Pollinations proxy — secret key stays here
@@ -202,26 +207,30 @@ Install flow per platform:
 
 After install, the home-screen launch should be edge-to-edge fullscreen on Android. The in-app fullscreen button (top-right) toggles fullscreen at runtime regardless of install state.
 
-## Templates (64 total)
+## Templates (101 total)
 
 Indexed by `public/templates/manifest.json`. Each entry: `{ id, name, file, category }` where `file` is null for the special "blank" entry. Categories are derived dynamically at runtime — adding a new category in the manifest is enough; the picker auto-generates the filter chip.
 
-Most artwork is **CC0 / public domain** from openclipart.org. The ice-cream and lego sets are hand-authored simple line-art (black 3px strokes, no fills) in the same style. To add a new template:
-1. Drop the SVG in `public/templates/`.
-2. Add a manifest entry (an existing or brand-new category is fine).
-3. Done — no code changes, no rebuild needed for runtime, but a deploy is needed to push it to production.
+Sources:
+- **60 generated pages** (original work): `scripts/templates/` builds them from a small SVG toolkit (bold 9-unit black round strokes, closed shapes, no fills) and crops each viewBox to its drawing so the letterbox scales it up. `npm run templates` writes the SVGs and merges `manifest.json`; `npm run templates:check` renders every page through a copy of the app's pipeline (`check.html`) and enforces fillability rules (`checkRules.mjs`). Both need Chrome.
+- **CC0 clipart** from openclipart.org and the hand-authored ice-cream and Lego sets.
+- **Cleanup 2026-09-29:** 21 clipart pages were rejected (dot/hatch shading, hair-thin lines, open outline, busy scenes). 16 of them were redrawn with the same ids; santa, princess-couple, princess-fairy, unicorn and unicorn-castle were dropped.
+
+To add a hand-made template: drop the SVG in `public/templates/` and add a manifest entry. To add a generated one: add it to a `pictures/*.mjs` set and run both scripts.
 
 The rasterizer handles arbitrary SVG sizes via uniform-scale letterbox into a 1200×800 canvas with 6% margin.
 
 Categories:
-- **Animals** (22): cat, dog, horse, tiger, bear, teddy, monkey, owl, frog, snake, turtle, rabbit, mouse, sheep, cow, pig, duck, snail, elephant, fish, butterfly, dinosaur
-- **Vehicles** (4): car, rocket, train, bicycle
-- **Nature** (7): tree, flower, sun, moon, cloud, rainbow, mushroom
-- **Food** (7): apple, cherry, ice-cream cone, popsicle, sundae, ice-cream cup, soft serve
-- **Fantasy** (12): 7 unicorns, 5 princesses, dragon, robot, witch, santa
-- **Places** (1): house
-- **Toys** (5): lego brick, lego stack, lego baseplate, lego minifigure, lego car
 - **Other** (1): blank
+- **Animals** (32): cat, dog, horse, tiger, bear, teddy, monkey, owl, frog, snake, turtle, rabbit, mouse, sheep, cow, pig, duck, snail, elephant, fish, butterfly, dinosaur, lion, giraffe, zebra, penguin, hedgehog, fox, whale, octopus, chick, ladybug
+- **Fairy tales** (13): dragon, witch, princess, red-riding-hood, wolf, three-pigs-house, castle, knight, mermaid, gnome, frog-prince, gingerbread-house, pumpkin-carriage
+- **Fantasy** (8): unicorn-cute, unicorn-rearing, unicorn-prancing, unicorn-winged, unicorn-heraldic, robot, princess-crown, princess-wand
+- **Vehicles** (12): car, rocket, train, bicycle, race-car, fire-truck, police-car, bus, tractor, excavator, ambulance, monster-truck
+- **Places** (1): house
+- **Nature** (7): tree, flower, sun, moon, cloud, rainbow, mushroom
+- **Food** (7): apple, cherry, icecream-cone, icecream-popsicle, icecream-sundae, icecream-cup, icecream-soft
+- **Toys** (5): lego-brick, lego-stack, lego-baseplate, lego-minifig, lego-wheel
+- **Games** (16): maze-bunny, maze-mouse, maze-bee, maze-boat, dots-star, dots-house, dots-heart, dots-fish, tic-tac-toe, tic-tac-toe-two, dot-grid-small, dot-grid-big, trace-zigzag, trace-waves, trace-loops, trace-shapes
 
 ## AI templates
 
@@ -317,7 +326,7 @@ In rough priority order:
 - **Layer panel UI** (`LayerPanel.ts`) exists but isn't surfaced in the kid UI. Could be exposed in a "grown-up mode" later.
 - **Fill rendering is single-threaded inside the worker.** For very large fills it can take 200+ ms. Could be split into chunks with cooperative yielding, but that complicates the algorithm. Currently fine in practice.
 - **Brush and spray head caches.** Brush heads are capped at 64 (24 palette colours + 36 rainbow steps), spray heads at 16, FIFO eviction. No leak; rapid colour cycling on spray only costs a regen.
-- **Some templates leak fill.** Cars and elephants with dotted shading textures have many tiny enclosed regions; flood fill correctly stops at each dot, leaving the dotted areas un-colored. Looks reasonable as "shading on a coloring page" but isn't visually identical to the rest. Could pre-process those templates to remove dot textures.
+- **Dot-shaded clipart removed.** The pages whose dotted shading made Fill patchy were removed or redrawn on 2026-09-29. Kept borderline clipart (owl, sheep, bicycle, cloud, tree, unicorn-cute) still has small flaws; `npm run templates:check` reports it with an `i` marker.
 - **Settings dialog feels redundant** with most of its sliders also in the topbar. Could be slimmed down to just `Stylus only` + the action buttons, but kept the sliders as a fallback for narrow viewports.
 
 ## How to keep going

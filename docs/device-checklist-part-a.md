@@ -24,3 +24,11 @@ Install the app to the home screen first, then check each item.
 - [ ] Pick red, then blue, then white paint: the icon marks change colour (white shows light grey).
 - [ ] Rainbow brush: a long stroke cycles through the colours smoothly, and one Undo removes it.
 - [ ] Drawing with Rainbow stays smooth on the tablet (no stutter on long strokes).
+
+## Part C (pictures)
+
+- [ ] Pictures shows the Fairy tales and Games categories.
+- [ ] Fill inside a new animal colours one part at a time (no leaking into the page).
+- [ ] A maze can be traced from the start picture to the goal picture with the pen.
+- [ ] Connect-the-dots numbers are readable on the tablet.
+- [ ] With airplane mode on, a new picture still opens.

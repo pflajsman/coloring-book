@@ -1,0 +1,44 @@
+// Shared helpers for the template scripts: serve public/ plus the script
+// pages on a throwaway port and drive headless Chrome against them.
+import { createServer } from 'node:http';
+import { readFile } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import path from 'node:path';
+
+const run = promisify(execFile);
+const ROOT = path.resolve('public');
+const HERE = path.resolve('scripts/templates');
+export const CHROME = process.env.CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const FLAGS = ['--headless=new', '--disable-gpu', '--virtual-time-budget=120000'];
+
+export async function withServer(fn) {
+  const server = createServer(async (req, res) => {
+    const url = new URL(req.url, 'http://x');
+    const file = url.pathname.endsWith('.html') ? path.join(HERE, path.basename(url.pathname)) : path.join(ROOT, url.pathname);
+    try {
+      const body = await readFile(file);
+      const type = file.endsWith('.svg') ? 'image/svg+xml' : file.endsWith('.json') ? 'application/json' : 'text/html';
+      res.writeHead(200, { 'content-type': type }).end(body);
+    } catch {
+      res.writeHead(404).end();
+    }
+  }).listen(0);
+  try {
+    return await fn(`http://localhost:${server.address().port}`);
+  } finally {
+    server.close();
+  }
+}
+
+// Load a page and return the JSON it writes as `<marker>[...]` into the DOM.
+export async function pageJson(url, marker) {
+  const { stdout } = await run(CHROME, [...FLAGS, '--dump-dom', url], { maxBuffer: 64 * 1024 * 1024 });
+  const json = stdout.match(new RegExp(`${marker}(\\[.*?\\]|\\{.*?\\})</pre>`, 's'))?.[1];
+  if (!json) throw new Error(`${url} produced no ${marker} output`);
+  return JSON.parse(json.replace(/&quot;/g, '"').replace(/&amp;/g, '&'));
+}
+
+export async function screenshot(url, file, width, height) {
+  await run(CHROME, [...FLAGS, `--window-size=${width},${height}`, `--screenshot=${path.resolve(file)}`, url]);
+}
