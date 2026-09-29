@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+<g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+<line x1="220" y1="100" x2="980" y2="100"/>
+<line x1="220" y1="700" x2="980" y2="700"/>
+<line x1="220" y1="300" x2="220" y2="700"/>
+<line x1="980" y1="100" x2="980" y2="500"/>
+<line x1="410" y1="100" x2="410" y2="300"/>
+<line x1="600" y1="300" x2="790" y2="300"/>
+<line x1="410" y1="300" x2="410" y2="500"/>
+<line x1="600" y1="300" x2="600" y2="500"/>
+<line x1="790" y1="300" x2="790" y2="500"/>
+<line x1="600" y1="500" x2="600" y2="700"/>
+<g transform="translate(105 200) scale(1.7) translate(-105 -200)" stroke-width="5.3"><ellipse cx="105" cy="215" rx="38" ry="32"/><ellipse cx="89" cy="155" rx="11" ry="28"/><ellipse cx="121" cy="155" rx="11" ry="28"/><circle cx="93" cy="208" r="5" fill="#000" stroke="none"/><circle cx="117" cy="208" r="5" fill="#000" stroke="none"/></g>
+<g transform="translate(1095 600) scale(1.7) translate(-1095 -600)" stroke-width="5.3"><path d="M1069 570 L1121 570 L1095 650 Z"/><path d="M1095 570 L1081 538 M1095 570 L1109 538"/></g>
+</g>
+</svg>

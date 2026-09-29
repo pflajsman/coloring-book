@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { page, circle, poly, dashed, dot, digit } from './svg.mjs';
 import { mergeManifest } from './manifest.mjs';
+import { checkEntry } from './checkRules.mjs';
 
 describe('svg toolkit', () => {
   it('wraps content in the fixed line style', () => {
@@ -43,5 +44,26 @@ describe('mergeManifest', () => {
 
   it('rejects duplicate ids in the upsert list', () => {
     expect(() => mergeManifest([blank], { remove: [], upsert: [cat, cat] })).toThrow(/duplicate/);
+  });
+});
+
+describe('checkEntry', () => {
+  it('passes a clean picture', () => {
+    expect(checkEntry({ id: 'lion', ink: 6, big: 9, small: 4, tiny: 0 }, false)).toEqual([]);
+  });
+
+  it('flags an open outline (too few fillable areas)', () => {
+    expect(checkEntry({ id: 'x', ink: 5, big: 2, small: 0, tiny: 0 }, false).join()).toMatch(/fillable/);
+  });
+
+  it('flags specks and faint or heavy ink', () => {
+    const p = checkEntry({ id: 'x', ink: 1, big: 9, small: 30, tiny: 9 }, false).join(' | ');
+    expect(p).toMatch(/specks/);
+    expect(p).toMatch(/small areas/);
+    expect(p).toMatch(/ink/);
+  });
+
+  it('games may have many small areas (digit counters)', () => {
+    expect(checkEntry({ id: 'dots-star', ink: 3, big: 1, small: 40, tiny: 2 }, true)).toEqual([]);
   });
 });

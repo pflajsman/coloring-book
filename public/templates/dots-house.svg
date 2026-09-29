@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+<g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="320" cy="700" r="14" fill="#000" stroke="none"/><text x="283.8" y="746.5" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" fill="#000" stroke="none" text-anchor="middle">1</text>
+<circle cx="320" cy="400" r="14" fill="#000" stroke="none"/><text x="272" y="415.5" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" fill="#000" stroke="none" text-anchor="middle">2</text>
+<circle cx="600" cy="150" r="14" fill="#000" stroke="none"/><text x="586.9" y="118.8" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" fill="#000" stroke="none" text-anchor="middle">3</text>
+<circle cx="730" cy="265" r="14" fill="#000" stroke="none"/><text x="750" y="236.4" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" fill="#000" stroke="none" text-anchor="middle">4</text>
+<circle cx="730" cy="150" r="14" fill="#000" stroke="none"/><text x="741.4" y="118.4" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" fill="#000" stroke="none" text-anchor="middle">5</text>
+<circle cx="820" cy="150" r="14" fill="#000" stroke="none"/><text x="845" y="124" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" fill="#000" stroke="none" text-anchor="middle">6</text>
+<circle cx="820" cy="345" r="14" fill="#000" stroke="none"/><text x="865.4" y="344.5" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" fill="#000" stroke="none" text-anchor="middle">7</text>
+<circle cx="880" cy="400" r="14" fill="#000" stroke="none"/><text x="928" y="415.9" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" fill="#000" stroke="none" text-anchor="middle">8</text>
+<circle cx="880" cy="700" r="14" fill="#000" stroke="none"/><text x="907.3" y="754.5" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" fill="#000" stroke="none" text-anchor="middle">9</text>
+<circle cx="600" cy="700" r="14" fill="#000" stroke="none"/><text x="589.2" y="761.8" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" fill="#000" stroke="none" text-anchor="middle">10</text>
+</g>
+</svg>

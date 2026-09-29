@@ -1,0 +1,111 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>template check</title>
+<!--
+  Renders templates exactly like the app does and measures how fillable they
+  are. Loaded by scripts/templates/check.mjs in headless Chrome.
+  letterbox() and processLineArt() are copied from src/templates/index.ts;
+  keep them in sync so the check can't drift from what kids see.
+-->
+<style>
+  body { margin: 0; font: 12px sans-serif; background: #eee; }
+  #g { display: grid; grid-template-columns: repeat(4, 390px); gap: 6px; padding: 6px; }
+  .c { background: #fff; padding: 4px; }
+  .c canvas { width: 384px; height: 256px; display: block; border: 1px solid #ccc; }
+  .c.bad { outline: 4px solid #d32f2f; }
+</style>
+<div id="g"></div>
+<pre id="out"></pre>
+<script>
+const W = 1200, H = 800;
+
+function letterbox(srcW, srcH, dstW, dstH) {
+  const margin = 0.06;
+  const innerW = dstW * (1 - margin * 2);
+  const innerH = dstH * (1 - margin * 2);
+  const aspectImg = srcW / srcH;
+  const aspectInner = innerW / innerH;
+  let dw, dh;
+  if (aspectImg > aspectInner) { dw = innerW; dh = innerW / aspectImg; }
+  else { dh = innerH; dw = innerH * aspectImg; }
+  return { dx: Math.round((dstW - dw) / 2), dy: Math.round((dstH - dh) / 2), dw: Math.round(dw), dh: Math.round(dh) };
+}
+
+function processLineArt(ctx, width, height) {
+  const data = ctx.getImageData(0, 0, width, height);
+  const px = data.data;
+  for (let i = 0; i < px.length; i += 4) {
+    const r = px[i], g = px[i + 1], b = px[i + 2], a = px[i + 3];
+    if (a === 0) continue;
+    const light = (r + g + b) / 3;
+    let newAlpha;
+    if (light >= 240) newAlpha = 0;
+    else if (light <= 64) newAlpha = a;
+    else newAlpha = Math.round(a * (1 - (light - 64) / (240 - 64)));
+    px[i] = 0; px[i + 1] = 0; px[i + 2] = 0; px[i + 3] = newAlpha;
+  }
+  ctx.putImageData(data, 0, 0);
+  return data;
+}
+
+// Ink share plus connected open areas (4-neighbour), bucketed by size:
+// big >= 1500 px (fillable), small 60..1499, tiny 4..59 (patchy-fill specks).
+function metrics(d) {
+  const p = d.data, n = W * H;
+  let ink = 0;
+  const open = new Uint8Array(n);
+  for (let i = 0; i < n; i++) { if (p[i * 4 + 3] >= 128) ink++; else open[i] = 1; }
+  const seen = new Uint8Array(n);
+  const stack = new Int32Array(n);
+  let big = 0, small = 0, tiny = 0;
+  for (let s = 0; s < n; s++) {
+    if (!open[s] || seen[s]) continue;
+    let top = 0, area = 0;
+    stack[top++] = s; seen[s] = 1;
+    while (top) {
+      const q = stack[--top]; area++;
+      const x = q % W;
+      if (x > 0 && open[q - 1] && !seen[q - 1]) { seen[q - 1] = 1; stack[top++] = q - 1; }
+      if (x < W - 1 && open[q + 1] && !seen[q + 1]) { seen[q + 1] = 1; stack[top++] = q + 1; }
+      if (q >= W && open[q - W] && !seen[q - W]) { seen[q - W] = 1; stack[top++] = q - W; }
+      if (q < n - W && open[q + W] && !seen[q + W]) { seen[q + W] = 1; stack[top++] = q + W; }
+    }
+    if (area >= 1500) big++; else if (area >= 60) small++; else if (area >= 4) tiny++;
+  }
+  return { ink: +(ink / n * 100).toFixed(1), big, small, tiny };
+}
+
+(async () => {
+  const man = await fetch('templates/manifest.json').then((r) => r.json());
+  const ids = (new URLSearchParams(location.search).get('ids') || '').split(',').filter(Boolean);
+  const files = man.templates.filter((t) => t.file);
+  const list = ids.length ? ids.map((id) => files.find((t) => t.id === id)).filter(Boolean) : files;
+  const results = [];
+  for (const t of list) {
+    const svg = await fetch('templates/' + t.file).then((r) => r.text());
+    const img = new Image();
+    img.src = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+    try { await img.decode(); } catch { results.push({ id: t.id, category: t.category, ink: 0, big: 0, small: 0, tiny: 99 }); continue; }
+    const c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    const b = letterbox(img.naturalWidth || W, img.naturalHeight || H, W, H);
+    ctx.drawImage(img, b.dx, b.dy, b.dw, b.dh);
+    const m = metrics(processLineArt(ctx, W, H));
+    results.push({ id: t.id, category: t.category, ...m });
+
+    const view = document.createElement('canvas');
+    view.width = W; view.height = H;
+    const v = view.getContext('2d');
+    v.fillStyle = '#fff'; v.fillRect(0, 0, W, H); v.drawImage(c, 0, 0);
+    const card = document.createElement('div');
+    card.className = 'c';
+    const label = document.createElement('div');
+    label.textContent = `${t.id} [${t.category}] ink ${m.ink}% big ${m.big} small ${m.small} tiny ${m.tiny}`;
+    card.append(view, label);
+    document.getElementById('g').appendChild(card);
+  }
+  document.getElementById('out').textContent = 'RESULTS' + JSON.stringify(results);
+  document.title = 'done';
+})();
+</script>

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+<g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="150" cy="100" r="15" fill="#000" stroke="none"/>
+<circle cx="300" cy="100" r="15" fill="#000" stroke="none"/>
+<circle cx="450" cy="100" r="15" fill="#000" stroke="none"/>
+<circle cx="600" cy="100" r="15" fill="#000" stroke="none"/>
+<circle cx="750" cy="100" r="15" fill="#000" stroke="none"/>
+<circle cx="900" cy="100" r="15" fill="#000" stroke="none"/>
+<circle cx="1050" cy="100" r="15" fill="#000" stroke="none"/>
+<circle cx="150" cy="250" r="15" fill="#000" stroke="none"/>
+<circle cx="300" cy="250" r="15" fill="#000" stroke="none"/>
+<circle cx="450" cy="250" r="15" fill="#000" stroke="none"/>
+<circle cx="600" cy="250" r="15" fill="#000" stroke="none"/>
+<circle cx="750" cy="250" r="15" fill="#000" stroke="none"/>
+<circle cx="900" cy="250" r="15" fill="#000" stroke="none"/>
+<circle cx="1050" cy="250" r="15" fill="#000" stroke="none"/>
+<circle cx="150" cy="400" r="15" fill="#000" stroke="none"/>
+<circle cx="300" cy="400" r="15" fill="#000" stroke="none"/>
+<circle cx="450" cy="400" r="15" fill="#000" stroke="none"/>
+<circle cx="600" cy="400" r="15" fill="#000" stroke="none"/>
+<circle cx="750" cy="400" r="15" fill="#000" stroke="none"/>
+<circle cx="900" cy="400" r="15" fill="#000" stroke="none"/>
+<circle cx="1050" cy="400" r="15" fill="#000" stroke="none"/>
+<circle cx="150" cy="550" r="15" fill="#000" stroke="none"/>
+<circle cx="300" cy="550" r="15" fill="#000" stroke="none"/>
+<circle cx="450" cy="550" r="15" fill="#000" stroke="none"/>
+<circle cx="600" cy="550" r="15" fill="#000" stroke="none"/>
+<circle cx="750" cy="550" r="15" fill="#000" stroke="none"/>
+<circle cx="900" cy="550" r="15" fill="#000" stroke="none"/>
+<circle cx="1050" cy="550" r="15" fill="#000" stroke="none"/>
+<circle cx="150" cy="700" r="15" fill="#000" stroke="none"/>
+<circle cx="300" cy="700" r="15" fill="#000" stroke="none"/>
+<circle cx="450" cy="700" r="15" fill="#000" stroke="none"/>
+<circle cx="600" cy="700" r="15" fill="#000" stroke="none"/>
+<circle cx="750" cy="700" r="15" fill="#000" stroke="none"/>
+<circle cx="900" cy="700" r="15" fill="#000" stroke="none"/>
+<circle cx="1050" cy="700" r="15" fill="#000" stroke="none"/>
+</g>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+<g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+<path d="M200 200 L400 200 L400 400 L200 400 Z" stroke-dasharray="22 18"/>
+<path d="M650 300 m -110 0 a 110 110 0 1 0 220 0 a 110 110 0 1 0 -220 0" stroke-dasharray="22 18"/>
+<path d="M1000 190 L1110 410 L890 410 Z" stroke-dasharray="22 18"/>
+<path d="M300 700 L200 600 Q 200 520 300 560 Q 400 520 400 600 Z" stroke-dasharray="22 18"/>
+<path d="M700 520 L740 610 L840 620 L765 685 L790 780 L700 730 L610 780 L635 685 L560 620 L660 610 Z" stroke-dasharray="22 18"/>
+</g>
+</svg>

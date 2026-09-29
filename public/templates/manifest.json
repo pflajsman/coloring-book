@@ -1,73 +1,448 @@
 {
   "templates": [
-    { "id": "blank",     "name": "Blank page",  "file": null,            "category": "Other" },
-
-    { "id": "cat",       "name": "Kitty cat",   "file": "cat.svg",       "category": "Animals" },
-    { "id": "dog",       "name": "Puppy dog",   "file": "dog.svg",       "category": "Animals" },
-    { "id": "horse",     "name": "Horse",       "file": "horse.svg",     "category": "Animals" },
-    { "id": "tiger",     "name": "Tiger",       "file": "tiger.svg",     "category": "Animals" },
-    { "id": "bear",      "name": "Polar bear",  "file": "bear.svg",      "category": "Animals" },
-    { "id": "teddy",     "name": "Teddy bear",  "file": "teddy.svg",     "category": "Animals" },
-    { "id": "monkey",    "name": "Monkey",      "file": "monkey.svg",    "category": "Animals" },
-    { "id": "owl",       "name": "Owl",         "file": "owl.svg",       "category": "Animals" },
-    { "id": "frog",      "name": "Frog",        "file": "frog.svg",      "category": "Animals" },
-    { "id": "snake",     "name": "Snake",       "file": "snake.svg",     "category": "Animals" },
-    { "id": "turtle",    "name": "Turtle",      "file": "turtle.svg",    "category": "Animals" },
-    { "id": "rabbit",    "name": "Rabbit",      "file": "rabbit.svg",    "category": "Animals" },
-    { "id": "mouse",     "name": "Mouse",       "file": "mouse.svg",     "category": "Animals" },
-    { "id": "sheep",     "name": "Sheep",       "file": "sheep.svg",     "category": "Animals" },
-    { "id": "cow",       "name": "Cow",         "file": "cow.svg",       "category": "Animals" },
-    { "id": "pig",       "name": "Pig",         "file": "pig.svg",       "category": "Animals" },
-    { "id": "duck",      "name": "Duck",        "file": "duck.svg",      "category": "Animals" },
-    { "id": "snail",     "name": "Snail",       "file": "snail.svg",     "category": "Animals" },
-    { "id": "elephant",  "name": "Elephant",    "file": "elephant.svg",  "category": "Animals" },
-    { "id": "fish",      "name": "Fish",        "file": "fish.svg",      "category": "Animals" },
-    { "id": "butterfly", "name": "Butterfly",   "file": "butterfly.svg", "category": "Animals" },
-    { "id": "dinosaur",  "name": "Dinosaur",    "file": "dinosaur.svg",  "category": "Animals" },
-
-    { "id": "car",       "name": "Race car",    "file": "car.svg",       "category": "Vehicles" },
-    { "id": "rocket",    "name": "Rocket",      "file": "rocket.svg",    "category": "Vehicles" },
-    { "id": "train",     "name": "Train",       "file": "train.svg",     "category": "Vehicles" },
-    { "id": "bicycle",   "name": "Bicycle",     "file": "bicycle.svg",   "category": "Vehicles" },
-
-    { "id": "house",     "name": "House",       "file": "house.svg",     "category": "Places" },
-    { "id": "tree",      "name": "Tree",        "file": "tree.svg",      "category": "Nature" },
-    { "id": "flower",    "name": "Flower",      "file": "flower.svg",    "category": "Nature" },
-    { "id": "sun",       "name": "Sun",         "file": "sun.svg",       "category": "Nature" },
-    { "id": "moon",      "name": "Moon",        "file": "moon.svg",      "category": "Nature" },
-    { "id": "cloud",     "name": "Cloud",       "file": "cloud.svg",     "category": "Nature" },
-    { "id": "rainbow",   "name": "Rainbow",     "file": "rainbow.svg",   "category": "Nature" },
-    { "id": "mushroom",  "name": "Mushroom",    "file": "mushroom.svg",  "category": "Nature" },
-
-    { "id": "apple",     "name": "Apple",       "file": "apple.svg",     "category": "Food" },
-    { "id": "cherry",    "name": "Cherries",    "file": "cherry.svg",    "category": "Food" },
-    { "id": "icecream-cone",     "name": "Ice cream cone",  "file": "icecream-cone.svg",     "category": "Food" },
-    { "id": "icecream-popsicle", "name": "Popsicle",        "file": "icecream-popsicle.svg", "category": "Food" },
-    { "id": "icecream-sundae",   "name": "Sundae",          "file": "icecream-sundae.svg",   "category": "Food" },
-    { "id": "icecream-cup",      "name": "Ice cream cup",   "file": "icecream-cup.svg",      "category": "Food" },
-    { "id": "icecream-soft",     "name": "Soft serve",      "file": "icecream-soft.svg",     "category": "Food" },
-
-    { "id": "unicorn",          "name": "Unicorn",          "file": "unicorn.svg",          "category": "Fantasy" },
-    { "id": "unicorn-cute",     "name": "Cute unicorn",     "file": "unicorn-cute.svg",     "category": "Fantasy" },
-    { "id": "unicorn-rearing",  "name": "Rearing unicorn",  "file": "unicorn-rearing.svg",  "category": "Fantasy" },
-    { "id": "unicorn-prancing", "name": "Prancing unicorn", "file": "unicorn-prancing.svg", "category": "Fantasy" },
-    { "id": "unicorn-winged",   "name": "Winged unicorn",   "file": "unicorn-winged.svg",   "category": "Fantasy" },
-    { "id": "unicorn-heraldic", "name": "Royal unicorn",    "file": "unicorn-heraldic.svg", "category": "Fantasy" },
-    { "id": "unicorn-castle",   "name": "Unicorn castle",   "file": "unicorn-castle.svg",   "category": "Fantasy" },
-    { "id": "dragon",           "name": "Dragon",           "file": "dragon.svg",           "category": "Fantasy" },
-    { "id": "robot",     "name": "Robot",       "file": "robot.svg",     "category": "Fantasy" },
-    { "id": "witch",     "name": "Witch",       "file": "witch.svg",     "category": "Fantasy" },
-    { "id": "santa",            "name": "Santa",            "file": "santa.svg",            "category": "Fantasy" },
-    { "id": "princess",         "name": "Princess",         "file": "princess.svg",         "category": "Fantasy" },
-    { "id": "princess-crown",   "name": "Princess crown",   "file": "princess-crown.svg",   "category": "Fantasy" },
-    { "id": "princess-couple",  "name": "Prince & princess","file": "princess-couple.svg",  "category": "Fantasy" },
-    { "id": "princess-fairy",   "name": "Butterfly fairy",  "file": "princess-fairy.svg",   "category": "Fantasy" },
-    { "id": "princess-wand",    "name": "Fairy princess",   "file": "princess-wand.svg",    "category": "Fantasy" },
-
-    { "id": "lego-brick",     "name": "Lego brick",      "file": "lego-brick.svg",     "category": "Toys" },
-    { "id": "lego-stack",     "name": "Lego stack",      "file": "lego-stack.svg",     "category": "Toys" },
-    { "id": "lego-baseplate", "name": "Lego baseplate",  "file": "lego-baseplate.svg", "category": "Toys" },
-    { "id": "lego-minifig",   "name": "Lego minifigure", "file": "lego-minifig.svg",   "category": "Toys" },
-    { "id": "lego-wheel",     "name": "Lego car",        "file": "lego-wheel.svg",     "category": "Toys" }
+    {
+      "id": "blank",
+      "name": "Blank page",
+      "file": null,
+      "category": "Other"
+    },
+    {
+      "id": "cat",
+      "name": "Kitty cat",
+      "file": "cat.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "dog",
+      "name": "Puppy dog",
+      "file": "dog.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "horse",
+      "name": "Horse",
+      "file": "horse.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "tiger",
+      "name": "Tiger",
+      "file": "tiger.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "bear",
+      "name": "Polar bear",
+      "file": "bear.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "teddy",
+      "name": "Teddy bear",
+      "file": "teddy.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "monkey",
+      "name": "Monkey",
+      "file": "monkey.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "owl",
+      "name": "Owl",
+      "file": "owl.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "frog",
+      "name": "Frog",
+      "file": "frog.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "snake",
+      "name": "Snake",
+      "file": "snake.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "turtle",
+      "name": "Turtle",
+      "file": "turtle.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "rabbit",
+      "name": "Rabbit",
+      "file": "rabbit.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "mouse",
+      "name": "Mouse",
+      "file": "mouse.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "sheep",
+      "name": "Sheep",
+      "file": "sheep.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "cow",
+      "name": "Cow",
+      "file": "cow.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "pig",
+      "name": "Pig",
+      "file": "pig.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "duck",
+      "name": "Duck",
+      "file": "duck.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "snail",
+      "name": "Snail",
+      "file": "snail.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "elephant",
+      "name": "Elephant",
+      "file": "elephant.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "fish",
+      "name": "Fish",
+      "file": "fish.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "butterfly",
+      "name": "Butterfly",
+      "file": "butterfly.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "dinosaur",
+      "name": "Dinosaur",
+      "file": "dinosaur.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "unicorn-cute",
+      "name": "Cute unicorn",
+      "file": "unicorn-cute.svg",
+      "category": "Fantasy"
+    },
+    {
+      "id": "unicorn-rearing",
+      "name": "Rearing unicorn",
+      "file": "unicorn-rearing.svg",
+      "category": "Fantasy"
+    },
+    {
+      "id": "unicorn-prancing",
+      "name": "Prancing unicorn",
+      "file": "unicorn-prancing.svg",
+      "category": "Fantasy"
+    },
+    {
+      "id": "unicorn-winged",
+      "name": "Winged unicorn",
+      "file": "unicorn-winged.svg",
+      "category": "Fantasy"
+    },
+    {
+      "id": "unicorn-heraldic",
+      "name": "Royal unicorn",
+      "file": "unicorn-heraldic.svg",
+      "category": "Fantasy"
+    },
+    {
+      "id": "dragon",
+      "name": "Dragon",
+      "file": "dragon.svg",
+      "category": "Fantasy"
+    },
+    {
+      "id": "robot",
+      "name": "Robot",
+      "file": "robot.svg",
+      "category": "Fantasy"
+    },
+    {
+      "id": "witch",
+      "name": "Witch",
+      "file": "witch.svg",
+      "category": "Fantasy"
+    },
+    {
+      "id": "princess",
+      "name": "Princess",
+      "file": "princess.svg",
+      "category": "Fantasy"
+    },
+    {
+      "id": "princess-crown",
+      "name": "Princess crown",
+      "file": "princess-crown.svg",
+      "category": "Fantasy"
+    },
+    {
+      "id": "princess-wand",
+      "name": "Fairy princess",
+      "file": "princess-wand.svg",
+      "category": "Fantasy"
+    },
+    {
+      "id": "car",
+      "name": "Race car",
+      "file": "car.svg",
+      "category": "Vehicles"
+    },
+    {
+      "id": "rocket",
+      "name": "Rocket",
+      "file": "rocket.svg",
+      "category": "Vehicles"
+    },
+    {
+      "id": "train",
+      "name": "Train",
+      "file": "train.svg",
+      "category": "Vehicles"
+    },
+    {
+      "id": "bicycle",
+      "name": "Bicycle",
+      "file": "bicycle.svg",
+      "category": "Vehicles"
+    },
+    {
+      "id": "house",
+      "name": "House",
+      "file": "house.svg",
+      "category": "Places"
+    },
+    {
+      "id": "tree",
+      "name": "Tree",
+      "file": "tree.svg",
+      "category": "Nature"
+    },
+    {
+      "id": "flower",
+      "name": "Flower",
+      "file": "flower.svg",
+      "category": "Nature"
+    },
+    {
+      "id": "sun",
+      "name": "Sun",
+      "file": "sun.svg",
+      "category": "Nature"
+    },
+    {
+      "id": "moon",
+      "name": "Moon",
+      "file": "moon.svg",
+      "category": "Nature"
+    },
+    {
+      "id": "cloud",
+      "name": "Cloud",
+      "file": "cloud.svg",
+      "category": "Nature"
+    },
+    {
+      "id": "rainbow",
+      "name": "Rainbow",
+      "file": "rainbow.svg",
+      "category": "Nature"
+    },
+    {
+      "id": "mushroom",
+      "name": "Mushroom",
+      "file": "mushroom.svg",
+      "category": "Nature"
+    },
+    {
+      "id": "apple",
+      "name": "Apple",
+      "file": "apple.svg",
+      "category": "Food"
+    },
+    {
+      "id": "cherry",
+      "name": "Cherries",
+      "file": "cherry.svg",
+      "category": "Food"
+    },
+    {
+      "id": "icecream-cone",
+      "name": "Ice cream cone",
+      "file": "icecream-cone.svg",
+      "category": "Food"
+    },
+    {
+      "id": "icecream-popsicle",
+      "name": "Popsicle",
+      "file": "icecream-popsicle.svg",
+      "category": "Food"
+    },
+    {
+      "id": "icecream-sundae",
+      "name": "Sundae",
+      "file": "icecream-sundae.svg",
+      "category": "Food"
+    },
+    {
+      "id": "icecream-cup",
+      "name": "Ice cream cup",
+      "file": "icecream-cup.svg",
+      "category": "Food"
+    },
+    {
+      "id": "icecream-soft",
+      "name": "Soft serve",
+      "file": "icecream-soft.svg",
+      "category": "Food"
+    },
+    {
+      "id": "lego-brick",
+      "name": "Lego brick",
+      "file": "lego-brick.svg",
+      "category": "Toys"
+    },
+    {
+      "id": "lego-stack",
+      "name": "Lego stack",
+      "file": "lego-stack.svg",
+      "category": "Toys"
+    },
+    {
+      "id": "lego-baseplate",
+      "name": "Lego baseplate",
+      "file": "lego-baseplate.svg",
+      "category": "Toys"
+    },
+    {
+      "id": "lego-minifig",
+      "name": "Lego minifigure",
+      "file": "lego-minifig.svg",
+      "category": "Toys"
+    },
+    {
+      "id": "lego-wheel",
+      "name": "Lego car",
+      "file": "lego-wheel.svg",
+      "category": "Toys"
+    },
+    {
+      "id": "maze-bunny",
+      "name": "Bunny maze",
+      "file": "maze-bunny.svg",
+      "category": "Games"
+    },
+    {
+      "id": "maze-mouse",
+      "name": "Mouse maze",
+      "file": "maze-mouse.svg",
+      "category": "Games"
+    },
+    {
+      "id": "maze-bee",
+      "name": "Bee maze",
+      "file": "maze-bee.svg",
+      "category": "Games"
+    },
+    {
+      "id": "maze-boat",
+      "name": "Boat maze",
+      "file": "maze-boat.svg",
+      "category": "Games"
+    },
+    {
+      "id": "dots-star",
+      "name": "Dots: star",
+      "file": "dots-star.svg",
+      "category": "Games"
+    },
+    {
+      "id": "dots-house",
+      "name": "Dots: house",
+      "file": "dots-house.svg",
+      "category": "Games"
+    },
+    {
+      "id": "dots-heart",
+      "name": "Dots: heart",
+      "file": "dots-heart.svg",
+      "category": "Games"
+    },
+    {
+      "id": "dots-fish",
+      "name": "Dots: fish",
+      "file": "dots-fish.svg",
+      "category": "Games"
+    },
+    {
+      "id": "tic-tac-toe",
+      "name": "Tic-tac-toe",
+      "file": "tic-tac-toe.svg",
+      "category": "Games"
+    },
+    {
+      "id": "tic-tac-toe-two",
+      "name": "Two tic-tac-toes",
+      "file": "tic-tac-toe-two.svg",
+      "category": "Games"
+    },
+    {
+      "id": "dot-grid-small",
+      "name": "Dots and boxes (small)",
+      "file": "dot-grid-small.svg",
+      "category": "Games"
+    },
+    {
+      "id": "dot-grid-big",
+      "name": "Dots and boxes (big)",
+      "file": "dot-grid-big.svg",
+      "category": "Games"
+    },
+    {
+      "id": "trace-zigzag",
+      "name": "Trace: zigzag",
+      "file": "trace-zigzag.svg",
+      "category": "Games"
+    },
+    {
+      "id": "trace-waves",
+      "name": "Trace: waves",
+      "file": "trace-waves.svg",
+      "category": "Games"
+    },
+    {
+      "id": "trace-loops",
+      "name": "Trace: loops",
+      "file": "trace-loops.svg",
+      "category": "Games"
+    },
+    {
+      "id": "trace-shapes",
+      "name": "Trace: shapes",
+      "file": "trace-shapes.svg",
+      "category": "Games"
+    }
   ]
 }

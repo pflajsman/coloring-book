@@ -61,7 +61,7 @@ export function solveMaze(m) {
 // of the top-left cell, exit on the right of the bottom-right cell. Small
 // start and goal icons sit outside the board.
 function mazeSvg(m, startIcon, goalIcon) {
-  const W = 900, H = 600, x0 = 150, y0 = 100;
+  const W = 760, H = 600, x0 = 220, y0 = 100;
   const cw = W / m.cols, ch = H / m.rows;
   const parts = [];
   // Outer frame with the two openings.
@@ -74,8 +74,10 @@ function mazeSvg(m, startIcon, goalIcon) {
     if (x < m.cols - 1 && m.walls.right[y][x]) parts.push(line(px + cw, py, px + cw, py + ch));
     if (y < m.rows - 1 && m.walls.down[y][x]) parts.push(line(px, py + ch, px + cw, py + ch));
   }
-  parts.push(startIcon(x0 - 75, y0 + ch / 2));
-  parts.push(goalIcon(x0 + W + 75, y0 + H - ch / 2));
+  // Icons drawn at 1.7x so a toddler sees who goes where.
+  const big = (icon, cx, cy) => `<g transform="translate(${cx} ${cy}) scale(1.7) translate(${-cx} ${-cy})" stroke-width="5.3">${icon(cx, cy)}</g>`;
+  parts.push(big(startIcon, x0 - 115, y0 + ch / 2));
+  parts.push(big(goalIcon, x0 + W + 115, y0 + H - ch / 2));
   return page(parts.join('\n'));
 }
 
@@ -92,14 +94,49 @@ const island = (cx, cy) => [path(`M${cx - 55} ${cy + 35} Q ${cx} ${cy - 10} ${cx
 // Connect-the-dots: numbered points around a shape outline. Only the dots
 // and numbers are drawn; the child draws the lines.
 function dotsSvg(points) {
-  const parts = points.map(([x, y], i) => dot(x, y, 9) + digit(x + (x < 600 ? -30 : 30), y - 16, String(i + 1)));
+  const cx = points.reduce((a, p) => a + p[0], 0) / points.length;
+  const cy = points.reduce((a, p) => a + p[1], 0) / points.length;
+  const parts = points.map(([x, y], i) => {
+    // Number sits just outside the shape so it never covers the line.
+    const dx = x - cx, dy = y - cy, len = Math.hypot(dx, dy) || 1;
+    return dot(x, y, 14) + digit(x + (dx / len) * 48, y + (dy / len) * 48 + 15, String(i + 1), 44);
+  });
   return page(parts.join('\n'));
+}
+
+// Evenly spaced points along a closed outline, starting at its first vertex,
+// so numbered dots never bunch up where the outline curves tightly.
+function alongOutline(outline, count) {
+  const pts = [...outline, outline[0]];
+  const seg = pts.slice(1).map((p, i) => Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1]));
+  const total = seg.reduce((a, b) => a + b, 0);
+  const out = [];
+  let i = 0, acc = 0;
+  for (let k = 0; k < count; k++) {
+    const target = (k / count) * total;
+    while (acc + seg[i] < target) { acc += seg[i]; i++; }
+    const t = (target - acc) / seg[i];
+    out.push([pts[i][0] + (pts[i + 1][0] - pts[i][0]) * t, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * t]);
+  }
+  return out;
 }
 const around = (count, fn) => Array.from({ length: count }, (_, i) => fn((i / count) * Math.PI * 2, i));
 const STAR = around(10, (a, i) => { const r = i % 2 ? 150 : 320; return [600 + Math.sin(a) * r, 410 - Math.cos(a) * r]; });
-const HOUSE = [[380, 700], [380, 400], [300, 400], [600, 130], [900, 400], [820, 400], [820, 700], [700, 700], [600, 700], [480, 700]];
-const HEART = around(20, (a) => { const t = a; return [600 + 16 * Math.sin(t) ** 3 * 19, 400 - (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) * 19]; });
-const FISH = around(20, (a) => { const x = Math.cos(a), y = Math.sin(a); return x < -0.6 ? [600 + x * 420, 400 + y * 340] : [560 + x * 300, 400 + y * 200]; });
+// House with a chimney; the last dot joins back to the first along the floor.
+const HOUSE = [[320, 700], [320, 400], [600, 150], [730, 265], [730, 150], [820, 150], [820, 345], [880, 400], [880, 700], [600, 700]];
+// Heart outline sampled finely, starting at the bottom tip.
+const HEART_OUTLINE = around(240, (a) => {
+  const t = a + Math.PI;
+  return [600 + 16 * Math.sin(t) ** 3 * 18, 390 - (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) * 18];
+});
+const HEART = alongOutline(HEART_OUTLINE, 20);
+// Fish facing right: body arc from the upper tail joint round the nose to
+// the lower joint (angles -140..140 on an oval), then a triangular tail.
+const FISH_BODY = Array.from({ length: 57 }, (_, i) => {
+  const t = ((-140 + i * 5) * Math.PI) / 180;
+  return [650 + Math.cos(t) * 300, 400 + Math.sin(t) * 190];
+});
+const FISH = alongOutline([...FISH_BODY, [150, 680], [330, 400], [150, 120]], 20);
 
 // Board games to play with a grown-up.
 function ticTacToe(big) {
@@ -115,7 +152,7 @@ function dotGrid(cols, rows) {
   const gap = Math.min(900 / (cols - 1), 600 / (rows - 1));
   const x0 = 600 - (gap * (cols - 1)) / 2, y0 = 400 - (gap * (rows - 1)) / 2;
   const parts = [];
-  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) parts.push(dot(x0 + x * gap, y0 + y * gap, 10));
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) parts.push(dot(x0 + x * gap, y0 + y * gap, 15));
   return page(parts.join('\n'));
 }
 
