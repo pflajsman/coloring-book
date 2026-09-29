@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+<g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+<line x1="370" y1="360" x2="280" y2="320"/>
+<line x1="350" y1="470" x2="255" y2="470"/>
+<line x1="375" y1="580" x2="285" y2="630"/>
+<line x1="830" y1="360" x2="920" y2="320"/>
+<line x1="850" y1="470" x2="945" y2="470"/>
+<line x1="825" y1="580" x2="915" y2="630"/>
+<path d="M560 140 Q 530 80 495 70"/>
+<circle cx="495" cy="70" r="15" fill="#000" stroke="none"/>
+<path d="M640 140 Q 670 80 705 70"/>
+<circle cx="705" cy="70" r="15" fill="#000" stroke="none"/>
+<ellipse cx="600" cy="195" rx="125" ry="72"/>
+<circle cx="600" cy="450" r="250"/>
+<line x1="600" y1="200" x2="600" y2="700"/>
+<circle cx="480" cy="360" r="36"/>
+<circle cx="720" cy="360" r="36"/>
+<circle cx="460" cy="510" r="36"/>
+<circle cx="740" cy="510" r="36"/>
+<circle cx="530" cy="615" r="36"/>
+<circle cx="670" cy="615" r="36"/>
+<circle cx="560" cy="185" r="11" fill="#000" stroke="none"/><circle cx="640" cy="185" r="11" fill="#000" stroke="none"/>
+</g>
+</svg>

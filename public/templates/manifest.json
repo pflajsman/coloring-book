@@ -139,6 +139,66 @@
       "category": "Animals"
     },
     {
+      "id": "lion",
+      "name": "Lion",
+      "file": "lion.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "giraffe",
+      "name": "Giraffe",
+      "file": "giraffe.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "zebra",
+      "name": "Zebra",
+      "file": "zebra.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "penguin",
+      "name": "Penguin",
+      "file": "penguin.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "hedgehog",
+      "name": "Hedgehog",
+      "file": "hedgehog.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "fox",
+      "name": "Fox",
+      "file": "fox.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "whale",
+      "name": "Whale",
+      "file": "whale.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "octopus",
+      "name": "Octopus",
+      "file": "octopus.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "chick",
+      "name": "Chick",
+      "file": "chick.svg",
+      "category": "Animals"
+    },
+    {
+      "id": "ladybug",
+      "name": "Ladybug",
+      "file": "ladybug.svg",
+      "category": "Animals"
+    },
+    {
       "id": "unicorn-cute",
       "name": "Cute unicorn",
       "file": "unicorn-cute.svg",
