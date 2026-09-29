@@ -17,3 +17,10 @@ Install the app to the home screen first, then check each item.
 - [ ] Airplane mode, open the app: Pictures lists and opens pictures.
 - [ ] Browser (not installed): Fullscreen button enters fullscreen; after an accidental exit, the next tap goes back in; holding the button 2 s leaves fullscreen for good.
 - [ ] iPad: Guided Access on, try the four-finger swipe: the app stays. Android: App pinning on, try the home swipe: the app stays.
+
+## Part B (icons and Rainbow brush)
+
+- [ ] The dock shows 12 icons; each one shows the mark it makes.
+- [ ] Pick red, then blue, then white paint: the icon marks change colour (white shows light grey).
+- [ ] Rainbow brush: a long stroke cycles through the colours smoothly, and one Undo removes it.
+- [ ] Drawing with Rainbow stays smooth on the tablet (no stutter on long strokes).

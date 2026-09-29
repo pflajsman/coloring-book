@@ -40,6 +40,7 @@ src/
     SerialQueue.ts             One-at-a-time async queue (fills)
     SwitchPictureCommand.ts    Undoable picture switch
     StrokeRenderer.ts          Brush stamps, spline smoothing, pressure→width
+    rainbow.ts                 Rainbow brush colour (distance → hex)
     commands.ts                PatchCommand, patchFromSnapshots, History (byte cap)
     fillClient.ts              Main-thread side of worker fill
   workers/
@@ -56,6 +57,7 @@ src/
   ui/
     KidUI.ts                   Tool dock, palette, top bar — all of the chrome
     Modal.ts                   Modal + promptDialog + confirmDialog helpers
+    toolIcons.ts               Dock icons (tool + mark, tinted by paint colour)
     holdGate.ts                2-second press-and-hold parent gate
     fullscreen.ts              Prefixed Fullscreen API, sticky fullscreen, wake lock
     Tooltip.ts                 Hover tooltips (singleton)
@@ -133,12 +135,13 @@ Templates also get **letterboxed** with a 6% margin so the picture doesn't touch
 
 ### Tool roster (current)
 
-Dock order is **basics → shapes → effects**: Pen, Brush, Fill, Eraser, Ruler, Circle, Rectangle, Spray, Glitter, Stamps, Magic finger.
+Dock order is **basics → shapes → effects**: Pen, Brush, Rainbow, Fill, Eraser, Ruler, Circle, Rectangle, Spray, Glitter, Stamps, Magic finger.
 
 | Tool | Key | What it does |
 |---|---|---|
 | Pen | P | Crisp thin 3px line, no pressure, `lineTo` segments |
 | Brush | B | Soft radial-gradient stamp head, dense step-stamping along path |
+| Rainbow | W | Brush stamps whose colour follows stroke distance (one hue cycle per 600 px, 36 cached steps, random start hue) |
 | Fill | G | Off-thread flood fill, light/color seed paths, edge bleed dilation |
 | Eraser | E | `destination-out` composite operation |
 | Ruler | L | Click-drag straight line, live preview, snapshot/restore |
@@ -313,7 +316,7 @@ In rough priority order:
 - **Ops not actually recorded.** `types/document.ts` defines the op shape but `App.ts` doesn't push to an op log. If we want delta-sync someday, plumb that through.
 - **Layer panel UI** (`LayerPanel.ts`) exists but isn't surfaced in the kid UI. Could be exposed in a "grown-up mode" later.
 - **Fill rendering is single-threaded inside the worker.** For very large fills it can take 200+ ms. Could be split into chunks with cooperative yielding, but that complicates the algorithm. Currently fine in practice.
-- **Spray and brush head caches can grow.** Bounded at 16 entries each, with FIFO eviction. If a kid rapidly cycles through 24 colors the cache thrashes — minor regen cost, no leak.
+- **Brush and spray head caches.** Brush heads are capped at 64 (24 palette colours + 36 rainbow steps), spray heads at 16, FIFO eviction. No leak; rapid colour cycling on spray only costs a regen.
 - **Some templates leak fill.** Cars and elephants with dotted shading textures have many tiny enclosed regions; flood fill correctly stops at each dot, leaving the dotted areas un-colored. Looks reasonable as "shading on a coloring page" but isn't visually identical to the rest. Could pre-process those templates to remove dot textures.
 - **Settings dialog feels redundant** with most of its sliders also in the topbar. Could be slimmed down to just `Stylus only` + the action buttons, but kept the sliders as a fallback for narrow viewports.
 
