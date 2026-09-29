@@ -1,4 +1,5 @@
 import type { Point } from '../types/document';
+import { PointerTracker } from './PointerTracker';
 
 export type StrokeStartHandler = (p: Point, e: PointerEvent) => void;
 export type StrokeMoveHandler = (points: Point[], e: PointerEvent) => void;
@@ -14,23 +15,18 @@ export type PointerInputHandlers = {
   onGesture?: GestureHandler;
   toDoc: (sx: number, sy: number) => { x: number; y: number };
   isPenOnly: () => boolean; // palm-rejection: when true, ignore touch
-};
-
-type ActivePointer = {
-  id: number;
-  type: string;
-  x: number;
-  y: number;
+  // Kid mode: when true, extra fingers never zoom/pan and never interrupt
+  // the stroke in progress. See PointerTracker for the rules.
+  isZoomLocked: () => boolean;
 };
 
 export class PointerInput {
-  private active = new Map<number, ActivePointer>();
-  private strokePointerId: number | null = null;
-  private gestureIds: number[] = [];
+  private tracker: PointerTracker;
   private gestureStartDist = 0;
   private gestureLastCenter = { x: 0, y: 0 };
 
   constructor(private el: HTMLElement, private h: PointerInputHandlers) {
+    this.tracker = new PointerTracker(h.isZoomLocked);
     el.addEventListener('pointerdown', this.onDown, { passive: false });
     el.addEventListener('pointermove', this.onMove, { passive: false });
     el.addEventListener('pointerup', this.onUp);
@@ -67,37 +63,24 @@ export class PointerInput {
     // Palm rejection: when pen-only mode is on and we see a touch, drop it.
     if (this.h.isPenOnly() && e.pointerType === 'touch') return;
 
-    this.active.set(e.pointerId, {
-      id: e.pointerId,
-      type: e.pointerType,
-      x: e.clientX,
-      y: e.clientY,
-    });
-
-    // Two-finger gesture takes precedence — cancel any in-flight stroke.
-    if (this.active.size >= 2) {
-      this.strokePointerId = null;
+    const r = this.tracker.down(e.pointerId, e.clientX, e.clientY);
+    if (r.kind === 'stroke-start') {
+      this.h.onStrokeStart(this.toPoint(e), e);
+    } else if (r.kind === 'gesture-start') {
+      // Commit whatever was drawn so far instead of leaving a half stroke
+      // with a running spray loop and no undo entry.
+      if (r.endStroke) this.h.onStrokeEnd(e);
       this.beginGesture();
-      return;
     }
-
-    if (this.strokePointerId !== null) return;
-    this.strokePointerId = e.pointerId;
-    this.h.onStrokeStart(this.toPoint(e), e);
   };
 
   private onMove = (e: PointerEvent) => {
-    if (!this.active.has(e.pointerId)) return;
-    const a = this.active.get(e.pointerId)!;
-    a.x = e.clientX;
-    a.y = e.clientY;
-
-    if (this.gestureIds.length === 2) {
+    const r = this.tracker.move(e.pointerId, e.clientX, e.clientY);
+    if (r === 'gesture') {
       this.updateGesture();
       return;
     }
-
-    if (e.pointerId !== this.strokePointerId) return;
+    if (r !== 'stroke') return;
     e.preventDefault();
 
     // getCoalescedEvents returns the high-frequency samples the OS batched
@@ -105,40 +88,29 @@ export class PointerInput {
     // angles between samples on 120Hz displays / styluses.
     const raw = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
     const events = raw.length ? raw : [e];
-    const points = events.map((ev) => this.toPoint(ev));
-
-    // Predicted events let us extend the stroke ~one frame ahead of the
-    // physical pointer — used purely for the live preview, NOT committed to
-    // the actual stroke buffer (otherwise undo/replay would be lossy).
-    this.h.onStrokeMove(points, e);
+    this.h.onStrokeMove(events.map((ev) => this.toPoint(ev)), e);
   };
 
   private onUp = (e: PointerEvent) => {
-    this.active.delete(e.pointerId);
     try { this.el.releasePointerCapture(e.pointerId); } catch { /* not captured */ }
-
-    if (this.gestureIds.includes(e.pointerId)) {
-      this.gestureIds = [];
-    }
-
-    if (e.pointerId === this.strokePointerId) {
-      this.strokePointerId = null;
-      this.h.onStrokeEnd(e);
-    }
+    // pointerleave follows pointerup for the same pointer; only the first
+    // one counts.
+    if (!this.tracker.has(e.pointerId)) return;
+    if (this.tracker.up(e.pointerId).endStroke) this.h.onStrokeEnd(e);
   };
 
   private beginGesture() {
-    this.gestureIds = [...this.active.keys()].slice(0, 2);
-    if (this.gestureIds.length < 2) return;
-    const [a, b] = this.gestureIds.map((id) => this.active.get(id)!);
+    const pair = this.tracker.gesturePair();
+    if (!pair) return;
+    const [a, b] = pair;
     this.gestureStartDist = Math.hypot(a.x - b.x, a.y - b.y);
     this.gestureLastCenter = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
   }
 
   private updateGesture() {
-    if (this.gestureIds.length < 2) return;
-    const [a, b] = this.gestureIds.map((id) => this.active.get(id)!);
-    if (!a || !b) return;
+    const pair = this.tracker.gesturePair();
+    if (!pair) return;
+    const [a, b] = pair;
     const dist = Math.hypot(a.x - b.x, a.y - b.y);
     const center = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
 

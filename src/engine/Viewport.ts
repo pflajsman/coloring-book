@@ -2,6 +2,9 @@ export class Viewport {
   scale = 1;
   tx = 0;
   ty = 0;
+  // Scale chosen by the last fit(). Zooming never goes below it, so the
+  // picture can't shrink into a corner and get lost.
+  fitScale = 1;
 
   constructor(public docWidth: number, public docHeight: number) {}
 
@@ -23,6 +26,7 @@ export class Viewport {
     this.scale = Math.min(innerW / this.docWidth, innerH / this.docHeight);
     this.tx = left + (innerW - this.docWidth * this.scale) / 2;
     this.ty = top + (innerH - this.docHeight * this.scale) / 2;
+    this.fitScale = this.scale;
   }
 
   screenToDoc(sx: number, sy: number): { x: number; y: number } {

@@ -94,6 +94,7 @@ export type AppState = {
   size: number;
   pressureSensitivity: number;
   penOnly: boolean;
+  zoomLocked: boolean;
   busy: boolean;
 };
 
@@ -109,6 +110,7 @@ export class App {
     size: 12,
     pressureSensitivity: 1,
     penOnly: false,
+    zoomLocked: true,
     busy: false,
   };
 
@@ -150,6 +152,7 @@ export class App {
     this.pointer = new PointerInput(canvas, {
       toDoc: (sx, sy) => this.viewport.screenToDoc(sx, sy),
       isPenOnly: () => this.state.penOnly,
+      isZoomLocked: () => this.state.zoomLocked,
       onStrokeStart: (p) => this.handleStrokeStart(p),
       onStrokeMove: (points) => this.handleStrokeMove(points),
       onStrokeEnd: () => this.handleStrokeEnd(),
@@ -197,7 +200,11 @@ export class App {
   }
 
   setState(patch: Partial<AppState>) {
+    const wasLocked = this.state.zoomLocked;
     this.state = { ...this.state, ...patch };
+    // Re-locking snaps the picture back to fit so a parent's zoom-in never
+    // leaves the child with a cropped page.
+    if (!wasLocked && this.state.zoomLocked) this.fitToWindow();
     this.listeners.forEach((l) => l(this.state));
   }
 
@@ -573,11 +580,12 @@ export class App {
   }
 
   private handleGesture(g: { dx: number; dy: number; dscale: number; cx: number; cy: number }) {
+    if (this.state.zoomLocked) return;
     const rect = this.displayCanvas.getBoundingClientRect();
     const sx = g.cx - rect.left;
     const sy = g.cy - rect.top;
     this.viewport.pan(g.dx, g.dy);
-    this.viewport.zoomAt(sx, sy, g.dscale);
+    this.viewport.zoomAt(sx, sy, g.dscale, this.viewport.fitScale);
     this.scheduleRender();
   }
 

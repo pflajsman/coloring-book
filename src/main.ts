@@ -7,6 +7,7 @@ import { loadManifest, rasterizeImageBitmap, rasterizeTemplate, thumbnailUrl, ty
 import { openAiPromptDialog } from './ui/AiPromptDialog';
 import { saveDocument, listDocuments, loadDocument, deleteDocument, renameProject, applyStoredDocument, saveAiTemplate, listAiTemplates, deleteAiTemplate, type AiTemplateRecord } from './storage/db';
 import { registerSW } from 'virtual:pwa-register';
+import { PREF_ZOOM_LOCKED, readBoolPref } from './storage/prefs';
 
 registerSW({ immediate: true });
 
@@ -48,6 +49,7 @@ app.setState({
   penOnly: false, // start permissive — touchscreen-only devices still need to work; expose toggle in settings
   tool: 'fill',
   color: '#e74c3c',
+  zoomLocked: readBoolPref(PREF_ZOOM_LOCKED, true),
 });
 
 const ui = buildKidUI(app, {
