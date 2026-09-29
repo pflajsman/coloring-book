@@ -1,7 +1,9 @@
 import type { Point } from '../types/document';
 import { PointerTracker } from './PointerTracker';
 
-export type StrokeStartHandler = (p: Point, e: PointerEvent) => void;
+// Returns false when the press did not start a stroke (a fill tap, a
+// refused stroke), so the pointer stops owning the canvas.
+export type StrokeStartHandler = (p: Point, e: PointerEvent) => boolean | void;
 export type StrokeMoveHandler = (points: Point[], e: PointerEvent) => void;
 export type StrokeEndHandler = (e: PointerEvent) => void;
 export type TapHandler = (p: Point, e: PointerEvent) => void;
@@ -67,7 +69,7 @@ export class PointerInput {
 
     const r = this.tracker.down(e.pointerId, e.clientX, e.clientY);
     if (r.kind === 'stroke-start') {
-      this.h.onStrokeStart(this.toPoint(e), e);
+      if (this.h.onStrokeStart(this.toPoint(e), e) === false) this.tracker.release(e.pointerId);
     } else if (r.kind === 'gesture-start') {
       // Commit whatever was drawn so far instead of leaving a half stroke
       // with a running spray loop and no undo entry.

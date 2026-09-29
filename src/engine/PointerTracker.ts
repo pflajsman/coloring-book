@@ -66,6 +66,13 @@ export class PointerTracker {
     return { endStroke: false };
   }
 
+  // The owner's press turned out to be a tap that is already handled (fill,
+  // or a stroke the App refused). Give up ownership so the next pointer can
+  // draw even while this one (often a resting palm) stays down.
+  release(id: number) {
+    if (this.strokeId === id) this.strokeId = null;
+  }
+
   gesturePair(): [Pos, Pos] | null {
     if (this.gestureIds.length !== 2) return null;
     const a = this.active.get(this.gestureIds[0]);

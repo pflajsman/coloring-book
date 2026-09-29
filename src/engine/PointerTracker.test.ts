@@ -29,6 +29,15 @@ describe('PointerTracker, zoom locked', () => {
     expect(t.down(2, 10, 10)).toEqual({ kind: 'stroke-start' });
   });
 
+  it('a pointer whose press was only a tap (fill) is released so the next pointer can draw', () => {
+    const t = locked();
+    expect(t.down(9, 300, 300)).toEqual({ kind: 'stroke-start' }); // palm lands first, fill tool taps
+    t.release(9); // App consumed it as a tap
+    expect(t.down(1, 10, 10)).toEqual({ kind: 'stroke-start' }); // drawing hand still works
+    expect(t.up(9)).toEqual({ endStroke: false }); // palm lifting later ends nothing
+    expect(t.up(1)).toEqual({ endStroke: true });
+  });
+
   it('cancel ends stroke (pointercancel is reported as up)', () => {
     const t = locked();
     t.down(1, 0, 0);

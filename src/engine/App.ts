@@ -296,18 +296,20 @@ export class App {
     };
   }
 
-  private handleStrokeStart(p: Point) {
+  // Returns false when no stroke was started, so PointerInput can hand the
+  // canvas to the next finger.
+  private handleStrokeStart(p: Point): boolean {
     if (this.state.tool === 'fill') {
       void this.runFillAt(p);
-      return;
+      return false;
     }
-    if (this.state.tool === 'pan') return;
+    if (this.state.tool === 'pan') return false;
     // A fill result is computed from a snapshot; a stroke drawn before it
     // lands would be overwritten. Fills take well under a second.
-    if (fillsPending() > 0) return;
+    if (fillsPending() > 0) return false;
 
     const layer = this.doc.getActiveLayer();
-    if (layer.locked) return;
+    if (layer.locked) return false;
 
     this.strokeBefore = layer.ctx.getImageData(0, 0, layer.canvas.width, layer.canvas.height);
     this.strokeLayerId = layer.id;
@@ -344,6 +346,7 @@ export class App {
       drawDot(layer.ctx, p, this.strokeStyle);
     }
     this.scheduleRender();
+    return true;
   }
 
   private handleStrokeMove(points: Point[]) {
