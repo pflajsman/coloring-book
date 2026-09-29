@@ -1,6 +1,8 @@
 import type { App, Tool } from '../engine/App';
 import { showModal } from './Modal';
 import { attachTooltip } from './Tooltip';
+import { holdToActivate } from './holdGate';
+import { PREF_ZOOM_LOCKED, writeBoolPref } from '../storage/prefs';
 
 // Big, bright, uncluttered. The aim: a 3-year-old can use it without reading.
 // Only four tools visible (brush, fill, eraser, undo). Everything else lives
@@ -143,7 +145,7 @@ export function buildKidUI(app: App, actions: KidUIActions): {
   const aiBtn = document.createElement('button');
   aiBtn.className = 'kid-iconbtn kid-aibtn';
   aiBtn.innerHTML = aiSparkleSvg();
-  aiBtn.addEventListener('click', () => actions.onAiGenerate());
+  holdToActivate(aiBtn, () => actions.onAiGenerate());
   attachTooltip(aiBtn, 'Make a picture');
   leftGroup.appendChild(aiBtn);
 
@@ -188,7 +190,7 @@ export function buildKidUI(app: App, actions: KidUIActions): {
   const gear = document.createElement('button');
   gear.className = 'kid-iconbtn kid-gear';
   gear.innerHTML = gearSvg();
-  gear.addEventListener('click', () => openSettings(app, actions));
+  holdToActivate(gear, () => openSettings(app, actions));
   attachTooltip(gear, 'Settings');
   rightGroup.appendChild(gear);
 
@@ -346,6 +348,12 @@ function openSettings(app: App, actions: KidUIActions) {
   body.appendChild(
     toggleRow('Stylus only', app.state.penOnly, (v) => app.setState({ penOnly: v })),
   );
+  body.appendChild(
+    toggleRow('Allow zoom', !app.state.zoomLocked, (v) => {
+      app.setState({ zoomLocked: !v });
+      writeBoolPref(PREF_ZOOM_LOCKED, !v);
+    }),
+  );
 
   const sep = document.createElement('div');
   sep.className = 'kid-sep';
@@ -365,7 +373,29 @@ function openSettings(app: App, actions: KidUIActions) {
   }));
   body.appendChild(actionsRow);
 
+  const guideSep = document.createElement('div');
+  guideSep.className = 'kid-sep';
+  body.append(guideSep, lockGuide());
+
   const destroy = showModal('Settings', body, { narrow: true });
+}
+
+// Parent guide for the swipes a web page cannot block. Menu names differ
+// between OS versions, so the text says where to look instead of promising
+// an exact path.
+function lockGuide(): HTMLElement {
+  const el = document.createElement('div');
+  el.className = 'kid-guide';
+  el.innerHTML = `
+    <strong>Lock this tablet</strong>
+    <p>The swipes that leave the app belong to the tablet, so the app can't block them. These tablet settings can:</p>
+    <h3>iPad</h3>
+    <p><b>Guided Access</b> keeps the iPad in this app until you enter your code. Turn it on in Settings, Accessibility, Guided Access. Then open Coloring and triple-click the top button (or the Home button) and tap Start.</p>
+    <p>Or turn off the four- and five-finger swipes: in Settings, open Multitasking &amp; Gestures and look for the gestures switch (the exact name depends on the iPadOS version).</p>
+    <h3>Android</h3>
+    <p><b>App pinning</b> keeps the tablet in this app. Turn it on in Settings, Security (or Security &amp; privacy, sometimes under Advanced or More security settings), App pinning. The place differs between tablet makers. Then open the recent-apps view, tap the Coloring icon at the top of its card and choose Pin.</p>
+    <p>Tip: install Coloring to the home screen first (Share, Add to Home Screen on iPad; menu, Install app on Android). It then opens full screen.</p>`;
+  return el;
 }
 
 function toggleRow(label: string, value: boolean, onChange: (v: boolean) => void): HTMLElement {

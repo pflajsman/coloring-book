@@ -1135,3 +1135,31 @@ html, body {
 }
 .template-card-ai:hover .template-card-del { opacity: 1; }
 .template-card-del:hover { background: #ff6b9d; }
+
+/* ---------- Parent gate (press and hold) ---------- */
+.kid-hold { position: relative; }
+.kid-hold-ring {
+  --p: 0;
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: conic-gradient(#ff6b9d calc(var(--p) * 360deg), transparent 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+}
+.kid-hold-hint {
+  position: fixed;
+  transform: translateX(-50%);
+  z-index: 1000;
+  background: #2a2a3a;
+  color: #fff;
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.kid-guide { display: grid; gap: 8px; font-size: 14px; line-height: 1.45; }
+.kid-guide h3 { margin: 4px 0 0; font-size: 15px; }
+.kid-guide p { margin: 0; }
