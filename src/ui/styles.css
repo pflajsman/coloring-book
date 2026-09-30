@@ -1,4 +1,7 @@
 * { box-sizing: border-box; }
+/* The hidden attribute must win over component display rules (e.g. the
+   stamp picker's display: flex), otherwise hidden panels stay on screen. */
+[hidden] { display: none !important; }
 html, body {
   margin: 0;
   height: 100%;
