@@ -1189,3 +1189,38 @@ html, body {
 .kid-guide { display: grid; gap: 8px; font-size: 14px; line-height: 1.45; }
 .kid-guide h3 { margin: 4px 0 0; font-size: 15px; }
 .kid-guide p { margin: 0; }
+
+/* ---------- Stamp picker (next to the dock while Stamps is selected) ---------- */
+.kid-stamps {
+  position: absolute;
+  top: 100px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 8px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border-radius: 28px;
+  border: 4px solid #fff;
+  z-index: 10;
+  touch-action: manipulation;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+.kid-stamps .kid-scroll-body { width: 64px; }
+.kid-stamp {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #eadcff;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+}
+.kid-stamp canvas, .kid-stamp svg { width: 46px; height: 46px; }
+.kid-stamp.active { border-color: #a45cff; background: #fff8dc; transform: scale(1.06); }
+@media (max-width: 600px) { .kid-stamps { top: 72px; } }

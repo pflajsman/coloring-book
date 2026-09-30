@@ -10,13 +10,11 @@ import {
   drawSmoothSegment,
   endStroke,
   glitterSplatter,
-  nextStampShape,
-  resetStampCycle,
   spraySplatter,
-  stampAt,
 } from './StrokeRenderer';
 import { fillsPending, runFill } from './fillClient';
 import { rainbowColorAt } from './rainbow';
+import { StampPicker, drawStamp } from './stamps';
 import { strokeStartAction } from './inputPolicy';
 import type { Point, StrokeStyle } from '../types/document';
 
@@ -142,6 +140,9 @@ export class App {
   // Stamp tool tracks the last stamp position so consecutive stamps along a
   // drag are spaced by ~one stamp size (no piling up).
   private lastStampPos: Point | null = null;
+
+  // Which stamp the stamp tool lays down (picker selection or surprise).
+  readonly stamps = new StampPicker();
 
   // Rainbow brush: hue follows the distance travelled since stroke start.
   private rainbowStartHue = 0;
@@ -332,8 +333,7 @@ export class App {
       glitterSplatter(layer.ctx, p, this.strokeStyle);
       this.startSprayLoop();
     } else if (this.state.tool === 'stamp') {
-      resetStampCycle();
-      stampAt(layer.ctx, p, this.strokeStyle, nextStampShape());
+      this.stampAt(layer.ctx, p);
       this.lastStampPos = p;
     } else if (this.state.tool === 'rainbow') {
       // Random start so every rainbow stroke looks a little different.
@@ -391,13 +391,12 @@ export class App {
 
     if (this.state.tool === 'stamp') {
       // Spacing keeps stamps from piling on top of each other when the user
-      // drags slowly. Tuned to ~one stamp diameter; cycle the shape so the
-      // trail reads as decorative variety.
-      const minSpacing = Math.max(16, this.strokeStyle.size * 1.4);
+      // drags slowly: about one stamp width apart.
+      const minSpacing = this.stampSize() * 0.9;
       for (const p of points) {
         const last = this.lastStampPos;
         if (!last || Math.hypot(p.x - last.x, p.y - last.y) >= minSpacing) {
-          stampAt(layer.ctx, p, this.strokeStyle, nextStampShape());
+          this.stampAt(layer.ctx, p);
           this.lastStampPos = p;
           this.strokePoints.push(p);
         }
@@ -515,6 +514,15 @@ export class App {
       }
     }
     this.scheduleRender();
+  }
+
+  // Stamp width in document px, from the brush-size slider (4..80).
+  private stampSize() {
+    return Math.max(28, this.state.size * 2.2);
+  }
+
+  private stampAt(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, p: Point) {
+    drawStamp(ctx, this.stamps.next(), p.x, p.y, this.stampSize(), this.state.color);
   }
 
   private startSprayLoop() {

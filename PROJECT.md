@@ -40,6 +40,7 @@ src/
     SerialQueue.ts             One-at-a-time async queue (fills)
     SwitchPictureCommand.ts    Undoable picture switch
     StrokeRenderer.ts          Brush stamps, spline smoothing, pressure→width
+    stamps.ts                  Stamp shapes, StampPicker (choice / surprise)
     rainbow.ts                 Rainbow brush colour (distance → hex)
     commands.ts                PatchCommand, patchFromSnapshots, History (byte cap)
     fillClient.ts              Main-thread side of worker fill
@@ -154,7 +155,7 @@ Dock order is **basics → shapes → effects**: Pen, Brush, Rainbow, Fill, Eras
 | Rectangle | R | Click-drag rectangle, 5-point stroke |
 | Spray | S | Two-pass: soft mist gradient stamps + speckle dots, time-based emit (RAF loop) |
 | Glitter | I | Multi-color sparkle scatter (stars + dots, hue-jittered around seed color, ~20% white glints), shares the spray RAF emit loop |
-| Stamps | T | Drops decorative shapes (star → heart → flower → sparkle, cycling) along a drag, spaced by ~one stamp diameter |
+| Stamps | T | 12 stamps (`engine/stamps.ts`) drawn in the paint colour with fixed details; a picker next to the dock chooses one, or "surprise" cycles through all without restarting per tap. Pictures stay upright (small tilt), abstract shapes spin. Spaced ~one stamp width along a drag |
 | Magic finger | U | Reads layer pixels, applies 3×3 box blur through a soft-circular mask |
 
 Each tool has its own border color in the dock to be recognizable at a glance. Pen=cyan, Brush=pink, Fill=green, Eraser=peach, Ruler=yellow, Circle=teal, Rectangle=coral, Spray=lavender, Glitter=gold, Stamps=brown, Blur=orange.

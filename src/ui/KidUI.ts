@@ -3,6 +3,7 @@ import { showModal } from './Modal';
 import { attachTooltip } from './Tooltip';
 import { toolIconSvg, type DockTool } from './toolIcons';
 import { toolAfterColorPick } from '../engine/inputPolicy';
+import { STAMPS, SURPRISE, drawStamp, type StampChoice, type StampId } from '../engine/stamps';
 import { HOLD_MS, holdToActivate } from './holdGate';
 import { enterFullscreen, exitFullscreen, isFullscreen, isInstalledApp, onFullscreenChange, sticky } from './fullscreen';
 import { PREF_ZOOM_LOCKED, writeBoolPref } from '../storage/prefs';
@@ -78,6 +79,7 @@ export type KidUIActions = {
 export function buildKidUI(app: App, actions: KidUIActions): {
   palette: HTMLElement;
   dock: HTMLElement;
+  stamps: HTMLElement;
   topBar: HTMLElement;
 } {
   // ---- Color palette (left side) ----
@@ -117,6 +119,34 @@ export function buildKidUI(app: App, actions: KidUIActions): {
     toolBtns[t] = b;
     dock.body.appendChild(b);
   });
+
+  // ---- Stamp picker (shown next to the dock while Stamps is selected) ----
+  // One button per stamp plus "surprise", which cycles through them all.
+  const stampPanel = scrollPanel('kid-stamps', 60);
+  stampPanel.root.hidden = true;
+  const stampBtns = new Map<StampChoice, HTMLButtonElement>();
+  const stampChoices: StampChoice[] = [SURPRISE, ...STAMPS.map((s) => s.id)];
+  for (const choice of stampChoices) {
+    const b = document.createElement('button');
+    b.className = 'kid-stamp';
+    b.setAttribute('aria-label', choice === SURPRISE ? 'Surprise stamp' : `${stampName(choice)} stamp`);
+    if (choice === SURPRISE) b.innerHTML = surpriseSvg();
+    else b.appendChild(stampIconCanvas(choice, app.state.color));
+    b.addEventListener('click', () => {
+      app.stamps.select(choice);
+      stampBtns.forEach((btn, c) => btn.classList.toggle('active', c === choice));
+    });
+    attachTooltip(b, choice === SURPRISE ? 'Surprise' : stampName(choice));
+    stampBtns.set(choice, b);
+    stampPanel.body.appendChild(b);
+  }
+  stampBtns.get(app.stamps.selected)?.classList.add('active');
+  // Sit just left of the dock, whatever width the dock has at this size.
+  const placeStampPanel = () => {
+    const r = dock.root.getBoundingClientRect();
+    stampPanel.root.style.right = `${Math.round(window.innerWidth - r.left + 10)}px`;
+  };
+  window.addEventListener('resize', placeStampPanel);
   // ---- Top bar: pictures + clear + undo (left) + sliders (center) + gear/fullscreen (right) ----
   const topBar = document.createElement('div');
   topBar.className = 'kid-topbar';
@@ -231,7 +261,13 @@ export function buildKidUI(app: App, actions: KidUIActions): {
       (Object.entries(toolBtns) as [Tools, HTMLButtonElement][]).forEach(([id, b]) => {
         b.innerHTML = toolIconSvg(id, s.color, id);
       });
+      stampBtns.forEach((b, c) => {
+        if (c !== SURPRISE) b.replaceChildren(stampIconCanvas(c, s.color));
+      });
     }
+    const showStamps = s.tool === 'stamp';
+    if (showStamps && stampPanel.root.hidden) placeStampPanel();
+    stampPanel.root.hidden = !showStamps;
     swatches.forEach((sw) => sw.classList.toggle('active', sw.dataset.color === s.color));
     (Object.entries(toolBtns) as [Tools, HTMLButtonElement][]).forEach(([id, b]) => {
       b.classList.toggle('active', id === s.tool);
@@ -242,7 +278,7 @@ export function buildKidUI(app: App, actions: KidUIActions): {
     sizeSlider.setValue(s.size);
   });
 
-  return { palette: palette.root, dock: dock.root, topBar };
+  return { palette: palette.root, dock: dock.root, stamps: stampPanel.root, topBar };
 }
 
 // Vertical panel with up/down scroll chevrons. Single column always —
@@ -558,6 +594,29 @@ function bigBtn(label: string, onClick: () => void) {
 // ---- Inline icons (no external assets, scales crisply at any size) ----
 
 // Top-bar and panel icons. Dock tool icons live in toolIcons.ts.
+
+function stampName(id: StampId): string {
+  return STAMPS.find((s) => s.id === id)?.name ?? id;
+}
+
+// Picker button face: the stamp drawn in the current paint colour, at 2x
+// for sharp edges on tablets. Fixed "random" keeps the icon upright.
+function stampIconCanvas(id: StampId, color: string): HTMLCanvasElement {
+  const c = document.createElement('canvas');
+  c.width = c.height = 96;
+  const ctx = c.getContext('2d');
+  if (ctx) drawStamp(ctx, id, 48, 48, 84, color, () => 0.5);
+  return c;
+}
+
+// "Surprise": a question mark in a rainbow ring.
+function surpriseSvg() {
+  return `<svg viewBox="0 0 64 64">
+    <defs><linearGradient id="surprise-rb" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#ff4d4d"/><stop offset=".35" stop-color="#ffd23f"/><stop offset=".65" stop-color="#4cd964"/><stop offset="1" stop-color="#a45cff"/></linearGradient></defs>
+    <circle cx="32" cy="32" r="26" fill="none" stroke="url(#surprise-rb)" stroke-width="7"/>
+    <text x="32" y="43" text-anchor="middle" font-family="Arial Rounded MT Bold, Arial, sans-serif" font-weight="700" font-size="30" fill="#2a2a3a">?</text>
+  </svg>`;
+}
 
 function undoSvg() {
   // U-turn arrow centered in the viewBox. A single horizontal arrow body

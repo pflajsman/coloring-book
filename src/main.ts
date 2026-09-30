@@ -111,7 +111,7 @@ const ui = buildKidUI(app, {
   }),
 });
 
-root.append(canvasWrap, ui.topBar, ui.palette, ui.dock);
+root.append(canvasWrap, ui.topBar, ui.palette, ui.dock, ui.stamps);
 initStickyFullscreen();
 keepScreenAwake();
 
