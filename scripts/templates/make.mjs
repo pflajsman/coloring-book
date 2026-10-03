@@ -8,8 +8,9 @@ import { mergeManifest } from './manifest.mjs';
 import { withServer, pageJson } from './chrome.mjs';
 
 const DIR = path.resolve('public/templates');
-// Rejected in the 2026-09-29 review and not redrawn.
-export const REMOVE = ['santa', 'princess-couple', 'princess-fairy', 'unicorn', 'unicorn-castle'];
+// Rejected in the 2026-09-29 review and not redrawn; the Lego baseplate was
+// replaced by the generated Lego house on 2026-10-03.
+export const REMOVE = ['santa', 'princess-couple', 'princess-fairy', 'unicorn', 'unicorn-castle', 'lego-baseplate'];
 
 const generated = [...PICTURES, ...GAMES];
 

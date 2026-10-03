@@ -199,6 +199,66 @@
       "category": "Animals"
     },
     {
+      "id": "baby-bottle",
+      "name": "Baby bottle",
+      "file": "baby-bottle.svg",
+      "category": "Baby"
+    },
+    {
+      "id": "rattle",
+      "name": "Rattle",
+      "file": "rattle.svg",
+      "category": "Baby"
+    },
+    {
+      "id": "pacifier",
+      "name": "Pacifier",
+      "file": "pacifier.svg",
+      "category": "Baby"
+    },
+    {
+      "id": "teddy-bear",
+      "name": "Teddy bear",
+      "file": "teddy-bear.svg",
+      "category": "Baby"
+    },
+    {
+      "id": "rubber-duck",
+      "name": "Rubber duck",
+      "file": "rubber-duck.svg",
+      "category": "Baby"
+    },
+    {
+      "id": "onesie",
+      "name": "Baby bodysuit",
+      "file": "onesie.svg",
+      "category": "Baby"
+    },
+    {
+      "id": "pram",
+      "name": "Pram",
+      "file": "pram.svg",
+      "category": "Baby"
+    },
+    {
+      "id": "ring-stacker",
+      "name": "Stacking rings",
+      "file": "ring-stacker.svg",
+      "category": "Baby"
+    },
+    {
+      "id": "baby-blocks",
+      "name": "Toy blocks",
+      "file": "baby-blocks.svg",
+      "category": "Baby"
+    },
+    {
+      "id": "baby-face",
+      "name": "Baby",
+      "file": "baby-face.svg",
+      "category": "Baby"
+    },
+    {
       "id": "dragon",
       "name": "Dragon",
       "file": "dragon.svg",
@@ -494,14 +554,8 @@
     },
     {
       "id": "lego-stack",
-      "name": "Lego stack",
+      "name": "Lego tower",
       "file": "lego-stack.svg",
-      "category": "Toys"
-    },
-    {
-      "id": "lego-baseplate",
-      "name": "Lego baseplate",
-      "file": "lego-baseplate.svg",
       "category": "Toys"
     },
     {
@@ -514,6 +568,12 @@
       "id": "lego-wheel",
       "name": "Lego car",
       "file": "lego-wheel.svg",
+      "category": "Toys"
+    },
+    {
+      "id": "lego-house",
+      "name": "Lego house",
+      "file": "lego-house.svg",
       "category": "Toys"
     },
     {

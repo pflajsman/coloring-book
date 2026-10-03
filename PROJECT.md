@@ -71,7 +71,7 @@ src/
 
 scripts/templates/              Generated templates (Node, needs Chrome)
   svg.mjs, games.mjs           Toolkit and procedural game pages
-  pictures/*.mjs               Picture sets (animals, fairy tales, vehicles, places/food)
+  pictures/*.mjs               Picture sets (animals, baby, fairy tales, vehicles, places/food, toys)
   make.mjs, check.mjs          Generate + crop viewBoxes; render check + contact sheet
 
 api/                            Azure Functions (managed by SWA)
@@ -83,7 +83,7 @@ api/                            Azure Functions (managed by SWA)
   local.settings.json.example  Template — copy to local.settings.json for dev
 
 public/
-  templates/                   *.svg files + manifest.json (64 templates)
+  templates/                   *.svg files + manifest.json (111 templates)
   icons/                       PWA icons (192, 512, 512-maskable)
   apple-touch-icon.png         iOS home-screen icon (180×180)
   favicon.svg                  Tab icon
@@ -214,7 +214,7 @@ Indexed by `public/templates/manifest.json`. Each entry: `{ id, name, file, cate
 
 Sources:
 - **60 generated pages** (original work): `scripts/templates/` builds them from a small SVG toolkit (bold 9-unit black round strokes, closed shapes, no fills) and crops each viewBox to its drawing so the letterbox scales it up. `npm run templates` writes the SVGs and merges `manifest.json`; `npm run templates:check` renders every page through a copy of the app's pipeline (`check.html`) and enforces fillability rules (`checkRules.mjs`). Both need Chrome.
-- **CC0 clipart** from openclipart.org and the hand-authored ice-cream and Lego sets.
+- **CC0 clipart** from openclipart.org and the hand-authored ice-cream set.
 - **Cleanup 2026-09-29:** 21 clipart pages were rejected (dot/hatch shading, hair-thin lines, open outline, busy scenes). 16 of them were redrawn with the same ids; santa, princess-couple, princess-fairy, unicorn and unicorn-castle were dropped.
 
 To add a hand-made template: drop the SVG in `public/templates/` and add a manifest entry. To add a generated one: add it to a `pictures/*.mjs` set and run both scripts.
@@ -224,13 +224,14 @@ The rasterizer handles arbitrary SVG sizes via uniform-scale letterbox into a 12
 Categories:
 - **Other** (1): blank
 - **Animals** (32): cat, dog, horse, tiger, bear, teddy, monkey, owl, frog, snake, turtle, rabbit, mouse, sheep, cow, pig, duck, snail, elephant, fish, butterfly, dinosaur, lion, giraffe, zebra, penguin, hedgehog, fox, whale, octopus, chick, ladybug
+- **Baby** (10, generated in `pictures/baby.mjs`): baby-bottle, rattle, pacifier, teddy-bear, rubber-duck, onesie, pram, ring-stacker, baby-blocks, baby-face
 - **Fairy tales** (13): dragon, witch, princess, red-riding-hood, wolf, three-pigs-house, castle, knight, mermaid, gnome, frog-prince, gingerbread-house, pumpkin-carriage
 - **Fantasy** (8): unicorn-cute, unicorn-rearing, unicorn-prancing, unicorn-winged, unicorn-heraldic, robot, princess-crown, princess-wand
 - **Vehicles** (12): car, rocket, train, bicycle, race-car, fire-truck, police-car, bus, tractor, excavator, ambulance, monster-truck
 - **Places** (1): house
 - **Nature** (7): tree, flower, sun, moon, cloud, rainbow, mushroom
 - **Food** (7): apple, cherry, icecream-cone, icecream-popsicle, icecream-sundae, icecream-cup, icecream-soft
-- **Toys** (5): lego-brick, lego-stack, lego-baseplate, lego-minifig, lego-wheel
+- **Toys** (5, generated in `pictures/toys.mjs`): lego-brick, lego-stack, lego-house, lego-minifig, lego-wheel
 - **Games** (16): maze-bunny, maze-mouse, maze-bee, maze-boat, dots-star, dots-house, dots-heart, dots-fish, tic-tac-toe, tic-tac-toe-two, dot-grid-small, dot-grid-big, trace-zigzag, trace-waves, trace-loops, trace-shapes
 
 ## AI templates

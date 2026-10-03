@@ -1,28 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-  <g fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Classic 2x4 brick in 3/4 view -->
-    <!-- Top face (parallelogram) -->
-    <path d="M 30 90 L 130 90 L 170 70 L 70 70 Z"/>
-    <!-- Front face -->
-    <path d="M 30 90 L 30 145 L 130 145 L 130 90 Z"/>
-    <!-- Right side -->
-    <path d="M 130 90 L 170 70 L 170 125 L 130 145 Z"/>
-    <!-- 8 studs on top (2 rows of 4) -->
-    <!-- Back row (further away, smaller-looking) -->
-    <ellipse cx="88" cy="78" rx="8" ry="3"/>
-    <ellipse cx="108" cy="78" rx="8" ry="3"/>
-    <ellipse cx="128" cy="78" rx="8" ry="3"/>
-    <ellipse cx="148" cy="78" rx="8" ry="3"/>
-    <!-- Stud cylinder side hints (back row) -->
-    <path d="M 80 78 L 80 73"/>
-    <path d="M 96 78 L 96 73"/>
-    <path d="M 100 78 L 100 73"/>
-    <path d="M 116 78 L 116 73"/>
-    <!-- Front row -->
-    <ellipse cx="50" cy="84" rx="9" ry="3"/>
-    <ellipse cx="72" cy="84" rx="9" ry="3"/>
-    <ellipse cx="94" cy="84" rx="9" ry="3"/>
-    <ellipse cx="116" cy="84" rx="9" ry="3"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="226 221 798 443" width="798" height="443">
+<g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+<path d="M250 380 L850 380 L1000 260 L400 260 Z" fill="#fff"/>
+<path d="M850 380 L1000 260 L1000 520 L850 640 Z" fill="#fff"/>
+<rect fill="#fff" x="250" y="380" width="600" height="260"/>
+<path d="M392.5 290 L 392.5 263 A 45 18 0 0 1 482.5 263 L 482.5 290 A 45 18 0 0 1 392.5 290 Z" fill="#fff"/>,<ellipse fill="#fff" cx="437.5" cy="263" rx="45" ry="18"/>,<path d="M542.5 290 L 542.5 263 A 45 18 0 0 1 632.5 263 L 632.5 290 A 45 18 0 0 1 542.5 290 Z" fill="#fff"/>,<ellipse fill="#fff" cx="587.5" cy="263" rx="45" ry="18"/>,<path d="M692.5 290 L 692.5 263 A 45 18 0 0 1 782.5 263 L 782.5 290 A 45 18 0 0 1 692.5 290 Z" fill="#fff"/>,<ellipse fill="#fff" cx="737.5" cy="263" rx="45" ry="18"/>,<path d="M842.5 290 L 842.5 263 A 45 18 0 0 1 932.5 263 L 932.5 290 A 45 18 0 0 1 842.5 290 Z" fill="#fff"/>,<ellipse fill="#fff" cx="887.5" cy="263" rx="45" ry="18"/>,<path d="M317.5 350 L 317.5 323 A 45 18 0 0 1 407.5 323 L 407.5 350 A 45 18 0 0 1 317.5 350 Z" fill="#fff"/>,<ellipse fill="#fff" cx="362.5" cy="323" rx="45" ry="18"/>,<path d="M467.5 350 L 467.5 323 A 45 18 0 0 1 557.5 323 L 557.5 350 A 45 18 0 0 1 467.5 350 Z" fill="#fff"/>,<ellipse fill="#fff" cx="512.5" cy="323" rx="45" ry="18"/>,<path d="M617.5 350 L 617.5 323 A 45 18 0 0 1 707.5 323 L 707.5 350 A 45 18 0 0 1 617.5 350 Z" fill="#fff"/>,<ellipse fill="#fff" cx="662.5" cy="323" rx="45" ry="18"/>,<path d="M767.5 350 L 767.5 323 A 45 18 0 0 1 857.5 323 L 857.5 350 A 45 18 0 0 1 767.5 350 Z" fill="#fff"/>,<ellipse fill="#fff" cx="812.5" cy="323" rx="45" ry="18"/>
+</g>
 </svg>

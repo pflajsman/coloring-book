@@ -1,39 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-  <g fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Stack of 3 bricks (front view) -->
-    <!-- Bottom brick (4-stud) -->
-    <rect x="30" y="135" width="140" height="40"/>
-    <circle cx="50" cy="130" r="6"/>
-    <circle cx="78" cy="130" r="6"/>
-    <circle cx="106" cy="130" r="6"/>
-    <circle cx="134" cy="130" r="6"/>
-    <line x1="44" y1="135" x2="44" y2="124"/>
-    <line x1="56" y1="135" x2="56" y2="124"/>
-    <line x1="72" y1="135" x2="72" y2="124"/>
-    <line x1="84" y1="135" x2="84" y2="124"/>
-    <line x1="100" y1="135" x2="100" y2="124"/>
-    <line x1="112" y1="135" x2="112" y2="124"/>
-    <line x1="128" y1="135" x2="128" y2="124"/>
-    <line x1="140" y1="135" x2="140" y2="124"/>
-    <!-- Middle brick (3-stud) -->
-    <rect x="50" y="80" width="100" height="40"/>
-    <circle cx="68" cy="76" r="6"/>
-    <circle cx="100" cy="76" r="6"/>
-    <circle cx="132" cy="76" r="6"/>
-    <line x1="62" y1="80" x2="62" y2="70"/>
-    <line x1="74" y1="80" x2="74" y2="70"/>
-    <line x1="94" y1="80" x2="94" y2="70"/>
-    <line x1="106" y1="80" x2="106" y2="70"/>
-    <line x1="126" y1="80" x2="126" y2="70"/>
-    <line x1="138" y1="80" x2="138" y2="70"/>
-    <!-- Top brick (2-stud) -->
-    <rect x="70" y="30" width="60" height="40"/>
-    <circle cx="86" cy="26" r="6"/>
-    <circle cx="114" cy="26" r="6"/>
-    <line x1="80" y1="30" x2="80" y2="20"/>
-    <line x1="92" y1="30" x2="92" y2="20"/>
-    <line x1="108" y1="30" x2="108" y2="20"/>
-    <line x1="120" y1="30" x2="120" y2="20"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="276 132 688 622" width="688" height="622">
+<g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+<path d="M300 570 L840 570 L940 490 L400 490 Z" fill="#fff"/>
+<path d="M840 570 L940 490 L940 650 L840 730 Z" fill="#fff"/>
+<rect fill="#fff" x="300" y="570" width="540" height="160"/>
+<path d="M746 530 L 746 497.6 A 54 21.6 0 0 1 854 497.6 L 854 530 A 54 21.6 0 0 1 746 530 Z" fill="#fff"/>,<ellipse fill="#fff" cx="800" cy="497.6" rx="54" ry="21.6"/>
+<path d="M300 410 L660 410 L760 330 L400 330 Z" fill="#fff"/>
+<path d="M660 410 L760 330 L760 490 L660 570 Z" fill="#fff"/>
+<rect fill="#fff" x="300" y="410" width="360" height="160"/>
+<path d="M566 370 L 566 337.6 A 54 21.6 0 0 1 674 337.6 L 674 370 A 54 21.6 0 0 1 566 370 Z" fill="#fff"/>,<ellipse fill="#fff" cx="620" cy="337.6" rx="54" ry="21.6"/>
+<path d="M300 250 L480 250 L580 170 L400 170 Z" fill="#fff"/>
+<path d="M480 250 L580 170 L580 330 L480 410 Z" fill="#fff"/>
+<rect fill="#fff" x="300" y="250" width="180" height="160"/>
+<path d="M386 210 L 386 177.6 A 54 21.6 0 0 1 494 177.6 L 494 210 A 54 21.6 0 0 1 386 210 Z" fill="#fff"/>,<ellipse fill="#fff" cx="440" cy="177.6" rx="54" ry="21.6"/>
+</g>
 </svg>

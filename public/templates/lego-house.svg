@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="236 161 728 603" width="728" height="603">
+<g fill="none" stroke="#000" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+<path d="M260 380 L600 185 L940 380 Z" fill="#fff"/>
+<rect fill="#fff" x="300" y="380" width="120" height="120"/>,<rect fill="#fff" x="420" y="380" width="180" height="120"/>,<rect fill="#fff" x="600" y="380" width="180" height="120"/>,<rect fill="#fff" x="780" y="380" width="120" height="120"/>
+<rect fill="#fff" x="300" y="500" width="180" height="120"/>,<rect fill="#fff" x="480" y="500" width="180" height="120"/>,<rect fill="#fff" x="660" y="500" width="240" height="120"/>
+<rect fill="#fff" x="300" y="620" width="120" height="120"/>,<rect fill="#fff" x="420" y="620" width="180" height="120"/>,<rect fill="#fff" x="600" y="620" width="180" height="120"/>,<rect fill="#fff" x="780" y="620" width="120" height="120"/>
+<rect fill="#fff" x="540" y="520" width="120" height="220" rx="10"/>
+<circle cx="635" cy="630" r="10" fill="#000" stroke="none"/>
+<rect fill="#fff" x="345" y="420" width="130" height="100" rx="8"/>
+<line x1="410" y1="420" x2="410" y2="520"/>
+<rect fill="#fff" x="725" y="420" width="130" height="100" rx="8"/>
+<line x1="790" y1="420" x2="790" y2="520"/>
+</g>
+</svg>
