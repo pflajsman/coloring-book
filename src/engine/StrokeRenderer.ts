@@ -97,7 +97,10 @@ function getBrushHead(color: string): HTMLCanvasElement {
   const c = document.createElement('canvas');
   c.width = BRUSH_HEAD_SIZE;
   c.height = BRUSH_HEAD_SIZE;
-  const ctx = c.getContext('2d');
+  // The layers are CPU canvases (willReadFrequently). A GPU-backed head would
+  // be read back to the CPU on every drawImage, which made fast brush strokes
+  // lag; keeping the head on the CPU too makes each stamp ~50x cheaper.
+  const ctx = c.getContext('2d', { willReadFrequently: true });
   if (!ctx) throw new Error('brush head ctx');
 
   const r = BRUSH_HEAD_SIZE / 2;
@@ -184,7 +187,8 @@ function getSprayHead(color: string): HTMLCanvasElement {
   const c = document.createElement('canvas');
   c.width = size;
   c.height = size;
-  const ctx = c.getContext('2d');
+  // CPU-backed like the brush head, see getBrushHead.
+  const ctx = c.getContext('2d', { willReadFrequently: true });
   if (!ctx) throw new Error('spray head ctx');
   const r = size / 2;
   // Very soft falloff: low-alpha core, fully transparent at edge. Each

@@ -145,7 +145,7 @@ Dock order is **basics → shapes → effects**: Pen, Brush, Rainbow, Fill, Eras
 
 | Tool | Key | What it does |
 |---|---|---|
-| Pen | P | Crisp thin 3px line, no pressure, `lineTo` segments |
+| Pen | P | Crisp thin line, a quarter of the Size slider (1..20 px, 3 px at the default), no pressure, `lineTo` segments |
 | Brush | B | Soft radial-gradient stamp head, dense step-stamping along path |
 | Rainbow | W | Brush stamps whose colour follows stroke distance (one hue cycle per 600 px, 36 cached steps, random start hue) |
 | Fill | G | Off-thread flood fill, light/color seed paths, edge bleed dilation |
@@ -326,6 +326,7 @@ In rough priority order:
 - **Ops not actually recorded.** `types/document.ts` defines the op shape but `App.ts` doesn't push to an op log. If we want delta-sync someday, plumb that through.
 - **Layer panel UI** (`LayerPanel.ts`) exists but isn't surfaced in the kid UI. Could be exposed in a "grown-up mode" later.
 - **Fill rendering is single-threaded inside the worker.** For very large fills it can take 200+ ms. Could be split into chunks with cooperative yielding, but that complicates the algorithm. Currently fine in practice.
+- **Brush and spray heads are CPU canvases** (`willReadFrequently`), like the layers. A GPU-backed head is read back on every `drawImage` into a layer, about 170 µs per stamp against 2 to 5 µs, which made fast brush and rainbow strokes lag.
 - **Brush and spray head caches.** Brush heads are capped at 64 (24 palette colours + 36 rainbow steps), spray heads at 16, FIFO eviction. No leak; rapid colour cycling on spray only costs a regen.
 - **Dot-shaded clipart removed.** The pages whose dotted shading made Fill patchy were removed or redrawn on 2026-09-29. Kept borderline clipart (owl, sheep, bicycle, cloud, tree, unicorn-cute) still has small flaws; `npm run templates:check` reports it with an `i` marker.
 - **Settings dialog feels redundant** with most of its sliders also in the topbar. Could be slimmed down to just `Stylus only` + the action buttons, but kept the sliders as a fallback for narrow viewports.

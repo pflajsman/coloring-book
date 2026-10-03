@@ -299,8 +299,9 @@ export class App {
     const isShape = tool === 'line' || tool === 'circle' || tool === 'rect';
     return {
       color: this.state.color,
-      // Thin pen has a fixed crisp line so kids can outline shapes precisely.
-      size: isPen ? 3 : this.state.size,
+      // The pen stays thinner than the brush so kids can outline shapes
+      // precisely: a quarter of the slider (1..20 px), 3 px at the default 12.
+      size: isPen ? this.state.size / 4 : this.state.size,
       // Pen and shape tools ignore pressure — geometric shapes need uniform width.
       pressureSensitivity: isPen || isShape ? 0 : this.state.pressureSensitivity,
       eraser: tool === 'eraser',
