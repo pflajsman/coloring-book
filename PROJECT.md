@@ -60,6 +60,8 @@ src/
     Modal.ts                   Modal + promptDialog + confirmDialog helpers
     toolIcons.ts               Dock icons (tool + mark, tinted by paint colour)
     holdGate.ts                2-second press-and-hold parent gate
+    TimerControl.ts            Top-bar timer: minutes panel, countdown on the button, Time's up bubble
+    countdown.ts, chime.ts     Countdown logic (absolute end time) and the Web Audio music-box chime
     fullscreen.ts              Prefixed Fullscreen API, sticky fullscreen, wake lock
     Tooltip.ts                 Hover tooltips (singleton)
     AiPromptDialog.ts          Chat + speech prompt for AI-generated templates

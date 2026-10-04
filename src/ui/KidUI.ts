@@ -7,6 +7,7 @@ import { STAMPS, SURPRISE, drawStamp, type StampChoice, type StampId } from '../
 import { HOLD_MS, holdToActivate } from './holdGate';
 import { enterFullscreen, exitFullscreen, isFullscreen, isInstalledApp, onFullscreenChange, sticky } from './fullscreen';
 import { PREF_ZOOM_LOCKED, writeBoolPref } from '../storage/prefs';
+import { buildTimerControl } from './TimerControl';
 
 // Big, bright, uncluttered. The aim: a 3-year-old can use it without reading.
 // Only four tools visible (brush, fill, eraser, undo). Everything else lives
@@ -196,7 +197,7 @@ export function buildKidUI(app: App, actions: KidUIActions): {
 
   topBar.appendChild(leftGroup);
 
-  // Right-side group: slider + settings + fullscreen, all on the same row.
+  // Right-side group: slider + timer + settings + fullscreen, all on the same row.
   // Putting the slider here (instead of centered between left/right groups)
   // keeps it on row 1 at every viewport — no more wrapping to a second row
   // on narrow screens, and it's visible on phone too.
@@ -215,6 +216,7 @@ export function buildKidUI(app: App, actions: KidUIActions): {
     onInput: (v) => app.setState({ size: v }),
   });
   rightGroup.appendChild(sizeSlider.root);
+  rightGroup.appendChild(buildTimerControl());
 
   const gear = document.createElement('button');
   gear.className = 'kid-iconbtn kid-gear';
