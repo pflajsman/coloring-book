@@ -9,8 +9,16 @@ import { requestScreenAwake } from './fullscreen';
 
 const DEFAULT_MINUTES = 10;
 
+// The timer's countdown, so the app can tell whether one is running (the
+// auto-update waits for it to finish).
+let active: Countdown | null = null;
+export function timerRunning(): boolean {
+  return active?.running ?? false;
+}
+
 export function buildTimerControl(): HTMLElement {
   const countdown = new Countdown();
+  active = countdown;
   let minutes = DEFAULT_MINUTES;
   let tick: ReturnType<typeof setInterval> | null = null;
 

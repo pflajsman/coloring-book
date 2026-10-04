@@ -8,15 +8,11 @@ import { showModal, promptDialog, confirmDialog } from './ui/Modal';
 import { loadManifest, rasterizeImageBitmap, rasterizeTemplate, thumbnailUrl, type Template } from './templates';
 import { openAiPromptDialog } from './ui/AiPromptDialog';
 import { saveAutosave, loadAutosave, clearAutosave, requestPersistentStorage, saveDocument, listDocuments, loadDocument, deleteDocument, renameProject, applyStoredDocument, saveAiTemplate, listAiTemplates, deleteAiTemplate, type AiTemplateRecord } from './storage/db';
-import { registerSW } from 'virtual:pwa-register';
 import { PREF_ZOOM_LOCKED, readBoolPref } from './storage/prefs';
 import { initStickyFullscreen, keepScreenAwake } from './ui/fullscreen';
 import { AutosaveScheduler, isValidAutosave } from './storage/autosave';
-
-// Updates install in the background but never reload the page on their
-// own: an automatic reload would throw away the drawing in progress. The
-// new version takes over the next time the app is opened fresh.
-registerSW({ immediate: true, onNeedRefresh() { /* apply on next launch */ } });
+import { setupAutoUpdate } from './ui/autoUpdate';
+import { timerRunning } from './ui/TimerControl';
 
 // Suppress the OS long-press / right-click context menu everywhere in the
 // app. On a tablet this is the "Save Image / Download / Inspect" sheet that
@@ -128,6 +124,9 @@ document.addEventListener('visibilitychange', () => {
 });
 window.addEventListener('pagehide', flush);
 requestPersistentStorage();
+// New versions are applied when the app goes to the background, after the
+// drawing is saved (see autoUpdate.ts).
+setupAutoUpdate({ save: () => autosave.flushNow(), busy: timerRunning });
 
 // Boot: bring back the last drawing if there is one, otherwise a blank page.
 // Canvas presses are ignored until this finishes (app.booting), so a stroke

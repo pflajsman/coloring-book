@@ -30,6 +30,22 @@ describe('AutosaveScheduler', () => {
     vi.useRealTimers();
   });
 
+  it('a second flush waits for the save already in progress', async () => {
+    let finish!: () => void;
+    const save = vi.fn(() => new Promise<void>((r) => { finish = r; }));
+    const s = new AutosaveScheduler(save, 3000);
+    s.markDirty();
+    void s.flushNow();
+    let secondDone = false;
+    const second = s.flushNow().then(() => { secondDone = true; });
+    await Promise.resolve();
+    expect(secondDone).toBe(false);
+    finish();
+    await second;
+    expect(secondDone).toBe(true);
+    expect(save).toHaveBeenCalledTimes(1);
+  });
+
   it('a failed save keeps the scheduler dirty for the next attempt', async () => {
     const save = vi.fn().mockRejectedValueOnce(new Error('quota')).mockResolvedValue(undefined);
     const s = new AutosaveScheduler(save, 3000);

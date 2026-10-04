@@ -305,7 +305,7 @@ Things that bit us and how we settled them:
 - **Zoom locked by default**: the first pointer owns the stroke, other pointers are ignored (see `PointerTracker`). Parents can allow pinch zoom in Settings; zoom never goes below fit.
 - **Fills are serialized** (`SerialQueue`), strokes are ignored while a fill is pending, and a crashed worker is replaced.
 - **Autosave** goes to its own IndexedDB store (`autosave`, key `current`, DB v3), 3 s after each change and on `visibilitychange`/`pagehide`; restored at boot.
-- **Service worker `registerType: 'prompt'`**: updates never reload the page mid-drawing; they apply on the next fresh launch.
+- **Service worker `registerType: 'prompt'` + `ui/autoUpdate.ts`**: updates never reload the page mid-drawing. A waiting version is applied when the app goes to the background (drawing autosaved first, then reload), except while the timer runs. Update checks run on every return to the foreground and hourly, since an installed app is rarely relaunched.
 - **Worker for fill, not for paint** — fill is the only operation slow enough to need off-main-thread. Stroke rendering is sub-millisecond per segment; moving it to a worker would cost more in postMessage latency than it saves.
 - **Brush as gradient stamp**, not `lineTo` — gives the soft painterly edges that read as "real brush". Cached per color so it's basically free at runtime.
 - **Light-seed vs. color-seed fill matchers** — single matcher couldn't handle both "tap white inside a colored shape" and "re-color an existing region" cleanly. Branch on seed lightness/saturation.
@@ -338,7 +338,7 @@ In rough priority order:
 
 Start the dev server (`npm run dev`) and open http://localhost:5173/. HMR works for everything except the Web Worker (`workers/floodFill.worker.ts`) — changes there require a hard refresh because Vite bundles workers separately and the browser caches the worker module.
 
-When testing on a real tablet, deploy to Azure (just push to main) and add the resulting URL to the home screen. The PWA will pick up updates automatically on next launch — but the **first** launch after a manifest change needs a fresh install to take effect (`display: fullscreen` only applies on install).
+When testing on a real tablet, deploy to Azure (just push to main) and add the resulting URL to the home screen. The PWA picks up updates automatically the next time it goes to the background (switch away and back) — but the **first** launch after a manifest change needs a fresh install to take effect (`display: fullscreen` only applies on install).
 
 Files most likely to need edits:
 

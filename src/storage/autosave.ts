@@ -8,6 +8,9 @@ import type { StoredDocument } from './db';
 export class AutosaveScheduler {
   private dirty = false;
   private timer: ReturnType<typeof setTimeout> | null = null;
+  // The save in progress, so a second flush (the auto-update before its
+  // reload) waits for it instead of returning early.
+  private inflight: Promise<void> | null = null;
 
   constructor(private save: () => Promise<void>, private delayMs = 3000) {}
 
@@ -22,15 +25,21 @@ export class AutosaveScheduler {
       clearTimeout(this.timer);
       this.timer = null;
     }
-    if (!this.dirty) return;
+    if (!this.dirty) return this.inflight ?? undefined;
     this.dirty = false;
-    try {
-      await this.save();
-    } catch (e) {
-      // Stay dirty so the next change or page hide retries.
-      this.dirty = true;
-      console.error('Autosave failed', e);
-    }
+    const run = (async () => {
+      try {
+        await this.save();
+      } catch (e) {
+        // Stay dirty so the next change or page hide retries.
+        this.dirty = true;
+        console.error('Autosave failed', e);
+      } finally {
+        this.inflight = null;
+      }
+    })();
+    this.inflight = run;
+    return run;
   }
 }
 
