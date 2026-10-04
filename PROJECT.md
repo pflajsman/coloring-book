@@ -61,7 +61,7 @@ src/
     toolIcons.ts               Dock icons (tool + mark, tinted by paint colour)
     holdGate.ts                2-second press-and-hold parent gate
     TimerControl.ts            Top-bar timer: minutes panel, countdown on the button, Time's up bubble
-    countdown.ts, chime.ts     Countdown logic (absolute end time) and the Web Audio music-box chime
+    countdown.ts, chime.ts     Countdown logic (absolute end time); alarm as a synthesized WAV in an <audio> element (iPad silent switch mutes Web Audio)
     fullscreen.ts              Prefixed Fullscreen API, sticky fullscreen, wake lock
     Tooltip.ts                 Hover tooltips (singleton)
     AiPromptDialog.ts          Chat + speech prompt for AI-generated templates

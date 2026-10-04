@@ -77,11 +77,15 @@ export function initStickyFullscreen(): void {
 // Keep the screen on while the app is visible. Not all browsers support it
 // and it can be refused (battery saver); both cases are fine.
 export function keepScreenAwake(): void {
-  const nav = navigator as Navigator & { wakeLock?: { request: (t: 'screen') => Promise<unknown> } };
-  if (!nav.wakeLock) return;
-  const request = () => { nav.wakeLock!.request('screen').catch(() => {}); };
-  request();
+  requestScreenAwake();
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') request();
+    if (document.visibilityState === 'visible') requestScreenAwake();
   });
+}
+
+// One wake-lock request. Safari may refuse it outside a tap, so the timer's
+// Start button asks again: a locked iPad would hold the alarm until unlocked.
+export function requestScreenAwake(): void {
+  const nav = navigator as Navigator & { wakeLock?: { request: (t: 'screen') => Promise<unknown> } };
+  nav.wakeLock?.request('screen').catch(() => {});
 }

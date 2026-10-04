@@ -1,10 +1,11 @@
 import { attachTooltip } from './Tooltip';
 import { playChime, stopChime, unlockAudio } from './chime';
 import { Countdown, formatRemaining, stepMinutes } from './countdown';
+import { requestScreenAwake } from './fullscreen';
 
 // Top-bar timer: a round button that opens a small panel with minutes,
 // Start and Clear. While running, the button shows the time left; at zero a
-// chime plays and a "Time's up!" bubble appears until someone taps it.
+// chime rings and a "Time's up!" bubble appears until someone taps it.
 
 const DEFAULT_MINUTES = 10;
 
@@ -114,9 +115,13 @@ export function buildTimerControl(): HTMLElement {
     render();
   });
   startBtn.addEventListener('click', () => {
-    // Inside the tap, so iPad Safari allows the alarm to sound later.
-    unlockAudio();
+    // Stop an old alarm first: pausing after unlockAudio() would abort its
+    // muted play and leave the sound locked on iPad.
     hideDone();
+    // Inside the tap, so iPad Safari allows the alarm to sound later and
+    // keeps the screen on until then.
+    unlockAudio();
+    requestScreenAwake();
     countdown.start(minutes);
     stopTicking();
     tick = setInterval(onTick, 250);
