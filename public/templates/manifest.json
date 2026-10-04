@@ -577,6 +577,102 @@
       "category": "Toys"
     },
     {
+      "id": "trace-zigzag",
+      "name": "Trace: zigzag",
+      "file": "trace-zigzag.svg",
+      "category": "Writing"
+    },
+    {
+      "id": "trace-waves",
+      "name": "Trace: waves",
+      "file": "trace-waves.svg",
+      "category": "Writing"
+    },
+    {
+      "id": "trace-loops",
+      "name": "Trace: loops",
+      "file": "trace-loops.svg",
+      "category": "Writing"
+    },
+    {
+      "id": "trace-shapes",
+      "name": "Trace: shapes",
+      "file": "trace-shapes.svg",
+      "category": "Writing"
+    },
+    {
+      "id": "trace-lines",
+      "name": "Trace: lines",
+      "file": "trace-lines.svg",
+      "category": "Writing"
+    },
+    {
+      "id": "trace-mountains",
+      "name": "Trace: castle and mountains",
+      "file": "trace-mountains.svg",
+      "category": "Writing"
+    },
+    {
+      "id": "trace-humps",
+      "name": "Trace: arches and cups",
+      "file": "trace-humps.svg",
+      "category": "Writing"
+    },
+    {
+      "id": "trace-spirals",
+      "name": "Trace: spirals",
+      "file": "trace-spirals.svg",
+      "category": "Writing"
+    },
+    {
+      "id": "write-numbers",
+      "name": "Numbers 0-9",
+      "file": "write-numbers.svg",
+      "category": "Writing"
+    },
+    {
+      "id": "write-upper-a-i",
+      "name": "Letters A-I",
+      "file": "write-upper-a-i.svg",
+      "category": "Writing"
+    },
+    {
+      "id": "write-upper-j-r",
+      "name": "Letters J-R",
+      "file": "write-upper-j-r.svg",
+      "category": "Writing"
+    },
+    {
+      "id": "write-upper-s-z",
+      "name": "Letters S-Z",
+      "file": "write-upper-s-z.svg",
+      "category": "Writing"
+    },
+    {
+      "id": "write-lower-a-i",
+      "name": "Letters a-i",
+      "file": "write-lower-a-i.svg",
+      "category": "Writing"
+    },
+    {
+      "id": "write-lower-j-r",
+      "name": "Letters j-r",
+      "file": "write-lower-j-r.svg",
+      "category": "Writing"
+    },
+    {
+      "id": "write-lower-s-z",
+      "name": "Letters s-z",
+      "file": "write-lower-s-z.svg",
+      "category": "Writing"
+    },
+    {
+      "id": "write-lines",
+      "name": "Writing lines",
+      "file": "write-lines.svg",
+      "category": "Writing"
+    },
+    {
       "id": "maze-bunny",
       "name": "Bunny maze",
       "file": "maze-bunny.svg",
@@ -646,30 +742,6 @@
       "id": "dot-grid-big",
       "name": "Dots and boxes (big)",
       "file": "dot-grid-big.svg",
-      "category": "Games"
-    },
-    {
-      "id": "trace-zigzag",
-      "name": "Trace: zigzag",
-      "file": "trace-zigzag.svg",
-      "category": "Games"
-    },
-    {
-      "id": "trace-waves",
-      "name": "Trace: waves",
-      "file": "trace-waves.svg",
-      "category": "Games"
-    },
-    {
-      "id": "trace-loops",
-      "name": "Trace: loops",
-      "file": "trace-loops.svg",
-      "category": "Games"
-    },
-    {
-      "id": "trace-shapes",
-      "name": "Trace: shapes",
-      "file": "trace-shapes.svg",
       "category": "Games"
     }
   ]

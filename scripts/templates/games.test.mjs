@@ -23,9 +23,9 @@ describe('makeMaze', () => {
 });
 
 describe('GAMES', () => {
-  it('has 16 pages with unique ids in the Games category', () => {
-    expect(GAMES).toHaveLength(16);
-    expect(new Set(GAMES.map((g) => g.id)).size).toBe(16);
+  it('has 12 pages with unique ids in the Games category', () => {
+    expect(GAMES).toHaveLength(12);
+    expect(new Set(GAMES.map((g) => g.id)).size).toBe(12);
     for (const g of GAMES) {
       expect(g.category).toBe('Games');
       expect(g.svg).toContain('viewBox="0 0 1200 800"');

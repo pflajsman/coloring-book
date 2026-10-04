@@ -63,6 +63,11 @@ describe('checkEntry', () => {
     expect(p).toMatch(/ink/);
   });
 
+  it('writing sheets allow specks where dashes cross guide lines', () => {
+    expect(checkEntry({ id: 'write-upper-a-i', ink: 5, big: 1, small: 9, tiny: 15 }, 'writing')).toEqual([]);
+    expect(checkEntry({ id: 'trace-x', ink: 5, big: 1, small: 9, tiny: 15 }, true).join()).toMatch(/specks/);
+  });
+
   it('games may have many small areas (digit counters)', () => {
     expect(checkEntry({ id: 'dots-star', ink: 3, big: 1, small: 40, tiny: 2 }, true)).toEqual([]);
   });

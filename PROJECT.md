@@ -73,6 +73,7 @@ src/
 
 scripts/templates/              Generated templates (Node, needs Chrome)
   svg.mjs, games.mjs           Toolkit and procedural game pages
+  writing.mjs                  Handwriting sheets: single-line letter/digit skeletons, guide lines, strokes
   pictures/*.mjs               Picture sets (animals, baby, fairy tales, vehicles, places/food, toys)
   make.mjs, check.mjs          Generate + crop viewBoxes; render check + contact sheet
 
@@ -85,7 +86,7 @@ api/                            Azure Functions (managed by SWA)
   local.settings.json.example  Template — copy to local.settings.json for dev
 
 public/
-  templates/                   *.svg files + manifest.json (111 templates)
+  templates/                   *.svg files + manifest.json (123 templates)
   icons/                       PWA icons (192, 512, 512-maskable)
   apple-touch-icon.png         iOS home-screen icon (180×180)
   favicon.svg                  Tab icon
@@ -234,7 +235,8 @@ Categories:
 - **Nature** (7): tree, flower, sun, moon, cloud, rainbow, mushroom
 - **Food** (7): apple, cherry, icecream-cone, icecream-popsicle, icecream-sundae, icecream-cup, icecream-soft
 - **Toys** (5, generated in `pictures/toys.mjs`): lego-brick, lego-stack, lego-house, lego-minifig, lego-wheel
-- **Games** (16): maze-bunny, maze-mouse, maze-bee, maze-boat, dots-star, dots-house, dots-heart, dots-fish, tic-tac-toe, tic-tac-toe-two, dot-grid-small, dot-grid-big, trace-zigzag, trace-waves, trace-loops, trace-shapes
+- **Writing** (16, `writing.mjs`): trace-lines, trace-zigzag, trace-mountains, trace-waves, trace-humps, trace-loops, trace-spirals, trace-shapes, write-numbers, write-upper-a-i, write-upper-j-r, write-upper-s-z, write-lower-a-i, write-lower-j-r, write-lower-s-z, write-lines. Checked with relaxed speck limits (traced, not filled).
+- **Games** (12): maze-bunny, maze-mouse, maze-bee, maze-boat, dots-star, dots-house, dots-heart, dots-fish, tic-tac-toe, tic-tac-toe-two, dot-grid-small, dot-grid-big
 
 ## AI templates
 

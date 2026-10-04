@@ -1,4 +1,4 @@
-import { page, circle, ellipse, rect, line, path, poly, dot, dashed, digit } from './svg.mjs';
+import { page, circle, ellipse, line, path, poly, dot, digit } from './svg.mjs';
 
 // Deterministic PRNG so regenerating the pages gives identical files.
 export function rng(seed) {
@@ -156,19 +156,6 @@ function dotGrid(cols, rows) {
   return page(parts.join('\n'));
 }
 
-// Tracing sheets: dashed lines to follow with a finger or the pen.
-const rows4 = (fn) => [180, 330, 480, 630].map(fn).join('\n');
-const zigzag = () => page(rows4((y) => dashed(`M150 ${y} ${Array.from({ length: 9 }, (_, i) => `L${250 + i * 100} ${y + (i % 2 ? -50 : 50)}`).join(' ')}`)));
-const waves = () => page(rows4((y) => dashed(`M150 ${y} ${Array.from({ length: 5 }, (_, i) => `Q ${250 + i * 200} ${y - 70} ${350 + i * 200} ${y} T ${450 + i * 200} ${y}`).join(' ')}`)));
-const loops = () => page(rows4((y) => dashed(`M150 ${y + 30} ${Array.from({ length: 7 }, (_, i) => { const x = 230 + i * 120; return `C ${x + 40} ${y + 30} ${x + 60} ${y - 60} ${x} ${y - 60} C ${x - 60} ${y - 60} ${x - 40} ${y + 30} ${x + 120} ${y + 30}`; }).join(' ')}`)));
-const shapes = () => page([
-  dashed('M200 200 L400 200 L400 400 L200 400 Z'),
-  dashed(`M${650} 300 m -110 0 a 110 110 0 1 0 220 0 a 110 110 0 1 0 -220 0`),
-  dashed('M1000 190 L1110 410 L890 410 Z'),
-  dashed('M300 700 L200 600 Q 200 520 300 560 Q 400 520 400 600 Z'),
-  dashed('M700 520 L740 610 L840 620 L765 685 L790 780 L700 730 L610 780 L635 685 L560 620 L660 610 Z'),
-].join('\n'));
-
 export const GAMES = [
   { id: 'maze-bunny', name: 'Bunny maze', category: 'Games', svg: mazeSvg(makeMaze(4, 3, 11), bunny, carrot) },
   { id: 'maze-mouse', name: 'Mouse maze', category: 'Games', svg: mazeSvg(makeMaze(5, 4, 23), mouse, cheese) },
@@ -182,8 +169,4 @@ export const GAMES = [
   { id: 'tic-tac-toe-two', name: 'Two tic-tac-toes', category: 'Games', svg: twoBoards() },
   { id: 'dot-grid-small', name: 'Dots and boxes (small)', category: 'Games', svg: dotGrid(5, 4) },
   { id: 'dot-grid-big', name: 'Dots and boxes (big)', category: 'Games', svg: dotGrid(7, 5) },
-  { id: 'trace-zigzag', name: 'Trace: zigzag', category: 'Games', svg: zigzag() },
-  { id: 'trace-waves', name: 'Trace: waves', category: 'Games', svg: waves() },
-  { id: 'trace-loops', name: 'Trace: loops', category: 'Games', svg: loops() },
-  { id: 'trace-shapes', name: 'Trace: shapes', category: 'Games', svg: shapes() },
 ];

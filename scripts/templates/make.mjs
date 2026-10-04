@@ -3,6 +3,7 @@
 import { readFile, writeFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { GAMES } from './games.mjs';
+import { WRITING } from './writing.mjs';
 import { PICTURES } from './pictures/index.mjs';
 import { mergeManifest } from './manifest.mjs';
 import { withServer, pageJson } from './chrome.mjs';
@@ -12,7 +13,7 @@ const DIR = path.resolve('public/templates');
 // replaced by the generated Lego house on 2026-10-03.
 export const REMOVE = ['santa', 'princess-couple', 'princess-fairy', 'unicorn', 'unicorn-castle', 'lego-baseplate'];
 
-const generated = [...PICTURES, ...GAMES];
+const generated = [...PICTURES, ...GAMES, ...WRITING];
 
 // Crop each page's viewBox to its drawing (plus a margin) so the app's
 // letterbox scales the art up to fill the page like the tightly cropped

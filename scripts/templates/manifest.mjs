@@ -1,7 +1,7 @@
 // Merge generated entries into templates/manifest.json: drop removed ids,
 // replace or add generated ones, keep "blank" first and group by category.
 
-export const CATEGORY_ORDER = ['Other', 'Animals', 'Baby', 'Fairy tales', 'Fantasy', 'Vehicles', 'Places', 'Nature', 'Food', 'Toys', 'Games'];
+export const CATEGORY_ORDER = ['Other', 'Animals', 'Baby', 'Fairy tales', 'Fantasy', 'Vehicles', 'Places', 'Nature', 'Food', 'Toys', 'Writing', 'Games'];
 
 export function mergeManifest(existing, { remove, upsert }) {
   const seen = new Set();
